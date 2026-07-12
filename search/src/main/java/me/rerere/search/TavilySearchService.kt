@@ -1,11 +1,12 @@
 package me.rerere.search
 
-class TavilySearchService(
-    private val token: String
-) : SearchService {
+object TavilySearchService : SearchService<SearchServiceOptions.TavilyOptions> {
+    override val name: String = "Tavily"
+
     override suspend fun search(
         query: String,
-        options: SearchCommonOptions
+        commonOptions: SearchCommonOptions,
+        serviceOptions: SearchServiceOptions.TavilyOptions
     ): SearchResult {
         TODO("Not yet implemented")
     }
