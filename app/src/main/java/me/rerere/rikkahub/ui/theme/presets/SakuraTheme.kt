@@ -4,10 +4,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
-import me.rerere.rikkahub.ui.theme.PresetScheme
+import me.rerere.rikkahub.ui.theme.PresetTheme
 
 val SakuraThemePreset by lazy {
-    PresetScheme(
+    PresetTheme(
         id = "sakura",
         name = {
             Text("樱花粉")
