@@ -17,12 +17,12 @@ plugins {
 }
 
 android {
-    namespace = "me.rerere.rikkahub"
+    namespace = "com.helix.app"
     // 降级到 35：AGP 8.11 官方支持的 compileSdk 上限（配合 AS Narwhal 2025.1.1）
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "me.rerere.rikkahub"
+        applicationId = "com.helix.app"
         minSdk = 26
         // 降级到 35：与 compileSdk 对齐（原 37 依赖 AGP 9.1+ 的 2026 版 Compose 库）
         targetSdk = 35
@@ -274,7 +274,7 @@ dependencies {
     implementation(libs.image.viewer)
 
     // JLatexMath
-    // https://github.com/rikkahub/jlatexmath-android
+    // https://github.com/helix/jlatexmath-android
     implementation(libs.jlatexmath)
     implementation(libs.jlatexmath.font.greek)
     implementation(libs.jlatexmath.font.cyrillic)

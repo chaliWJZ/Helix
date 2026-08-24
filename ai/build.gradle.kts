@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("rikkahub.android.library.compose")
+    id("helix.android.library.compose")
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "me.rerere.ai"
+    namespace = "com.helix.app.ai"
 
     defaultConfig {
 //        externalNativeBuild {

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # @param name [String]
-module RikkaHub
+module Helix
   class User < ApplicationRecord
     include Comparable
 
@@ -27,5 +27,5 @@ module RikkaHub
   end
 end
 
-users = [RikkaHub::User.new("Rikka")]
+users = [Helix::User.new("Helix")]
 users.each { |user| puts user.greet }

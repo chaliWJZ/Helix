@@ -1,10 +1,10 @@
 plugins {
-    id("rikkahub.android.library")
+    id("helix.android.library")
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "me.rerere.workspace"
+    namespace = "com.helix.app.workspace"
 
     defaultConfig {
         externalNativeBuild {

@@ -38,7 +38,7 @@ enum Role {
 
 fn main() {
     let mut counts: HashMap<String, usize> = HashMap::new();
-    let users = vec![User::new("Rikka", 18), User::new("Rerere", 20)];
+    let users = vec![User::new("Helix", 18), User::new("Rerere", 20)];
 
     for user in &users {
         *counts.entry(user.name.clone()).or_insert(0) += 1;

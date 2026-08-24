@@ -1,4 +1,4 @@
-package me.rerere.common
+package com.helix.app.common
 
 import org.junit.Test
 

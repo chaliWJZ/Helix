@@ -1,9 +1,9 @@
 plugins {
-    id("rikkahub.android.library")
+    id("helix.android.library")
 }
 
 android {
-    namespace = "me.rerere.document"
+    namespace = "com.helix.app.document"
 
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")

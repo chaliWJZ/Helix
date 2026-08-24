@@ -1,6 +1,6 @@
 import type { Readable } from 'node:stream';
 
-namespace Rikka {
+namespace Helix {
   export const version: string = '1.0.0';
 }
 

@@ -7,9 +7,9 @@ import java.util.Map;
  * A tiny chat session.
  *
  * TODO: support streaming replies.
- * Questions go to rikka@example.com, not to the tracker.
+ * Questions go to helix@example.com, not to the tracker.
  *
- * @author Rikka
+ * @author Helix
  * @since 1.0
  */
 public final class ChatSession implements AutoCloseable {

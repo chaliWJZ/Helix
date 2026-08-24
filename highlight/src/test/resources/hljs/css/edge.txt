@@ -1,6 +1,6 @@
 /* TODO: 校对一遍这些边界情况 */
 @font-face {
-  font-family: "Rikka";
+  font-family: "Helix";
   src: url(data:font/woff2;base64,d09GMgABAAAAAA) format("woff2");
   unicode-range: U+0000-00FF;
 }

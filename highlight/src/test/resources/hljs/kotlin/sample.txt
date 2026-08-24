@@ -5,7 +5,7 @@ import kotlinx.coroutines.delay
 /**
  * A tiny chat session.
  *
- * @author Rikka
+ * @author Helix
  */
 class ChatSession(private val model: String) {
     var history: MutableList<String> = mutableListOf()

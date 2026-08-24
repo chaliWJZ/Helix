@@ -1,6 +1,6 @@
 package me.rerere.tts.provider.providers
 
-import me.rerere.common.http.SseEvent
+import com.helix.app.common.http.SseEvent
 import me.rerere.tts.model.AudioFormat
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "me.rerere.baselineprofile"
+    namespace = "com.helix.app.baselineprofile"
     // AGP 8.11 兼容：compileSdk 35（原 AGP 9 的 36.1 写法已逐步降级）
     compileSdk = 35
 

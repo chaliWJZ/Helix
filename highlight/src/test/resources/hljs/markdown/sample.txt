@@ -1,4 +1,4 @@
-# RikkaHub
+# Helix
 
 A native **Android** LLM chat client, built with *Jetpack Compose*.
 

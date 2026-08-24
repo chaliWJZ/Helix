@@ -1,6 +1,6 @@
 # syntax comment
 FROM eclipse-temurin:21-jdk AS build
-MAINTAINER rikka
+MAINTAINER helix
 ARG VERSION=2
 ENV GRADLE_OPTS="-Xmx2g"
 WORKDIR /workspace

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE note SYSTEM "note.dtd" [
-  <!ENTITY author "Rikka">
+  <!ENTITY author "Helix">
   <!ELEMENT note (to, from, body)>
   <!ATTLIST note id ID #REQUIRED>
 ]>

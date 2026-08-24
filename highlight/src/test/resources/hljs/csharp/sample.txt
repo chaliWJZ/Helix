@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RikkaHub.Domain;
+namespace Helix.Domain;
 
 /// <summary>Represents an application user.</summary>
 [Serializable]
@@ -14,7 +14,7 @@ public sealed record User<T>(string Name, T Value)
     public async Task<string> GreetAsync(int count = 1)
     {
         var total = 1_024.5e-2;
-        var path = @"C:\Users\Rikka";
+        var path = @"C:\Users\Helix";
         var message = $"Hello, {Name}! {{count}} = {count}";
         var multiline = """
             raw "content"
@@ -26,5 +26,5 @@ public sealed record User<T>(string Name, T Value)
 }
 
 #if DEBUG
-Console.WriteLine(new User<string>("Rikka", "active").GreetAsync());
+Console.WriteLine(new User<string>("Helix", "active").GreetAsync());
 #endif

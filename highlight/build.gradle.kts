@@ -1,9 +1,9 @@
 plugins {
-    id("rikkahub.android.library.compose")
+    id("helix.android.library.compose")
 }
 
 android {
-    namespace = "me.rerere.highlight"
+    namespace = "com.helix.app.highlight"
 
     defaultConfig {
         minSdk = 24

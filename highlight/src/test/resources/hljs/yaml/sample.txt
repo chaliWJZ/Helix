@@ -1,5 +1,5 @@
 ---
-name: rikkahub
+name: helix
 version: 2
 enabled: true
 "quoted key": value

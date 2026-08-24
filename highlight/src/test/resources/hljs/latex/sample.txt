@@ -6,10 +6,10 @@
 \newcommand{\greet}[1]{Hello, #1!}
 
 \begin{document}
-\section{RikkaHub}
+\section{Helix}
 \label{sec:intro}
 
-\greet{Rikka}
+\greet{Helix}
 \[
   E = mc^2,\qquad
   \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}.

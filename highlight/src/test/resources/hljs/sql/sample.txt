@@ -8,7 +8,7 @@ CREATE TABLE conversation (
 );
 
 INSERT INTO conversation (id, assistant, title)
-VALUES (1, 'rikka', 'Hello, world!'), (2, 'rikka', 'It''s fine');
+VALUES (1, 'helix', 'Hello, world!'), (2, 'helix', 'It''s fine');
 
 SELECT c.id,
        COUNT(*) AS total,

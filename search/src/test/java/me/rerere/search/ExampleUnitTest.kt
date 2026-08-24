@@ -1,4 +1,4 @@
-package me.rerere.search
+package com.helix.app.search
 
 import org.junit.Assert.*
 import org.junit.Test
