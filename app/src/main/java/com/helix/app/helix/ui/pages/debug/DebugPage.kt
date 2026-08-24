@@ -138,6 +138,7 @@ fun DebugPage(vm: DebugVM = koinViewModel()) {
 @Composable
 private fun MainPage(vm: DebugVM) {
     val settings = LocalSettings.current
+    val context = LocalContext.current
     val conversationCount by vm.conversationCount.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
@@ -146,6 +147,31 @@ private fun MainPage(vm: DebugVM) {
             .imePadding(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
+        // Kuikly 跨端页面入口（真机验证用）
+        Button(
+            onClick = {
+                com.helix.app.helix.kuikly.KuiklyHostActivity.start(context, "SettingPage")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("打开 Kuikly 设置页（跨端预览）")
+        }
+        Button(
+            onClick = {
+                com.helix.app.helix.kuikly.KuiklyHostActivity.start(context, "ChatPage")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("打开 Kuikly 聊天页（跨端预览）")
+        }
+        Button(
+            onClick = {
+                com.helix.app.helix.kuikly.KuiklyHostActivity.start(context, "MarkdownDemoPage")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("打开 Kuikly Markdown 演示页")
+        }
         var avatar: Avatar by remember { mutableStateOf(Avatar.Emoji("😎")) }
         UIAvatar(
             value = avatar,

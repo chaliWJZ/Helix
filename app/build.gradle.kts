@@ -173,6 +173,8 @@ dependencies {
     implementation(project(":kuikly-ui"))
     // Kuikly core（宿主侧 Module 处理器需要 JSONObject 等 API）
     implementation("com.tencent.kuikly-open:core:2.25.0-2.1.21")
+    // Kuikly Android 渲染引擎（宿主 Activity：KuiklyRenderView/Delegator/BaseModule）
+    implementation("com.tencent.kuikly-open:core-render-android:2.25.0-2.1.21")
 
     // Compose
     implementation(libs.androidx.activity.compose)

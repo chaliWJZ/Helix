@@ -64,6 +64,11 @@
       android:label="@string/title_activity_safe_mode"
       android:theme="@style/Theme.Helixhub" />
     <activity
+      android:name=".kuikly.KuiklyHostActivity"
+      android:configChanges="keyboardHidden|orientation|screenSize"
+      android:exported="false"
+      android:theme="@style/Theme.Helixhub" />
+    <activity
       android:name=".RouteActivity"
       android:configChanges="keyboardHidden|orientation|screenSize"
       android:exported="true"
