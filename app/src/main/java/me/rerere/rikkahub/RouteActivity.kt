@@ -114,6 +114,7 @@ import me.rerere.rikkahub.ui.pages.setting.SettingPreferencesThemePage
 import me.rerere.rikkahub.ui.pages.setting.SettingPreferencesNotificationPage
 import me.rerere.rikkahub.ui.pages.setting.SettingPreferencesGeneralPage
 import me.rerere.rikkahub.ui.pages.setting.SettingPreferencesUIPage
+import me.rerere.rikkahub.ui.pages.setting.SettingPreferencesNetworkPage
 import me.rerere.rikkahub.ui.pages.setting.SettingThemePage
 import me.rerere.rikkahub.ui.pages.setting.SettingDonatePage
 import me.rerere.rikkahub.ui.pages.setting.SettingFilesPage
@@ -429,6 +430,11 @@ class RouteActivity : ComponentActivity() {
                                 SettingPreferencesUIPage()
                             }
 
+                            // upstream 新增：网络配置页（合并 tag 2.4.11 时补齐，RouteActivity 冲突解决保留了本地 nav2 重写版本，需手动同步新路由）
+                            screen<Screen.SettingPreferencesNetwork> {
+                                SettingPreferencesNetworkPage()
+                            }
+
                             screen<Screen.SettingProvider> {
                                 SettingProviderPage()
                             }
@@ -687,6 +693,10 @@ sealed interface Screen {
 
     @Serializable
     data object SettingPreferencesUI : Screen
+
+    // upstream 新增：网络配置页对应路由（合并 tag 2.4.11 补齐）
+    @Serializable
+    data object SettingPreferencesNetwork : Screen
 
     @Serializable
     data object SettingProvider : Screen
