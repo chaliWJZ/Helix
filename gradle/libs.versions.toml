@@ -9,7 +9,9 @@ espressoCore = "3.6.1"
 commons-text = "1.15.0"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
-composeBom = "2025.05.00"
+# compose 基础库升级到 1.10.1（minCompileSdk=35 兼容）：material3 1.5.0-alpha18 按 compose 1.11-beta02 编译，
+# 之前 BOM 2025.05（compose 1.8.2）压得过低导致运行时组件行为异常（按钮无响应等）
+composeBom = "2026.01.00"
 # 降级定点：material3 1.5.0-alpha18 是 compileSdk=35 兼容窗口内的最上限（alpha19+ 要求 37），
 # 包含项目深度使用的 BottomSheet/WavyProgress/FloatingToolbar/Expressive 全套 1.5 API
 material3 = "1.5.0-alpha18"
