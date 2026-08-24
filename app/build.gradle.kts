@@ -169,6 +169,9 @@ dependencies {
     implementation(libs.termux.terminal.view)
     implementation(libs.guava.listenablefuture)
 
+    // Kuikly 跨端 UI 模块（渐进式迁移：Compose 页面与 Kuikly 页面共存）
+    implementation(project(":kuikly-ui"))
+
     // Compose
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

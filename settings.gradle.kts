@@ -12,6 +12,8 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven("https://repo.itextsupport.com/android")
+        // Kuikly Gradle 插件仓库
+        maven("https://mirrors.tencent.com/repository/maven-tencent/")
     }
     resolutionStrategy {
         eachPlugin {
@@ -31,6 +33,8 @@ dependencyResolutionManagement {
         mavenCentral()
         maven("https://jitpack.io")
         mavenLocal()
+        // Kuikly 运行时依赖仓库
+        maven("https://mirrors.tencent.com/repository/maven-tencent/")
     }
 }
 
@@ -46,3 +50,4 @@ include(":web")
 include(":material3")
 include(":workspace")
 include(":app:baselineprofile")
+include(":kuikly-ui")

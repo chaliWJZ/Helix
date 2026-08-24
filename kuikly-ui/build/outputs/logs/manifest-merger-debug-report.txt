@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml:2:13-83
+INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml:2:13-83
+	package
+		INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml
+	xmlns:android
+		ADDED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml:2:23-81
+uses-sdk
+INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml reason: use-sdk injection requested
+INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml
+INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml
+	android:targetSdkVersion
+		INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml
+	android:minSdkVersion
+		INJECTED from /Users/charliej/Tencent/Mydemo/helix/kuikly-ui/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest6791428699568743712.xml
