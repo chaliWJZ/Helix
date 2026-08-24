@@ -5,11 +5,8 @@ plugins {
 
 android {
     namespace = "me.rerere.baselineprofile"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    // AGP 8.11 兼容：compileSdk 35（原 AGP 9 的 36.1 写法已逐步降级）
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

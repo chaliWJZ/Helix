@@ -8,7 +8,11 @@ import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -16,7 +20,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,12 +44,13 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.navigation3.ui.NavDisplay
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.gif.AnimatedImageDecoder
@@ -72,6 +76,7 @@ import me.rerere.rikkahub.ui.context.LocalSharedTransitionScope
 import me.rerere.rikkahub.ui.context.LocalTTSState
 import me.rerere.rikkahub.ui.context.LocalToaster
 import me.rerere.rikkahub.ui.context.Navigator
+import me.rerere.rikkahub.ui.hooks.LocalNavAnimatedContentScope
 import me.rerere.rikkahub.ui.hooks.readBooleanPreference
 import me.rerere.rikkahub.ui.hooks.readStringPreference
 import me.rerere.rikkahub.ui.hooks.rememberCustomAsrState
@@ -139,7 +144,8 @@ private const val TAG = "RouteActivity"
 class RouteActivity : ComponentActivity() {
     private val okHttpClient by inject<OkHttpClient>()
     private val settingsStore by inject<SettingsStore>()
-    private var navStack: MutableList<NavKey>? = null
+    // navigation2 迁移：navStack 从 nav3 的 NavKey 列表改为 nav2 的 NavHostController
+    private var navStack: NavHostController? = null
 
     // Volume key listener registry — last registered handler wins
     internal val volumeKeyListeners = mutableListOf<(isVolumeUp: Boolean) -> Boolean>()
@@ -199,7 +205,7 @@ class RouteActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun ShareHandler(backStack: MutableList<NavKey>) {
+    private fun ShareHandler(navController: NavHostController) {
         val shareIntent = remember {
             Intent().apply {
                 action = intent?.action
@@ -209,17 +215,17 @@ class RouteActivity : ComponentActivity() {
             }
         }
 
-        LaunchedEffect(backStack) {
+        LaunchedEffect(navController) {
             when (shareIntent.action) {
                 Intent.ACTION_SEND -> {
                     val text = shareIntent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
                     val imageUri = shareIntent.getStringExtra(Intent.EXTRA_STREAM)
-                    backStack.add(Screen.ShareHandler(text, imageUri))
+                    navController.navigate(Screen.ShareHandler(text, imageUri))
                 }
 
                 Intent.ACTION_PROCESS_TEXT -> {
                     val text = shareIntent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString() ?: ""
-                    backStack.add(Screen.ShareHandler(text, null))
+                    navController.navigate(Screen.ShareHandler(text, null))
                 }
             }
         }
@@ -229,7 +235,7 @@ class RouteActivity : ComponentActivity() {
         super.onNewIntent(intent)
         // Navigate to the chat screen if a conversation ID is provided
         intent.getStringExtra("conversationId")?.let { text ->
-            navStack?.add(Screen.Chat(text))
+            navStack?.navigate(Screen.Chat(text))
         }
     }
 
@@ -265,14 +271,15 @@ class RouteActivity : ComponentActivity() {
             }
         )
 
-        val backStack = rememberNavBackStack(startScreen)
-        SideEffect { this@RouteActivity.navStack = backStack }
+        // navigation2 迁移：rememberNavBackStack 改为 rememberNavController
+        val navController = rememberNavController()
+        SideEffect { this@RouteActivity.navStack = navController }
 
-        ShareHandler(backStack)
+        ShareHandler(navController)
 
         SharedTransitionLayout {
             CompositionLocalProvider(
-                LocalNavController provides Navigator(backStack),
+                LocalNavController provides Navigator(navController),
                 LocalSharedTransitionScope provides this,
                 LocalSettings provides settings,
                 LocalToaster provides toastState,
@@ -293,220 +300,218 @@ class RouteActivity : ComponentActivity() {
                         .semantics { testTagsAsResourceId = true }
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    NavDisplay(
-                        backStack = backStack,
-                        entryDecorators = listOf(
-                            rememberSaveableStateHolderNavEntryDecorator(),
-                            rememberViewModelStoreNavEntryDecorator(),
-                        ),
+                    // navigation2 迁移：NavDisplay 改为 NavHost，
+                    // 原 nav3 的 transitionSpec/popTransitionSpec/predictivePopTransitionSpec 映射为四向转场
+                    NavHost(
+                        navController = navController,
+                        startDestination = startScreen,
                         modifier = Modifier.fillMaxSize(),
-                        onBack = { backStack.removeLastOrNull() },
-                        transitionSpec = {
-                            if (backStack.size == 1) fadeIn() togetherWith fadeOut()
-                            else {
-                                slideInHorizontally { it } togetherWith
-                                    slideOutHorizontally { -it / 2 } + scaleOut(targetScale = 0.7f) + fadeOut()
-                            }
+                        enterTransition = {
+                            slideInHorizontally { it } + fadeIn()
                         },
-                        popTransitionSpec = {
-                            slideInHorizontally { -it / 2 } + scaleIn(initialScale = 0.7f) + fadeIn() togetherWith
-                                slideOutHorizontally { it }
+                        exitTransition = {
+                            slideOutHorizontally { -it / 2 } + scaleOut(targetScale = 0.7f) + fadeOut()
                         },
-                        predictivePopTransitionSpec = {
-                            slideInHorizontally { -it / 2 } + scaleIn(initialScale = 0.7f) + fadeIn() togetherWith
-                                slideOutHorizontally { it }
+                        popEnterTransition = {
+                            slideInHorizontally { -it / 2 } + scaleIn(initialScale = 0.7f) + fadeIn()
                         },
-                        entryProvider = entryProvider {
-                            entry<Screen.Chat>(
-                                metadata = NavDisplay.transitionSpec { fadeIn() togetherWith fadeOut() }
-                                    + NavDisplay.popTransitionSpec { fadeIn() togetherWith fadeOut() }
-                            ) { key ->
-                                ChatPage(
-                                    id = Uuid.parse(key.id),
-                                    text = key.text,
-                                    files = key.files.map { it.toUri() },
-                                    nodeId = key.nodeId?.let { Uuid.parse(it) }
-                                )
-                            }
+                        popExitTransition = {
+                            slideOutHorizontally { it }
+                        },
+                    ) {
+                        screen<Screen.Chat>(
+                            // 原 nav3 metadata 的 Chat 页独立转场：淡入淡出
+                            enterTransition = { fadeIn() },
+                            exitTransition = { fadeOut() },
+                            popEnterTransition = { fadeIn() },
+                            popExitTransition = { fadeOut() },
+                        ) { key ->
+                            ChatPage(
+                                id = Uuid.parse(key.id),
+                                text = key.text,
+                                files = key.files.map { it.toUri() },
+                                nodeId = key.nodeId?.let { Uuid.parse(it) }
+                            )
+                        }
 
-                            entry<Screen.ShareHandler> { key ->
+                            screen<Screen.ShareHandler> { key ->
                                 ShareHandlerPage(
                                     text = key.text,
                                     image = key.streamUri
                                 )
                             }
 
-                            entry<Screen.History> {
+                            screen<Screen.History> {
                                 HistoryPage()
                             }
 
-                            entry<Screen.Favorite> {
+                            screen<Screen.Favorite> {
                                 FavoritePage()
                             }
 
-                            entry<Screen.Assistant> {
+                            screen<Screen.Assistant> {
                                 AssistantPage()
                             }
 
-                            entry<Screen.AssistantDetail> { key ->
+                            screen<Screen.AssistantDetail> { key ->
                                 AssistantDetailPage(key.id)
                             }
 
-                            entry<Screen.AssistantBasic> { key ->
+                            screen<Screen.AssistantBasic> { key ->
                                 AssistantBasicPage(key.id)
                             }
 
-                            entry<Screen.AssistantPrompt> { key ->
+                            screen<Screen.AssistantPrompt> { key ->
                                 AssistantPromptPage(key.id)
                             }
 
-                            entry<Screen.AssistantMemory> { key ->
+                            screen<Screen.AssistantMemory> { key ->
                                 AssistantMemoryPage(key.id)
                             }
 
-                            entry<Screen.AssistantRequest> { key ->
+                            screen<Screen.AssistantRequest> { key ->
                                 AssistantRequestPage(key.id)
                             }
 
-                            entry<Screen.AssistantMcp> { key ->
+                            screen<Screen.AssistantMcp> { key ->
                                 AssistantMcpPage(key.id)
                             }
 
-                            entry<Screen.AssistantLocalTool> { key ->
+                            screen<Screen.AssistantLocalTool> { key ->
                                 AssistantLocalToolPage(key.id)
                             }
 
-                            entry<Screen.AssistantInjections> { key ->
+                            screen<Screen.AssistantInjections> { key ->
                                 AssistantExtensionsPage(key.id)
                             }
 
-                            entry<Screen.Translator> {
+                            screen<Screen.Translator> {
                                 TranslatorPage()
                             }
 
-                            entry<Screen.Setting> {
+                            screen<Screen.Setting> {
                                 SettingPage()
                             }
 
-                            entry<Screen.Backup> {
+                            screen<Screen.Backup> {
                                 BackupPage()
                             }
 
-                            entry<Screen.ImageGen> {
+                            screen<Screen.ImageGen> {
                                 ImageGenPage()
                             }
 
-                            entry<Screen.WebView> { key ->
+                            screen<Screen.WebView> { key ->
                                 WebViewPage(key.url, key.contentId)
                             }
 
-                            entry<Screen.SettingTheme> {
+                            screen<Screen.SettingTheme> {
                                 SettingThemePage()
                             }
 
-                            entry<Screen.SettingPreferences> {
+                            screen<Screen.SettingPreferences> {
                                 SettingPreferencesPage()
                             }
 
-                            entry<Screen.SettingPreferencesTheme> {
+                            screen<Screen.SettingPreferencesTheme> {
                                 SettingPreferencesThemePage()
                             }
 
-                            entry<Screen.SettingPreferencesNotification> {
+                            screen<Screen.SettingPreferencesNotification> {
                                 SettingPreferencesNotificationPage()
                             }
 
-                            entry<Screen.SettingPreferencesGeneral> {
+                            screen<Screen.SettingPreferencesGeneral> {
                                 SettingPreferencesGeneralPage()
                             }
 
-                            entry<Screen.SettingPreferencesUI> {
+                            screen<Screen.SettingPreferencesUI> {
                                 SettingPreferencesUIPage()
                             }
 
-                            entry<Screen.SettingProvider> {
+                            screen<Screen.SettingProvider> {
                                 SettingProviderPage()
                             }
 
-                            entry<Screen.SettingProviderDetail> { key ->
+                            screen<Screen.SettingProviderDetail> { key ->
                                 val id = Uuid.parse(key.providerId)
                                 SettingProviderDetailPage(id = id)
                             }
 
-                            entry<Screen.SettingModels> {
+                            screen<Screen.SettingModels> {
                                 SettingModelPage()
                             }
 
-                            entry<Screen.SettingAbout> {
+                            screen<Screen.SettingAbout> {
                                 SettingAboutPage()
                             }
 
-                            entry<Screen.SettingSearch> {
+                            screen<Screen.SettingSearch> {
                                 SettingSearchPage()
                             }
 
-                            entry<Screen.SettingSearchDetail> { key ->
+                            screen<Screen.SettingSearchDetail> { key ->
                                 val id = Uuid.parse(key.serviceId)
                                 SettingSearchDetailPage(id)
                             }
 
-                            entry<Screen.SettingSpeech> {
+                            screen<Screen.SettingSpeech> {
                                 SettingSpeechPage()
                             }
 
-                            entry<Screen.SettingMcp> {
+                            screen<Screen.SettingMcp> {
                                 SettingMcpPage()
                             }
 
-                            entry<Screen.SettingDonate> {
+                            screen<Screen.SettingDonate> {
                                 SettingDonatePage()
                             }
 
-                            entry<Screen.SettingFiles> {
+                            screen<Screen.SettingFiles> {
                                 SettingFilesPage()
                             }
 
-                            entry<Screen.SettingWeb> {
+                            screen<Screen.SettingWeb> {
                                 SettingWebPage()
                             }
 
-                            entry<Screen.Debug> {
+                            screen<Screen.Debug> {
                                 DebugPage()
                             }
 
-                            entry<Screen.Log> {
+                            screen<Screen.Log> {
                                 LogPage()
                             }
 
-                            entry<Screen.Extensions> {
+                            screen<Screen.Extensions> {
                                 ExtensionsPage()
                             }
 
-                            entry<Screen.QuickMessages> {
+                            screen<Screen.QuickMessages> {
                                 QuickMessagesPage()
                             }
 
-                            entry<Screen.Prompts> {
+                            screen<Screen.Prompts> {
                                 PromptPage()
                             }
 
-                            entry<Screen.Skills> {
+                            screen<Screen.Skills> {
                                 SkillsPage()
                             }
 
-                            entry<Screen.Workspaces> {
+                            screen<Screen.Workspaces> {
                                 WorkspacePage()
                             }
 
-                            entry<Screen.WorkspaceDetail> { key ->
+                            screen<Screen.WorkspaceDetail> { key ->
                                 WorkspaceDetailPage(key.id)
                             }
 
-                            entry<Screen.WorkspaceTerminal> { key ->
+                            screen<Screen.WorkspaceTerminal> { key ->
                                 WorkspaceTerminalPage(key.id)
                             }
 
-                            entry<Screen.WorkspaceFileEditor> { key ->
+                            screen<Screen.WorkspaceFileEditor> { key ->
                                 WorkspaceFileEditorPage(
                                     id = key.id,
                                     area = WorkspaceStorageArea.valueOf(key.area),
@@ -514,19 +519,18 @@ class RouteActivity : ComponentActivity() {
                                 )
                             }
 
-                            entry<Screen.SkillDetail> { key ->
+                            screen<Screen.SkillDetail> { key ->
                                 SkillDetailPage(skillName = key.skillName)
                             }
 
-                            entry<Screen.MessageSearch> {
+                            screen<Screen.MessageSearch> {
                                 SearchPage()
                             }
 
-                            entry<Screen.Stats> {
+                            screen<Screen.Stats> {
                                 StatsPage()
                             }
-                        }
-                    )
+                    }
                     if (BuildConfig.DEBUG) {
                         Text(
                             text = "[开发模式]",
@@ -575,7 +579,38 @@ class RouteActivity : ComponentActivity() {
     }
 }
 
-sealed interface Screen : NavKey {
+// navigation2 迁移：包装 composable，注入 AnimatedVisibilityScope（替代 nav3 的 LocalNavAnimatedContentScope），
+// 并通过 toRoute 解出 type-safe 路由对象，业务条目写法与原 nav3 entry 保持一致
+private inline fun <reified T : Any> NavGraphBuilder.screen(
+    noinline enterTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+        )? = null,
+    noinline exitTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+        )? = null,
+    noinline popEnterTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+        )? = null,
+    noinline popExitTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+        )? = null,
+    noinline content: @Composable AnimatedContentScope.(NavBackStackEntry, T) -> Unit,
+) {
+    composable<T>(
+        enterTransition = enterTransition,
+        exitTransition = exitTransition,
+        popEnterTransition = popEnterTransition,
+        popExitTransition = popExitTransition,
+    ) { entry ->
+        val scope = this
+        CompositionLocalProvider(LocalNavAnimatedContentScope provides scope) {
+            content(entry, entry.toRoute())
+        }
+    }
+}
+
+// navigation2 迁移：Screen 不再实现 nav3 的 NavKey，@Serializable 保留供 nav2 type-safe 路由序列化
+sealed interface Screen {
     @Serializable
     data class Chat(
         val id: String,

@@ -4,9 +4,7 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -94,11 +92,12 @@ fun RikkahubTheme(
         LocalExtendColors provides extendColors,
         LocalOverscrollFactory provides null
     ) {
-        MaterialExpressiveTheme(
+        // 降级说明：原 MaterialExpressiveTheme + MotionScheme.expressive() 为 material3 1.4+ 专属，
+        // 目标版本 material3 1.3.2 使用标准 MaterialTheme（视觉上仅损失 expressive 动效曲线）
+        MaterialTheme(
             colorScheme = colorSchemeConverted,
             typography = Typography,
             content = content,
-            motionScheme = MotionScheme.expressive()
         )
     }
 }

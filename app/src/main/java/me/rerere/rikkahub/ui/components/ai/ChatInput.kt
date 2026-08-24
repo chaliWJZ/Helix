@@ -75,11 +75,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.dokar.sonner.ToastType
-import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.blur.HazeBlurStyle
-import dev.chrisbanes.haze.blur.hazeBlur
-import dev.chrisbanes.haze.blur.material3.Material3
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeChild
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import me.rerere.ai.provider.Model
@@ -137,9 +135,12 @@ fun ChatInput(
     val toaster = LocalToaster.current
     val assistant = settings.getCurrentAssistant()
     val hazeTintColor = MaterialTheme.colorScheme.surfaceContainerLow
-    val inputHazeStyle = HazeBlurStyle.Material3 {
-        blurRadius(12.dp)
-    }
+    // 降级说明：原 HazeBlurStyle.Material3 { blurRadius(12.dp) } 为 haze 2.0-alpha 专属 blur 模块，
+    // haze 1.6.2 等价改写为 HazeStyle（背景色 + 12dp 模糊半径）
+    val inputHazeStyle = HazeStyle(
+        backgroundColor = hazeTintColor,
+        blurRadius = 12.dp,
+    )
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -214,8 +215,9 @@ fun ChatInput(
                     .fillMaxWidth()
                     .clip(containerShape)
                     .then(
-                        if (settings.displaySetting.enableBlurEffect) Modifier.hazeBlur(
-                            input = HazeInput.Sources(hazeState),
+                        // 降级说明：原 hazeBlur(input=HazeInput.Sources(...)) 为 haze 2.0 API，改用 1.x 的 hazeChild
+                        if (settings.displaySetting.enableBlurEffect) Modifier.hazeChild(
+                            state = hazeState,
                             style = inputHazeStyle,
                         )
                         else Modifier

@@ -16,12 +16,14 @@ plugins {
 
 android {
     namespace = "me.rerere.rikkahub"
-    compileSdk = 37
+    // 降级到 35：AGP 8.11 官方支持的 compileSdk 上限（配合 AS Narwhal 2025.1.1）
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "me.rerere.rikkahub"
         minSdk = 26
-        targetSdk = 37
+        // 降级到 35：与 compileSdk 对齐（原 37 依赖 AGP 9.1+ 的 2026 版 Compose 库）
+        targetSdk = 35
         versionCode = 177
         versionName = "2.4.10"
 
@@ -72,9 +74,9 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            optimization {
-                enable = true
-            }
+            // AGP 8 兼容写法（替代 AGP 9 的 optimization { enable = true }）
+            isMinifyEnabled = true
+            isShrinkResources = true
             buildConfigField("String", "VERSION_NAME", "\"${android.defaultConfig.versionName}\"")
             buildConfigField("String", "VERSION_CODE", "\"${android.defaultConfig.versionCode}\"")
         }
@@ -103,10 +105,14 @@ android {
             useLegacyPackaging = true
             pickFirsts += "lib/*/libtermux.so"
         }
+        // okhttp-sse/logging-interceptor/jspecify 三个 jar 的 OSGI MANIFEST 冲突（AGP 8.11 打包严格性）
+        resources {
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
     }
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions.optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
-        compilerOptions.optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
+        // 降级移除：ExperimentalMaterial3ExpressiveApi（material3 1.4+ 专属）与 ExperimentalNavigation3Api（nav3 专属）在目标版本不存在
         compilerOptions.optIn.add("androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi")
         compilerOptions.optIn.add("androidx.compose.animation.ExperimentalAnimationApi")
         compilerOptions.optIn.add("androidx.compose.animation.ExperimentalSharedTransitionApi")
@@ -115,7 +121,6 @@ android {
         compilerOptions.optIn.add("kotlin.uuid.ExperimentalUuidApi")
         compilerOptions.optIn.add("kotlin.time.ExperimentalTime")
         compilerOptions.optIn.add("kotlinx.coroutines.ExperimentalCoroutinesApi")
-        compilerOptions.optIn.add("androidx.navigation3.runtime.ExperimentalNavigation3Api")
     }
 }
 
@@ -134,9 +139,20 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+// AGP 8.11 + Gradle 8.14 兼容写法（原顶层 kotlin { compilerOptions {} } 是 KGP 2.4 新 DSL，旧版 Gradle 脚本编译器解析不了）
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+}
+
+// 降级钉死：部分三方库传递依赖拉高了 activity/core 版本（其 AAR 要求 compileSdk 36+），
+// 统一 force 回 compileSdk 35 兼容版本（activity 1.10.1 / core 1.15.0），navigationevent 随 activity 降级不再引入
+configurations.all {
+    resolutionStrategy {
+        force("androidx.activity:activity:1.10.1")
+        force("androidx.activity:activity-ktx:1.10.1")
+        force("androidx.activity:activity-compose:1.10.1")
+        force("androidx.core:core:1.15.0")
+        force("androidx.core:core-ktx:1.15.0")
     }
 }
 
@@ -160,11 +176,8 @@ dependencies {
     implementation(libs.androidx.material3.adaptive)
     implementation(libs.androidx.material3.adaptive.layout)
 
-    // Navigation 3
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.androidx.material3.adaptive.navigation3)
+    // Navigation（降级：nav3 全系传递依赖硬性要求 AGP 9.1+，迁移到 navigation2）
+    implementation(libs.androidx.navigation2)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -179,9 +192,8 @@ dependencies {
     implementation(libs.metadata.extractor)
 
     // Haze (background blur)
+    // 降级：haze 1.6.2 为单一 artifact（blur 拆分包为 2.0 专属，ChatInput 已改用 1.x 的 hazeChild 写法）
     implementation(libs.haze)
-    implementation(libs.haze.blur)
-    implementation(libs.haze.blur.material3)
 
     // koin
     implementation(platform(libs.koin.bom))

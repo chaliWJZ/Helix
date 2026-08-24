@@ -12,7 +12,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
         pluginManager.apply("com.android.library")
 
         extensions.configure<LibraryExtension> {
-            compileSdk = 37
+            // 降级到 35：AGP 8.11 官方支持上限（配合 AS Narwhal 2025.1.1）
+            compileSdk = 35
 
             defaultConfig {
                 minSdk = 26

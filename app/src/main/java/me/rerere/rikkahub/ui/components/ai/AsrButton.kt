@@ -30,7 +30,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,7 +93,9 @@ internal fun AsrButton(
         modifier = Modifier
             .height(36.dp)
             .widthIn(min = 36.dp)
-            .animateContentSize(animationSpec = MotionScheme.expressive().defaultSpatialSpec()),
+            // 降级说明：原 MotionScheme.expressive().defaultSpatialSpec() 为 material3 1.4+ 专属，
+            // 改用近似 expressive 空间动效的 spring 参数
+            .animateContentSize(animationSpec = spring(dampingRatio = 0.8f, stiffness = 380f)),
         shape = CircleShape,
         tonalElevation = if (isIdle) 0.dp else 2.dp,
         color = containerColor,

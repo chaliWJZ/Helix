@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.compose.runtime.mutableStateListOf
-import androidx.navigation3.runtime.NavKey
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.ui.context.Navigator
 import coil3.compose.AsyncImage
@@ -453,8 +452,8 @@ private fun ExportedChatImage(
     messages: List<UIMessage>,
     options: ImageExportOptions = ImageExportOptions()
 ) {
-    val navBackStack = remember { mutableStateListOf<NavKey>() }
-    val navigator = Navigator(navBackStack)
+    // navigation2 迁移：导出图片为离屏渲染场景，无真实导航，使用 Navigator 空实现（导航操作为 no-op）
+    val navigator = remember { Navigator() }
     val toasterState = rememberToasterState()
     RikkahubTheme {
         CompositionLocalProvider(
