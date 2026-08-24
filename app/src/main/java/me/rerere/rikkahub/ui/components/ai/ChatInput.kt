@@ -136,9 +136,10 @@ fun ChatInput(
     val assistant = settings.getCurrentAssistant()
     val hazeTintColor = MaterialTheme.colorScheme.surfaceContainerLow
     // 降级说明：原 HazeBlurStyle.Material3 { blurRadius(12.dp) } 为 haze 2.0-alpha 专属 blur 模块，
-    // haze 1.6.2 等价改写为 HazeStyle（背景色 + 12dp 模糊半径）
+    // haze 1.6.2 等价改写为 HazeStyle（背景色 + 12dp 模糊半径；显式 tint=null 消除 tint/tints 双重载歧义）
     val inputHazeStyle = HazeStyle(
         backgroundColor = hazeTintColor,
+        tint = null,
         blurRadius = 12.dp,
     )
 

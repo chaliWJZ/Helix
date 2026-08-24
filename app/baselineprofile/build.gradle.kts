@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.baselineprofile)
+    // 降级补齐：AGP 8 需显式应用 Kotlin 插件；不带版本（baselineprofile 插件已传递 KGP 到 classpath）
+    id("org.jetbrains.kotlin.android")
 }
 
 android {

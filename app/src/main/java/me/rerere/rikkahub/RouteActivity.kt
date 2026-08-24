@@ -580,7 +580,7 @@ class RouteActivity : ComponentActivity() {
 }
 
 // navigation2 迁移：包装 composable，注入 AnimatedVisibilityScope（替代 nav3 的 LocalNavAnimatedContentScope），
-// 并通过 toRoute 解出 type-safe 路由对象，业务条目写法与原 nav3 entry 保持一致
+// 并通过 toRoute 解出 type-safe 路由对象，业务条目写法与原 nav3 entry { key -> } 保持一致
 private inline fun <reified T : Any> NavGraphBuilder.screen(
     noinline enterTransition: (
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
@@ -594,7 +594,7 @@ private inline fun <reified T : Any> NavGraphBuilder.screen(
     noinline popExitTransition: (
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
         )? = null,
-    noinline content: @Composable AnimatedContentScope.(NavBackStackEntry, T) -> Unit,
+    noinline content: @Composable AnimatedContentScope.(T) -> Unit,
 ) {
     composable<T>(
         enterTransition = enterTransition,
@@ -604,7 +604,7 @@ private inline fun <reified T : Any> NavGraphBuilder.screen(
     ) { entry ->
         val scope = this
         CompositionLocalProvider(LocalNavAnimatedContentScope provides scope) {
-            content(entry, entry.toRoute())
+            content(entry.toRoute())
         }
     }
 }

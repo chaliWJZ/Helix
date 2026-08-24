@@ -77,7 +77,8 @@ val PermissionNotification = PermissionInfo(
 
 @RequiresApi(37)
 val PermissionLocalNetwork = PermissionInfo(
-    permission = Manifest.permission.ACCESS_LOCAL_NETWORK,
+    // 降级说明：ACCESS_LOCAL_NETWORK 为 API 37 新权限，compileSdk 35 的 Manifest 常量缺失，用字面量等价替代
+    permission = "android.permission.ACCESS_LOCAL_NETWORK",
     displayName = { Text(stringResource(R.string.permission_local_network)) },
     usage = { Text(stringResource(R.string.permission_local_network_desc)) },
     required = true

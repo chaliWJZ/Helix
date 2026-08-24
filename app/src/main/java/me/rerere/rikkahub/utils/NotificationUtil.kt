@@ -104,15 +104,10 @@ object NotificationUtil {
                 setDefaults(NotificationCompat.DEFAULT_ALL)
             }
 
-            // Android 15+ Live Update 支持
-            if (config.requestPromotedOngoing && Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                setRequestPromotedOngoing(true)
-            }
+            // 降级说明：setRequestPromotedOngoing（API 36+）与 setShortCriticalText（API 36+）
+            // 为 compileSdk 37 的 NotificationCompat 新方法，compileSdk 35 下无此 API，
+            // 删除调用（对应 Live Update 与状态栏 chip 高级通知能力降级，基础通知不受影响）
 
-            // Android 16+ 状态栏 chip 文本
-            if (config.shortCriticalText != null && Build.VERSION.SDK_INT >= 36) {
-                setShortCriticalText(config.shortCriticalText!!)
-            }
         }
     }
 

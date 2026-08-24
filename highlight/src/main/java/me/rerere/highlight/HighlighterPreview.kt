@@ -34,9 +34,8 @@ private data class HighlightPreviewSample(
 )
 
 private class HighlightPreviewProvider : PreviewParameterProvider<HighlightPreviewSample> {
-    /** Titles every preview after the language it renders instead of after its position. */
-    override fun getDisplayName(index: Int): String = values.elementAt(index).language
-
+    // 降级说明：getDisplayName(index) 为新版 ui-tooling-preview 接口方法，compose 1.8.2 无此方法，
+    // 删除后预览标题回退为默认序号命名（仅影响开发期预览显示，无运行时影响）
     override val values = sequenceOf(
         HighlightPreviewSample(
             language = "json",

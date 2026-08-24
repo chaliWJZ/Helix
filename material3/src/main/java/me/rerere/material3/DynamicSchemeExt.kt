@@ -46,18 +46,7 @@ fun DynamicScheme.toColorScheme(): ColorScheme {
             surfaceContainerHighest = Color(s.surfaceContainerHighest),
             surfaceContainerLow = Color(s.surfaceContainerLow),
             surfaceContainerLowest = Color(s.surfaceContainerLowest),
-            primaryFixed = Color(s.primaryFixed),
-            primaryFixedDim = Color(s.primaryFixedDim),
-            onPrimaryFixed = Color(s.onPrimaryFixed),
-            onPrimaryFixedVariant = Color(s.onPrimaryFixedVariant),
-            secondaryFixed = Color(s.secondaryFixed),
-            secondaryFixedDim = Color(s.secondaryFixedDim),
-            onSecondaryFixed = Color(s.onSecondaryFixed),
-            onSecondaryFixedVariant = Color(s.onSecondaryFixedVariant),
-            tertiaryFixed = Color(s.tertiaryFixed),
-            tertiaryFixedDim = Color(s.tertiaryFixedDim),
-            onTertiaryFixed = Color(s.onTertiaryFixed),
-            onTertiaryFixedVariant = Color(s.onTertiaryFixedVariant),
+            // 降级说明：primaryFixed 等 12 个 fixed 色彩参数为 material3 1.4+ 的 ColorScheme 构造专属，1.3.2 无这些参数
         )
     } else {
         lightColorScheme(
@@ -97,18 +86,7 @@ fun DynamicScheme.toColorScheme(): ColorScheme {
             surfaceContainerHighest = Color(s.surfaceContainerHighest),
             surfaceContainerLow = Color(s.surfaceContainerLow),
             surfaceContainerLowest = Color(s.surfaceContainerLowest),
-            primaryFixed = Color(s.primaryFixed),
-            primaryFixedDim = Color(s.primaryFixedDim),
-            onPrimaryFixed = Color(s.onPrimaryFixed),
-            onPrimaryFixedVariant = Color(s.onPrimaryFixedVariant),
-            secondaryFixed = Color(s.secondaryFixed),
-            secondaryFixedDim = Color(s.secondaryFixedDim),
-            onSecondaryFixed = Color(s.onSecondaryFixed),
-            onSecondaryFixedVariant = Color(s.onSecondaryFixedVariant),
-            tertiaryFixed = Color(s.tertiaryFixed),
-            tertiaryFixedDim = Color(s.tertiaryFixedDim),
-            onTertiaryFixed = Color(s.onTertiaryFixed),
-            onTertiaryFixedVariant = Color(s.onTertiaryFixedVariant),
+            // 降级说明：同上，1.3.2 无 fixed 色彩参数
         )
     }
 }

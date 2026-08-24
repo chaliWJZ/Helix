@@ -6,6 +6,8 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    // 降级补齐：AGP 8 需显式应用 Kotlin 插件（AGP 9 内置）；不带版本避免与 compose 插件传递的 KGP 冲突
+    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -112,7 +114,8 @@ android {
     }
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions.optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
-        // 降级移除：ExperimentalMaterial3ExpressiveApi（material3 1.4+ 专属）与 ExperimentalNavigation3Api（nav3 专属）在目标版本不存在
+        // material3 1.5.0-alpha18 仍带 ExperimentalMaterial3ExpressiveApi（Shapes.largeIncreased 等在其下），恢复 optIn
+        compilerOptions.optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
         compilerOptions.optIn.add("androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi")
         compilerOptions.optIn.add("androidx.compose.animation.ExperimentalAnimationApi")
         compilerOptions.optIn.add("androidx.compose.animation.ExperimentalSharedTransitionApi")

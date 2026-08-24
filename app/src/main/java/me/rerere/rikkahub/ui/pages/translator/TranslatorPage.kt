@@ -20,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -263,6 +262,8 @@ private fun LanguageSelector(
                 )
             )
 
+            // 降级说明：1.5 后期把 ExposedDropdownMenu 提升为顶级组件；alpha18 中它是
+            // ExposedDropdownMenuBoxScope 的成员函数，在 Box 作用域内直接调用即可（无需 import）
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
