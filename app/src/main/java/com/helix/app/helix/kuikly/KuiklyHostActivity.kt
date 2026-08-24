@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -34,12 +35,15 @@ class KuiklyHostActivity : Activity() {
 
     private lateinit var containerView: FrameLayout
     private lateinit var delegator: KuiklyRenderViewBaseDelegator
+    private var pageLoadStartTime = 0L
 
     private val pageName: String
         get() = intent.getStringExtra(KEY_PAGE_NAME) ?: DEFAULT_PAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pageLoadStartTime = System.currentTimeMillis()
+        Log.i(TAG, "▶ [Page-Open] pageName=$pageName")
         setupImmersiveMode()
         setupAdapterManager()
 
@@ -59,6 +63,7 @@ class KuiklyHostActivity : Activity() {
                 with(kuiklyRenderExport) {
                     moduleExport(HelixRenderModule.MODULE_NAME) { HelixRenderModule() }
                 }
+                Log.i(TAG, "✓ [Module-Register] HelixBridgeModule 注册成功")
             }
 
             override fun coreExecuteModeX(): KuiklyRenderCoreExecuteModeBase {
@@ -68,30 +73,80 @@ class KuiklyHostActivity : Activity() {
             override fun performanceMonitorTypes(): List<KRMonitorType> {
                 return listOf(KRMonitorType.LAUNCH)
             }
+
+            override fun onKuiklyRenderViewCreated() {
+                super.onKuiklyRenderViewCreated()
+                Log.i(TAG, "✓ [RenderView-Created] 引擎视图创建完成")
+            }
+
+            override fun onKuiklyRenderContentViewCreated() {
+                super.onKuiklyRenderContentViewCreated()
+                Log.i(
+                    TAG,
+                    "✓ [ContentView-Created] 页面内容创建，耗时=${System.currentTimeMillis() - pageLoadStartTime}ms"
+                )
+            }
+
+            override fun onPageLoadComplete(
+                isSucceed: Boolean,
+                errorReason: com.tencent.kuikly.core.render.android.exception.ErrorReason?,
+                executeMode: KuiklyRenderCoreExecuteModeBase
+            ) {
+                super.onPageLoadComplete(isSucceed, errorReason, executeMode)
+                if (isSucceed) {
+                    Log.i(
+                        TAG,
+                        "✅ [Page-Load-OK] $pageName 加载成功，总耗时=${System.currentTimeMillis() - pageLoadStartTime}ms"
+                    )
+                } else {
+                    Log.e(
+                        TAG,
+                        "❌ [Page-Load-Fail] $pageName 加载失败！reason=$errorReason"
+                    )
+                }
+            }
+
+            override fun onUnhandledException(
+                throwable: Throwable,
+                errorReason: com.tencent.kuikly.core.render.android.exception.ErrorReason,
+                executeMode: KuiklyRenderCoreExecuteModeBase
+            ) {
+                super.onUnhandledException(throwable, errorReason, executeMode)
+                Log.e(
+                    TAG,
+                    "💥 [Page-Crash] $pageName 页面异常！reason=$errorReason\n${throwable.stackTraceToString().take(2000)}"
+                )
+            }
         })
 
         // 2. 打开 Kuikly 页面
+        Log.d(TAG, "… [Page-Attach] 开始挂载页面: $pageName")
         delegator.onAttach(containerView, "", pageName, createPageData())
     }
 
     override fun onResume() {
         super.onResume()
         delegator.onResume()
+        Log.d(TAG, "▶ [Lifecycle] onResume: $pageName")
     }
 
     override fun onPause() {
         super.onPause()
         delegator.onPause()
+        Log.d(TAG, "▶ [Lifecycle] onPause: $pageName")
     }
 
     override fun onDestroy() {
         delegator.onDetach()
+        Log.i(TAG, "■ [Lifecycle] onDestroy: $pageName 页面销毁")
         super.onDestroy()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-            if (delegator.onBackPressed()) {
+            val handled = delegator.onBackPressed()
+            Log.d(TAG, "▶ [Back-Press] $pageName 返回键, Kuikly处理=$handled")
+            if (handled) {
                 return true
             }
         }
@@ -132,6 +187,7 @@ class KuiklyHostActivity : Activity() {
     }
 
     companion object {
+        private const val TAG = "HelixKuikly"
         private const val KEY_PAGE_NAME = "pageName"
         private const val KEY_PAGE_DATA = "pageData"
         private const val DEFAULT_PAGE = "SettingPage"

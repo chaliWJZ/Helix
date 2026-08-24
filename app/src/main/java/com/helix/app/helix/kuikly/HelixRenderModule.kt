@@ -2,6 +2,7 @@ package com.helix.app.helix.kuikly
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
@@ -20,6 +21,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
 
     override fun call(method: String, params: String?, callback: KuiklyRenderCallback?): Any? {
         val json = params?.let { runCatching { JSONObject(it) }.getOrNull() }
+        Log.i(TAG, "🔗 [Module-Call] method=$method params=${params?.take(200)}")
         return when (method) {
             METHOD_TOAST -> {
                 context?.let { Toast.makeText(it, json?.optString("message") ?: "", Toast.LENGTH_SHORT).show() }
@@ -83,6 +85,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
     }
 
     companion object {
+        private const val TAG = "HelixKuikly"
         const val MODULE_NAME = "HelixBridgeModule"
         const val METHOD_TOAST = "toast"
         const val METHOD_OPEN_URL = "openUrl"
