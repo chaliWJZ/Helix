@@ -10,14 +10,20 @@ import org.json.JSONObject
  * Helix Kuikly 路由适配器
  *
  * 处理 Kuikly 页面内的 RouterModule.openPage/closePage 调用：
- * - openPage → 打开新的 KuiklyHostActivity（承载目标 Kuikly 页面）
+ * - openPage → 复用当前 KuiklyHostActivity（切换页面），避免栈无限增长
  * - closePage → finish 当前宿主 Activity
  */
 class HelixRouterAdapter : IKRRouterAdapter {
 
     override fun openPage(context: Context, pageName: String, pageData: JSONObject) {
         Log.i(TAG, "🔀 [Router-Open] $pageName data=${pageData.toString().take(200)}")
-        KuiklyHostActivity.start(context, pageName, pageData)
+        // 如果当前 Activity 本身就是 KuiklyHostActivity，复用并切换页面
+        if (context is KuiklyHostActivity) {
+            context.openPage(pageName, pageData)
+        } else {
+            // 从外部启动（极少见）：新建 Activity
+            KuiklyHostActivity.start(context, pageName, pageData)
+        }
     }
 
     override fun closePage(context: Context) {

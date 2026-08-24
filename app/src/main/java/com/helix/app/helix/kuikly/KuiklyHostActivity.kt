@@ -37,8 +37,11 @@ class KuiklyHostActivity : Activity() {
     private lateinit var delegator: KuiklyRenderViewBaseDelegator
     private var pageLoadStartTime = 0L
 
-    private val pageName: String
+    private var pageName: String
         get() = intent.getStringExtra(KEY_PAGE_NAME) ?: DEFAULT_PAGE
+        set(value) {
+            intent.putExtra(KEY_PAGE_NAME, value)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -198,5 +201,18 @@ class KuiklyHostActivity : Activity() {
             pageData?.let { intent.putExtra(KEY_PAGE_DATA, it.toString()) }
             context.startActivity(intent)
         }
+    }
+
+    /**
+     * 在当前 Activity 内切换页面（由 HelixRouterAdapter.openPage 调用）
+     * 通过 recreate 重新走 onCreate 实现页面切换，避免栈膨胀
+     */
+    fun openPage(pageName: String, pageData: JSONObject? = null) {
+        Log.i(TAG, "🔀 [Page-Switch] $pageName")
+        intent.putExtra(KEY_PAGE_NAME, pageName)
+        if (pageData != null) {
+            intent.putExtra(KEY_PAGE_DATA, pageData.toString())
+        }
+        recreate()
     }
 }

@@ -27,6 +27,9 @@ enum class TagType { DEFAULT, SUCCESS, ERROR, WARNING, INFO }
 
 /**
  * 顶部导航栏（对应 Compose 的 TopAppBar）
+ *
+ * 布局：[返回]  [标题 flex(1) 省略号]  [操作1] [操作2] ...
+ * 安全区：顶部 44px 让出状态栏，底部 16px 让出导航条
  */
 fun ViewContainer<*, *>.NavBar(
     title: String,
@@ -36,63 +39,90 @@ fun ViewContainer<*, *>.NavBar(
 ) {
     View {
         attr {
-            flexDirectionRow()
-            alignItemsCenter()
-            height(56f)
-            paddingLeft(8f)
-            paddingRight(8f)
+            flexDirectionColumn()
             backgroundColor(HelixTheme.Light.surface)
         }
-        if (showBack) {
-            View {
-                attr {
-                    width(40f)
-                    height(40f)
-                    justifyContentCenter()
-                    alignItemsCenter()
-                    borderRadius(20f)
-                }
-                event {
-                    click { onBack() }
-                }
-                Text {
-                    attr {
-                        text("‹")
-                        fontSize(24f)
-                        color(HelixTheme.Light.onSurface)
-                    }
-                }
-            }
-        }
-        Text {
+        // 状态栏占位
+        View {
             attr {
-                text(title)
-                fontSize(18f)
-                color(HelixTheme.Light.onSurface)
-                marginLeft(8f)
-                flex(1f)
+                height(44f)
             }
         }
-        rightActions.forEach { action ->
+        View {
+            attr {
+                flexDirectionRow()
+                alignItemsCenter()
+                height(48f)
+                paddingLeft(4f)
+                paddingRight(4f)
+            }
+            if (showBack) {
+                View {
+                    attr {
+                        width(40f)
+                        height(40f)
+                        justifyContentCenter()
+                        alignItemsCenter()
+                        borderRadius(20f)
+                    }
+                    event {
+                        click { onBack() }
+                    }
+                    Text {
+                        attr {
+                            text("‹")
+                            fontSize(28f)
+                            fontWeight700()
+                            color(HelixTheme.Light.onSurface)
+                        }
+                    }
+                }
+            }
+            // 标题：flex(1) + 单行省略，避免被右侧操作挤变形
             View {
                 attr {
-                    paddingLeft(12f)
-                    paddingRight(12f)
-                    height(36f)
-                    justifyContentCenter()
+                    flex(1f)
+                    flexDirectionRow()
                     alignItemsCenter()
-                    marginLeft(4f)
-                }
-                event {
-                    click { action.onClick() }
+                    marginLeft(if (showBack) 4f else 12f)
                 }
                 Text {
                     attr {
-                        text(action.label)
-                        fontSize(14f)
-                        color(HelixTheme.Light.primary)
+                        text(title)
+                        fontSize(18f)
+                        fontWeight700()
+                        color(HelixTheme.Light.onSurface)
+                        // 单行省略
                     }
                 }
+            }
+            // 右侧操作：每个固定 40x40，避免挤压标题
+            rightActions.forEach { action ->
+                View {
+                    attr {
+                        width(40f)
+                        height(40f)
+                        justifyContentCenter()
+                        alignItemsCenter()
+                        borderRadius(20f)
+                    }
+                    event {
+                        click { action.onClick() }
+                    }
+                    Text {
+                        attr {
+                            text(action.label)
+                            fontSize(20f)
+                            color(HelixTheme.Light.onSurface)
+                        }
+                    }
+                }
+            }
+        }
+        // 底部安全区
+        View {
+            attr {
+                height(8f)
             }
         }
     }
