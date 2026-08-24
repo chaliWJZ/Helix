@@ -1,0 +1,112 @@
+package com.helix.kuikly.pages.setting
+
+import com.tencent.kuikly.core.annotations.Page
+import com.tencent.kuikly.core.base.ViewBuilder
+import com.tencent.kuikly.core.module.RouterModule
+import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
+import com.tencent.kuikly.core.pager.Pager
+import com.tencent.kuikly.core.views.Text
+import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.CardGroup
+import com.helix.kuikly.components.ui.CardGroupItem
+import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.theme.HelixTheme
+
+/**
+ * 关于页面（对应 Compose 的 SettingAboutPage）
+ */
+@Page("SettingAboutPage")
+internal class SettingAboutPage : Pager() {
+
+    private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
+
+    override fun body(): ViewBuilder {
+        val page = this
+        return {
+            View {
+                attr {
+                    flex(1f)
+                    backgroundColor(HelixTheme.Light.background)
+                }
+                NavBar(
+                    title = "关于",
+                    showBack = true,
+                    onBack = { page.router().closePage() }
+                )
+                View {
+                    attr {
+                        flex(1f)
+                        marginTop(16f)
+                        alignItemsCenter()
+                    }
+                    // 应用 Logo
+                    View {
+                        attr {
+                            width(80f)
+                            height(80f)
+                            borderRadius(20f)
+                            backgroundColor(HelixTheme.Light.primaryContainer)
+                            justifyContentCenter()
+                            alignItemsCenter()
+                        }
+                        Text {
+                            attr {
+                                text("H")
+                                fontSize(40f)
+                                color(HelixTheme.Light.primary)
+                            }
+                        }
+                    }
+                    Text {
+                        attr {
+                            text("Helix")
+                            fontSize(24f)
+                            color(HelixTheme.Light.onBackground)
+                            marginTop(12f)
+                        }
+                    }
+                    Text {
+                        attr {
+                            text("v1.0.0")
+                            fontSize(14f)
+                            color(HelixTheme.Light.onSurfaceVariant)
+                            marginTop(4f)
+                        }
+                    }
+                }
+                // 信息卡片
+                View {
+                    attr {
+                        marginTop(24f)
+                    }
+                    CardGroup(
+                        items = listOf(
+                            CardGroupItem(
+                                title = "检查更新",
+                                subtitle = "检查并安装最新版本",
+                                icon = "🔄",
+                                onClick = { page.router().openPage("UpdateCheckPage") }
+                            ),
+                            CardGroupItem(
+                                title = "GitHub",
+                                subtitle = "查看源代码和提交 Issue",
+                                icon = "🐙",
+                                onClick = {
+                                    val params = JSONObject()
+                                    params.put("url", "https://github.com/chaliWJZ/Helix")
+                                    page.router().openPage("WebViewPage", params)
+                                }
+                            ),
+                            CardGroupItem(
+                                title = "开源许可",
+                                subtitle = "查看使用的开源组件",
+                                icon = "📄",
+                                onClick = { page.router().openPage("SettingAboutLicensePage") }
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
