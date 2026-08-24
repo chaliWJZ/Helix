@@ -1,0 +1,94 @@
+package com.helix.kuikly.pages.share
+
+import com.tencent.kuikly.core.annotations.Page
+import com.tencent.kuikly.core.base.ViewBuilder
+import com.tencent.kuikly.core.reactive.handler.observable
+import com.tencent.kuikly.core.views.Text
+import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.pager.HelixBasePage
+import com.helix.kuikly.theme.HelixTheme
+
+/**
+ * 分享处理页面（对应 Compose 的 ShareHandlerPage）
+ *
+ * 处理外部分享进来的文本/图片：预览 + 选择会话发送
+ */
+@Page("ShareHandlerPage")
+internal class ShareHandlerPage : HelixBasePage() {
+
+    private var sharedText by observable("（分享内容待接收）")
+
+    override fun body(): ViewBuilder {
+        val page = this
+        return {
+            View {
+                attr {
+                    flex(1f)
+                    backgroundColor(HelixTheme.Light.background)
+                }
+                NavBar(
+                    title = "接收分享",
+                    showBack = true,
+                    onBack = { page.closePage() }
+                )
+                View {
+                    attr {
+                        flex(1f)
+                    }
+                    // 分享内容预览
+                    View {
+                        attr {
+                            padding(16f)
+                            marginLeft(16f)
+                            marginRight(16f)
+                            marginTop(8f)
+                            marginBottom(12f)
+                            borderRadius(16f)
+                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        }
+                        Text {
+                            attr {
+                                text("分享内容"
+                                )
+                                fontSize(14f)
+                                fontWeight700()
+                                color(HelixTheme.Light.onSurface)
+                                marginBottom(8f)
+                            }
+                        }
+                        Text {
+                            attr {
+                                text(page.sharedText)
+                                fontSize(14f)
+                                color(HelixTheme.Light.onSurfaceVariant)
+                            }
+                        }
+                    }
+                    // 发送到新会话按钮
+                    View {
+                        attr {
+                            height(44f)
+                            borderRadius(22f)
+                            marginLeft(16f)
+                            marginRight(16f)
+                            justifyContentCenter()
+                            alignItemsCenter()
+                            backgroundColor(HelixTheme.Light.primary)
+                        }
+                        event {
+                            click { page.openPage("ChatPage") }
+                        }
+                        Text {
+                            attr {
+                                text("发送到新会话")
+                                fontSize(15f)
+                                color(HelixTheme.Light.onPrimary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

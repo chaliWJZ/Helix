@@ -1,0 +1,126 @@
+package com.helix.kuikly.pages.imggen
+
+import com.tencent.kuikly.core.annotations.Page
+import com.tencent.kuikly.core.base.ViewBuilder
+import com.tencent.kuikly.core.reactive.handler.observable
+import com.tencent.kuikly.core.views.Input
+import com.tencent.kuikly.core.views.Text
+import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.pager.HelixBasePage
+import com.helix.kuikly.theme.HelixTheme
+
+/**
+ * 图片生成页面（对应 Compose 的 ImgGenPage）
+ *
+ * AI 画图：提示词输入 + 生成结果展示
+ */
+@Page("ImgGenPage")
+internal class ImgGenPage : HelixBasePage() {
+
+    private var prompt by observable("")
+    private var generating by observable(false)
+
+    override fun body(): ViewBuilder {
+        val page = this
+        return {
+            View {
+                attr {
+                    flex(1f)
+                    backgroundColor(HelixTheme.Light.background)
+                }
+                NavBar(
+                    title = "图片生成",
+                    showBack = true,
+                    onBack = { page.closePage() }
+                )
+                View {
+                    attr {
+                        flex(1f)
+                    }
+                    // 提示词输入
+                    View {
+                        attr {
+                            height(100f)
+                            borderRadius(16f)
+                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            marginLeft(16f)
+                            marginRight(16f)
+                            marginTop(8f)
+                            marginBottom(12f)
+                            padding(12f)
+                        }
+                        Input {
+                            attr {
+                                placeholder("描述你想生成的图片...")
+                                fontSize(15f)
+                                flex(1f)
+                            }
+                            event {
+                                textDidChange { page.prompt = it.text }
+                            }
+                        }
+                    }
+                    // 生成按钮
+                    View {
+                        attr {
+                            height(44f)
+                            borderRadius(22f)
+                            marginLeft(16f)
+                            marginRight(16f)
+                            marginBottom(16f)
+                            justifyContentCenter()
+                            alignItemsCenter()
+                            backgroundColor(HelixTheme.Light.primary)
+                        }
+                        event {
+                            click {
+                                if (page.prompt.isNotEmpty()) {
+                                    page.generating = true
+                                    // TODO: 接入图片生成 Module
+                                }
+                            }
+                        }
+                        Text {
+                            attr {
+                                text(if (page.generating) "生成中..." else "生成图片")
+                                fontSize(15f)
+                                color(HelixTheme.Light.onPrimary)
+                            }
+                        }
+                    }
+                    // 结果展示区
+                    View {
+                        attr {
+                            flex(1f)
+                            borderRadius(16f)
+                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            marginLeft(16f)
+                            marginRight(16f)
+                            marginBottom(16f)
+                            justifyContentCenter()
+                            alignItemsCenter()
+                        }
+                        Text {
+                            attr {
+                                text(if (page.generating) "🎨" else "🖼️")
+                                fontSize(48f)
+                            }
+                        }
+                        Text {
+                            attr {
+                                text(
+                                    if (page.generating) "正在生成图片..."
+                                    else "生成的图片将显示在这里"
+                                )
+                                fontSize(13f)
+                                color(HelixTheme.Light.onSurfaceVariant)
+                                marginTop(8f)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
