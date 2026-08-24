@@ -12,6 +12,7 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Input
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.richtext.MarkdownRenderer
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.NavBarAction
 import com.helix.kuikly.theme.HelixTheme
@@ -175,15 +176,16 @@ private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.
                 }
             }
         }
-        // 消息内容
-        Text {
-            attr {
-                text(message.content)
-                fontSize(15f)
-                color(
-                    if (message.role == "user") HelixTheme.Light.onPrimary
-                    else HelixTheme.Light.onSurface
-                )
+        // 消息内容（assistant 消息用 Markdown 渲染）
+        if (message.role == "assistant") {
+            MarkdownRenderer(markdown = message.content)
+        } else {
+            Text {
+                attr {
+                    text(message.content)
+                    fontSize(15f)
+                    color(HelixTheme.Light.onPrimary)
+                }
             }
         }
         // 时间戳
