@@ -1,0 +1,148 @@
+package com.helix.kuikly.modules
+
+import com.tencent.kuikly.core.module.CallbackFn
+import com.tencent.kuikly.core.module.Module
+import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
+
+/**
+ * Helix 原生能力桥接 Module
+ *
+ * Kuikly 页面通过 acquireModule<HelixBridgeModule> 调用 Android 原生能力。
+ * 宿主（app 模块）在 KuiklyEngine 初始化时注册方法处理器。
+ *
+ * 使用示例：
+ * ```
+ * acquireModule<HelixBridgeModule>(HelixBridgeModule.MODULE_NAME).toast("Hello")
+ * ```
+ */
+class HelixBridgeModule : Module() {
+
+    override fun moduleName(): String = MODULE_NAME
+
+    // ==================== UI 能力 ====================
+
+    /** 显示 Toast 提示 */
+    fun toast(message: String) {
+        callNative(METHOD_TOAST, JSONObject().apply { put("message", message) }, null)
+    }
+
+    /** 打开系统浏览器/外部 URL */
+    fun openUrl(url: String) {
+        callNative(METHOD_OPEN_URL, JSONObject().apply { put("url", url) }, null)
+    }
+
+    /** 分享文本到其他应用 */
+    fun shareText(text: String) {
+        callNative(METHOD_SHARE, JSONObject().apply { put("text", text) }, null)
+    }
+
+    // ==================== WebView ====================
+
+    /** 打开原生 WebView 页面（全屏） */
+    fun openWebView(url: String, title: String = "") {
+        callNative(
+            METHOD_OPEN_WEBVIEW,
+            JSONObject().apply {
+                put("url", url)
+                put("title", title)
+            },
+            null
+        )
+    }
+
+    // ==================== 文件系统 ====================
+
+    /** 读取文本文件 */
+    fun readFile(path: String, callback: CallbackFn?) {
+        callNative(METHOD_READ_FILE, JSONObject().apply { put("path", path) }, callback)
+    }
+
+    /** 写入文本文件 */
+    fun writeFile(path: String, content: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_WRITE_FILE,
+            JSONObject().apply {
+                put("path", path)
+                put("content", content)
+            },
+            callback
+        )
+    }
+
+    /** 列出目录下的文件 */
+    fun listFiles(dirPath: String, callback: CallbackFn?) {
+        callNative(METHOD_LIST_FILES, JSONObject().apply { put("dirPath", dirPath) }, callback)
+    }
+
+    /** 选择本地文件（文件选择器） */
+    fun pickFile(callback: CallbackFn?) {
+        callNative(METHOD_PICK_FILE, null, callback)
+    }
+
+    // ==================== 相机/图片 ====================
+
+    /** 拍照 */
+    fun takePhoto(callback: CallbackFn?) {
+        callNative(METHOD_TAKE_PHOTO, null, callback)
+    }
+
+    /** 从相册选图 */
+    fun pickImage(callback: CallbackFn?) {
+        callNative(METHOD_PICK_IMAGE, null, callback)
+    }
+
+    // ==================== 设置/应用信息 ====================
+
+    /** 获取应用版本信息 */
+    fun getAppInfo(callback: CallbackFn?) {
+        callNative(METHOD_GET_APP_INFO, null, callback)
+    }
+
+    /** 检查更新 */
+    fun checkUpdate(callback: CallbackFn?) {
+        callNative(METHOD_CHECK_UPDATE, null, callback)
+    }
+
+    /** 获取设置项（key-value） */
+    fun getSetting(key: String, callback: CallbackFn?) {
+        callNative(METHOD_GET_SETTING, JSONObject().apply { put("key", key) }, callback)
+    }
+
+    /** 保存设置项（key-value） */
+    fun setSetting(key: String, value: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_SET_SETTING,
+            JSONObject().apply {
+                put("key", key)
+                put("value", value)
+            },
+            callback
+        )
+    }
+
+    // ==================== 内部实现 ====================
+
+    private fun callNative(methodName: String, data: JSONObject?, callbackFn: CallbackFn?) {
+        toNative(false, methodName, data?.toString(), callbackFn, false)
+    }
+
+    companion object {
+        const val MODULE_NAME = "HelixBridgeModule"
+
+        // 方法名常量（宿主侧据此分发）
+        const val METHOD_TOAST = "toast"
+        const val METHOD_OPEN_URL = "openUrl"
+        const val METHOD_SHARE = "shareText"
+        const val METHOD_OPEN_WEBVIEW = "openWebView"
+        const val METHOD_READ_FILE = "readFile"
+        const val METHOD_WRITE_FILE = "writeFile"
+        const val METHOD_LIST_FILES = "listFiles"
+        const val METHOD_PICK_FILE = "pickFile"
+        const val METHOD_TAKE_PHOTO = "takePhoto"
+        const val METHOD_PICK_IMAGE = "pickImage"
+        const val METHOD_GET_APP_INFO = "getAppInfo"
+        const val METHOD_CHECK_UPDATE = "checkUpdate"
+        const val METHOD_GET_SETTING = "getSetting"
+        const val METHOD_SET_SETTING = "setSetting"
+    }
+}

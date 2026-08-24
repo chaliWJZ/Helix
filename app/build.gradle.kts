@@ -171,6 +171,8 @@ dependencies {
 
     // Kuikly 跨端 UI 模块（渐进式迁移：Compose 页面与 Kuikly 页面共存）
     implementation(project(":kuikly-ui"))
+    // Kuikly core（宿主侧 Module 处理器需要 JSONObject 等 API）
+    implementation("com.tencent.kuikly-open:core:2.25.0-2.1.21")
 
     // Compose
     implementation(libs.androidx.activity.compose)
