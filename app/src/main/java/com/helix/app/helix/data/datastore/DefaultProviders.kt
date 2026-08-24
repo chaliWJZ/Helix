@@ -17,30 +17,10 @@ import com.helix.app.R
 import com.helix.app.ui.components.richtext.MarkdownBlock
 import kotlin.uuid.Uuid
 
-val DEFAULT_AUTO_MODEL_ID = Uuid.parse("b7055fb4-39f9-4042-a88a-0d80ed76cf08")
+// Helix 品牌官方 API（api.helix-ai.com）DNS 不存在，从默认提供商列表移除
 
 val DEFAULT_PROVIDERS = listOf(
-    ProviderSetting.OpenAI(
-        id = Uuid.parse("a8d2d463-e8c0-41f2-b89e-f5eb8e716cce"),
-        name = "Helix",
-        baseUrl = "https://api.helix-ai.com/v1",
-        apiKey = "",
-        enabled = true,
-        builtIn = true,
-        description = {
-            Text(stringResource(R.string.helix_provider_description))
-        },
-        models = listOf(
-            Model(
-                id = DEFAULT_AUTO_MODEL_ID,
-                modelId = "auto",
-                displayName = "Auto",
-                inputModalities = listOf(Modality.TEXT),
-                outputModalities = listOf(Modality.TEXT),
-                abilities = listOf(ModelAbility.TOOL, ModelAbility.REASONING),
-            )
-        )
-    ),
+    // OpenAI - 第三个内置占位供应商，原第一项 Helix 已删除（原引用方使用 Uuid.random() 回退）
     ProviderSetting.OpenAI(
         id = Uuid.parse("1eeea727-9ee5-4cae-93e6-6fb01a4d051e"),
         name = "OpenAI",
