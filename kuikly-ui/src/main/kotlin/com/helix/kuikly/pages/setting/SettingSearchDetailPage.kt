@@ -18,7 +18,7 @@ import com.tencent.kuikly.core.views.View
 internal class SettingSearchDetailPage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -28,7 +28,7 @@ internal class SettingSearchDetailPage : HelixBasePage() {
                 NavBar(
                     title = "搜索服务详情",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -41,25 +41,25 @@ internal class SettingSearchDetailPage : HelixBasePage() {
                                 title = "API 密钥",
                                 subtitle = "已配置（****）",
                                 icon = "🔑",
-                                onClick = { page.bridge().toast("编辑 API Key（待接入）") }
+                                onClick = { ctx.bridge().toast("编辑 API Key（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "搜索结果数量",
                                 subtitle = "每次搜索返回 10 条",
                                 icon = "🔢",
-                                onClick = { page.bridge().toast("设置结果数量（待接入）") }
+                                onClick = { ctx.bridge().toast("设置结果数量（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "安全搜索",
                                 subtitle = "过滤成人内容",
                                 icon = "🛡️",
-                                onClick = { page.bridge().toast("安全搜索设置（待接入）") }
+                                onClick = { ctx.bridge().toast("安全搜索设置（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "测试搜索",
                                 subtitle = "发送测试查询验证配置",
                                 icon = "🔍",
-                                onClick = { page.bridge().toast("正在测试...（待接入）") }
+                                onClick = { ctx.bridge().toast("正在测试...（待接入）") }
                             )
                         )
                     )

@@ -27,7 +27,7 @@ internal class SettingPage : Pager() {
     // 颜色模式状态
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -37,7 +37,7 @@ internal class SettingPage : Pager() {
                 NavBar(
                     title = "设置",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 // 内容区域（Scroller 支持滚动）
                 Scroller {
@@ -55,19 +55,19 @@ internal class SettingPage : Pager() {
                                 title = "偏好设置",
                                 subtitle = "应用偏好和个性化配置",
                                 icon = "⚙️",
-                                onClick = { page.router().openPage("SettingPreferencesPage") }
+                                onClick = { ctx.router().openPage("SettingPreferencesPage") }
                             ),
                             CardGroupItem(
                                 title = "助手",
                                 subtitle = "管理 AI 助手角色",
                                 icon = "👤",
-                                onClick = { page.router().openPage("AssistantPage") }
+                                onClick = { ctx.router().openPage("AssistantPage") }
                             ),
                             CardGroupItem(
                                 title = "扩展",
                                 subtitle = "安装和管理扩展功能",
                                 icon = "📦",
-                                onClick = { page.router().openPage("ExtensionsPage") }
+                                onClick = { ctx.router().openPage("ExtensionsPage") }
                             )
                         )
                     )
@@ -80,37 +80,37 @@ internal class SettingPage : Pager() {
                                 title = "默认模型",
                                 subtitle = "设置聊天/翻译/标题生成模型",
                                 icon = "✨",
-                                onClick = { page.router().openPage("SettingModelPage") }
+                                onClick = { ctx.router().openPage("SettingModelPage") }
                             ),
                             CardGroupItem(
                                 title = "供应商",
                                 subtitle = "管理 AI 服务供应商配置",
                                 icon = "🧠",
-                                onClick = { page.router().openPage("SettingProviderPage") }
+                                onClick = { ctx.router().openPage("SettingProviderPage") }
                             ),
                             CardGroupItem(
                                 title = "搜索服务",
                                 subtitle = "管理互联网搜索引擎",
                                 icon = "🔍",
-                                onClick = { page.router().openPage("SettingSearchPage") }
+                                onClick = { ctx.router().openPage("SettingSearchPage") }
                             ),
                             CardGroupItem(
                                 title = "TTS 服务",
                                 subtitle = "配置文字转语音引擎",
                                 icon = "📢",
-                                onClick = { page.router().openPage("SettingSpeechPage") }
+                                onClick = { ctx.router().openPage("SettingSpeechPage") }
                             ),
                             CardGroupItem(
                                 title = "MCP",
                                 subtitle = "管理 Model Context Protocol 服务器",
                                 icon = "🔗",
-                                onClick = { page.router().openPage("SettingMcpPage") }
+                                onClick = { ctx.router().openPage("SettingMcpPage") }
                             ),
                             CardGroupItem(
                                 title = "Web 服务器",
                                 subtitle = "在浏览器中访问 Helix",
                                 icon = "🖥️",
-                                onClick = { page.router().openPage("SettingWebPage") }
+                                onClick = { ctx.router().openPage("SettingWebPage") }
                             )
                         )
                     )
@@ -123,13 +123,13 @@ internal class SettingPage : Pager() {
                                 title = "数据备份",
                                 subtitle = "备份和恢复应用数据",
                                 icon = "💾",
-                                onClick = { page.router().openPage("BackupPage") }
+                                onClick = { ctx.router().openPage("BackupPage") }
                             ),
                             CardGroupItem(
                                 title = "聊天存储",
                                 subtitle = "管理聊天文件和图片",
                                 icon = "📁",
-                                onClick = { page.router().openPage("SettingFilesPage") }
+                                onClick = { ctx.router().openPage("SettingFilesPage") }
                             )
                         )
                     )
@@ -142,7 +142,7 @@ internal class SettingPage : Pager() {
                                 title = "关于",
                                 subtitle = "版本信息和开源许可",
                                 icon = "👏",
-                                onClick = { page.router().openPage("SettingAboutPage") }
+                                onClick = { ctx.router().openPage("SettingAboutPage") }
                             ),
                             CardGroupItem(
                                 title = "分享",
@@ -154,7 +154,7 @@ internal class SettingPage : Pager() {
                                 title = "捐赠",
                                 subtitle = "支持项目持续开发",
                                 icon = "💖",
-                                onClick = { page.router().openPage("SettingDonatePage") }
+                                onClick = { ctx.router().openPage("SettingDonatePage") }
                             )
                         )
                     )

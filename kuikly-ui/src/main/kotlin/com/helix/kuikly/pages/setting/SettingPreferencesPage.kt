@@ -20,7 +20,7 @@ internal class SettingPreferencesPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -30,7 +30,7 @@ internal class SettingPreferencesPage : Pager() {
                 NavBar(
                     title = "偏好设置",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -43,31 +43,31 @@ internal class SettingPreferencesPage : Pager() {
                                 title = "主题",
                                 subtitle = "应用主题模式设置",
                                 icon = "☀️",
-                                onClick = { page.router().openPage("SettingPreferencesThemePage") }
+                                onClick = { ctx.router().openPage("SettingPreferencesThemePage") }
                             ),
                             CardGroupItem(
                                 title = "通知",
                                 subtitle = "通知设置和渠道配置",
                                 icon = "🔔",
-                                onClick = { page.router().openPage("SettingPreferencesNotificationPage") }
+                                onClick = { ctx.router().openPage("SettingPreferencesNotificationPage") }
                             ),
                             CardGroupItem(
                                 title = "通用",
                                 subtitle = "通用功能偏好设置",
                                 icon = "⚙️",
-                                onClick = { page.router().openPage("SettingPreferencesGeneralPage") }
+                                onClick = { ctx.router().openPage("SettingPreferencesGeneralPage") }
                             ),
                             CardGroupItem(
                                 title = "界面",
                                 subtitle = "界面样式和布局设置",
                                 icon = "🎨",
-                                onClick = { page.router().openPage("SettingPreferencesUIPage") }
+                                onClick = { ctx.router().openPage("SettingPreferencesUIPage") }
                             ),
                             CardGroupItem(
                                 title = "网络",
                                 subtitle = "网络代理和请求设置",
                                 icon = "🌐",
-                                onClick = { page.router().openPage("SettingPreferencesNetworkPage") }
+                                onClick = { ctx.router().openPage("SettingPreferencesNetworkPage") }
                             )
                         )
                     )

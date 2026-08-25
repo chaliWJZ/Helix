@@ -21,7 +21,7 @@ internal class StatsPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -31,7 +31,7 @@ internal class StatsPage : Pager() {
                 NavBar(
                     title = "统计",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {

@@ -84,7 +84,7 @@ internal class ChatPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -96,8 +96,8 @@ internal class ChatPage : Pager() {
                     title = "新会话",
                     showBack = false,
                     rightActions = listOf(
-                        NavBarAction(label = "☰") { page.showDrawer = !page.showDrawer },
-                        NavBarAction(label = "＋") { page.router().openPage("ChatPage") }
+                        NavBarAction(label = "☰") { ctx.showDrawer = !ctx.showDrawer },
+                        NavBarAction(label = "＋") { ctx.router().openPage("ChatPage") }
                     )
                 )
                 // 消息列表
@@ -106,14 +106,14 @@ internal class ChatPage : Pager() {
                         flex(1f)
                         marginTop(4f)
                     }
-                    vfor({ page.messages }) { message ->
-                        MessageBubble(page = page, message = message)
+                    vfor({ ctx.messages }) { message ->
+                        MessageBubble(ctx = ctx, message = message)
                     }
                 }
                 // 底部输入栏
-                ChatInputBar(page = page)
+                ChatInputBar(ctx = ctx)
                 // 抽屉遮罩（点击关闭）
-                vif({ page.showDrawer }) {
+                vif({ ctx.showDrawer }) {
                     View {
                         attr {
                             positionAbsolute()
@@ -124,7 +124,7 @@ internal class ChatPage : Pager() {
                             backgroundColor(0x33000000)
                         }
                         event {
-                            click { page.showDrawer = false }
+                            click { ctx.showDrawer = false }
                         }
                         // 抽屉面板（左侧）
                         View {
@@ -152,7 +152,7 @@ internal class ChatPage : Pager() {
 /**
  * 消息气泡组件（文件级私有扩展函数）
  */
-private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.Message) {
+private fun ViewContainer<*, *>.MessageBubble(ctx: ChatPage, message: ChatPage.Message) {
     View {
         attr {
             if (message.role == "user") alignSelfFlexEnd() else alignSelfFlexStart()
@@ -206,7 +206,7 @@ private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.
 /**
  * 底部输入栏组件
  */
-private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
+private fun ViewContainer<*, *>.ChatInputBar(ctx: ChatPage) {
     View {
         attr {
             flexDirectionRow()
@@ -231,7 +231,7 @@ private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
                     flex(1f)
                 }
                 event {
-                    textDidChange { page.inputText = it.text }
+                    textDidChange { ctx.inputText = it.text }
                 }
             }
         }
@@ -246,14 +246,14 @@ private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
                 justifyContentCenter()
                 alignItemsCenter()
                 backgroundColor(
-                    if (page.inputText.isNotEmpty()) HelixTheme.current.primary
+                    if (ctx.inputText.isNotEmpty()) HelixTheme.current.primary
                     else HelixTheme.current.surfaceContainerHighest
                 )
             }
             event {
                 click {
-                    if (page.inputText.isNotEmpty() && !page.isGenerating) {
-                        page.sendMessage(page.inputText)
+                    if (ctx.inputText.isNotEmpty() && !ctx.isGenerating) {
+                        ctx.sendMessage(ctx.inputText)
                     }
                 }
             }

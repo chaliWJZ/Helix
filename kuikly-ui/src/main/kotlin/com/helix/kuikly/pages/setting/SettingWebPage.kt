@@ -26,7 +26,7 @@ internal class SettingWebPage : Pager() {
     private var webApiKey by observable("")
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -36,7 +36,7 @@ internal class SettingWebPage : Pager() {
                 NavBar(
                     title = "Web 服务器",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -55,8 +55,8 @@ internal class SettingWebPage : Pager() {
                         SwitchRow(
                             title = "启用 Web 服务器",
                             subtitle = "在浏览器中访问 Helix 聊天界面",
-                            checked = page.webServerEnabled,
-                            onCheckedChange = { page.webServerEnabled = it }
+                            checked = ctx.webServerEnabled,
+                            onCheckedChange = { ctx.webServerEnabled = it }
                         )
                     }
                     // 配置信息
@@ -77,7 +77,7 @@ internal class SettingWebPage : Pager() {
                         }
                         Text {
                             attr {
-                                text(page.webServerPort)
+                                text(ctx.webServerPort)
                                 fontSize(16f)
                                 color(HelixTheme.current.onSurface)
                                 marginTop(4f)
@@ -93,7 +93,7 @@ internal class SettingWebPage : Pager() {
                         }
                         Text {
                             attr {
-                                text(if (page.webApiKey.isEmpty()) "未设置" else page.webApiKey)
+                                text(if (ctx.webApiKey.isEmpty()) "未设置" else ctx.webApiKey)
                                 fontSize(16f)
                                 color(HelixTheme.current.onSurface)
                                 marginTop(4f)

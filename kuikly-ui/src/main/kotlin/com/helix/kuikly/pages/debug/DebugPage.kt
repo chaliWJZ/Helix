@@ -18,7 +18,7 @@ import com.tencent.kuikly.core.views.View
 internal class DebugPage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -28,7 +28,7 @@ internal class DebugPage : HelixBasePage() {
                 NavBar(
                     title = "调试",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -41,31 +41,31 @@ internal class DebugPage : HelixBasePage() {
                                 title = "Kuikly 演示页",
                                 subtitle = "查看 Kuikly Markdown 渲染能力",
                                 icon = "🎨",
-                                onClick = { page.openPage("MarkdownDemoPage") }
+                                onClick = { ctx.openPage("MarkdownDemoPage") }
                             ),
                             CardGroupItem(
                                 title = "日志查看",
                                 subtitle = "查看应用运行日志",
                                 icon = "📋",
-                                onClick = { page.openPage("LogPage") }
+                                onClick = { ctx.openPage("LogPage") }
                             ),
                             CardGroupItem(
                                 title = "Toast 测试",
                                 subtitle = "测试原生桥接 Module",
                                 icon = "🔔",
-                                onClick = { page.bridge().toast("Hello from Kuikly!") }
+                                onClick = { ctx.bridge().toast("Hello from Kuikly!") }
                             ),
                             CardGroupItem(
                                 title = "应用信息",
                                 subtitle = "查看版本等基本信息",
                                 icon = "ℹ️",
-                                onClick = { page.bridge().toast("Helix Kuikly v1.0") }
+                                onClick = { ctx.bridge().toast("Helix Kuikly v1.0") }
                             ),
                             CardGroupItem(
                                 title = "统计信息",
                                 subtitle = "使用统计",
                                 icon = "📊",
-                                onClick = { page.openPage("StatsPage") }
+                                onClick = { ctx.openPage("StatsPage") }
                             )
                         )
                     )

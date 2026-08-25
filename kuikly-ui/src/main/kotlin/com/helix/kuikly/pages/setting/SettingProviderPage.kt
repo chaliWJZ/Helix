@@ -22,7 +22,7 @@ internal class SettingProviderPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -32,9 +32,9 @@ internal class SettingProviderPage : Pager() {
                 NavBar(
                     title = "供应商",
                     showBack = true,
-                    onBack = { page.router().closePage() },
+                    onBack = { ctx.router().closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "添加") { page.router().openPage("SettingProviderDetailPage") }
+                        NavBarAction(label = "添加") { ctx.router().openPage("SettingProviderDetailPage") }
                     )
                 )
                 View {
@@ -48,37 +48,37 @@ internal class SettingProviderPage : Pager() {
                                 title = "OpenAI",
                                 subtitle = "GPT-4o / o1 / DALL-E 系列",
                                 icon = "🤖",
-                                onClick = { page.router().openPage("SettingProviderDetailPage") }
+                                onClick = { ctx.router().openPage("SettingProviderDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "Anthropic",
                                 subtitle = "Claude 系列模型",
                                 icon = "🎭",
-                                onClick = { page.router().openPage("SettingProviderDetailPage") }
+                                onClick = { ctx.router().openPage("SettingProviderDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "Google",
                                 subtitle = "Gemini 系列模型",
                                 icon = "✨",
-                                onClick = { page.router().openPage("SettingProviderDetailPage") }
+                                onClick = { ctx.router().openPage("SettingProviderDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "DeepSeek",
                                 subtitle = "DeepSeek-V3 / R1 系列",
                                 icon = "🐋",
-                                onClick = { page.router().openPage("SettingProviderDetailPage") }
+                                onClick = { ctx.router().openPage("SettingProviderDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "OpenRouter",
                                 subtitle = "聚合多供应商 API",
                                 icon = "🔀",
-                                onClick = { page.router().openPage("SettingProviderDetailPage") }
+                                onClick = { ctx.router().openPage("SettingProviderDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "硅基流动",
                                 subtitle = "SiliconFlow 国内聚合服务",
                                 icon = "⚡",
-                                onClick = { page.router().openPage("SettingProviderDetailPage") }
+                                onClick = { ctx.router().openPage("SettingProviderDetailPage") }
                             )
                         )
                     )

@@ -35,7 +35,7 @@ internal class SearchPage : Pager() {
     private val results by observableList<SearchResult>()
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -45,7 +45,7 @@ internal class SearchPage : Pager() {
                 NavBar(
                     title = "搜索",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 // 搜索框
                 View {
@@ -67,7 +67,7 @@ internal class SearchPage : Pager() {
                             flex(1f)
                         }
                         event {
-                            textDidChange { page.keyword = it.text }
+                            textDidChange { ctx.keyword = it.text }
                         }
                     }
                 }
@@ -85,14 +85,14 @@ internal class SearchPage : Pager() {
                     }
                     event {
                         click {
-                            page.searching = true
-                            page.searched = false
+                            ctx.searching = true
+                            ctx.searched = false
                             // TODO: 通过 SearchModule 执行真实搜索
                         }
                     }
                     Text {
                         attr {
-                            text(if (page.searching) "搜索中..." else "搜索")
+                            text(if (ctx.searching) "搜索中..." else "搜索")
                             fontSize(15f)
                             color(HelixTheme.current.onPrimary)
                         }
@@ -104,7 +104,7 @@ internal class SearchPage : Pager() {
                         flex(1f)
                         marginTop(16f)
                     }
-                    vfor({ page.results }) { item ->
+                    vfor({ ctx.results }) { item ->
                         View {
                             attr {
                                 padding(16f)

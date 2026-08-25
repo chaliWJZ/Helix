@@ -38,7 +38,7 @@ internal class QuickMessagesPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -48,14 +48,14 @@ internal class QuickMessagesPage : Pager() {
                 NavBar(
                     title = "快捷消息",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.messages }) { item ->
+                    vfor({ ctx.messages }) { item ->
                         View {
                             attr {
                                 flexDirectionRow()

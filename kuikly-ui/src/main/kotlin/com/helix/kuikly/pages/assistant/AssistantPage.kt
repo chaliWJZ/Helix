@@ -43,7 +43,7 @@ internal class AssistantPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -53,9 +53,9 @@ internal class AssistantPage : Pager() {
                 NavBar(
                     title = "助手",
                     showBack = true,
-                    onBack = { page.router().closePage() },
+                    onBack = { ctx.router().closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "＋") { page.router().openPage("AssistantDetailPage") }
+                        NavBarAction(label = "＋") { ctx.router().openPage("AssistantDetailPage") }
                     )
                 )
                 View {
@@ -63,7 +63,7 @@ internal class AssistantPage : Pager() {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.assistants }) { item ->
+                    vfor({ ctx.assistants }) { item ->
                         View {
                             attr {
                                 flexDirectionRow()
@@ -76,7 +76,7 @@ internal class AssistantPage : Pager() {
                                 backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
-                                click { page.router().openPage("AssistantDetailPage") }
+                                click { ctx.router().openPage("AssistantDetailPage") }
                             }
                             // 助手头像
                             View {

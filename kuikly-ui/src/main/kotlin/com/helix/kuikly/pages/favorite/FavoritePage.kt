@@ -40,7 +40,7 @@ internal class FavoritePage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -50,14 +50,14 @@ internal class FavoritePage : Pager() {
                 NavBar(
                     title = "收藏",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.favorites }) { item ->
+                    vfor({ ctx.favorites }) { item ->
                         View {
                             attr {
                                 padding(16f)

@@ -21,7 +21,7 @@ internal class ExtensionsPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -31,7 +31,7 @@ internal class ExtensionsPage : Pager() {
                 NavBar(
                     title = "扩展",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -44,25 +44,25 @@ internal class ExtensionsPage : Pager() {
                                 title = "快捷消息",
                                 subtitle = "快速发送预设消息",
                                 icon = "⚡",
-                                onClick = { page.router().openPage("QuickMessagesPage") }
+                                onClick = { ctx.router().openPage("QuickMessagesPage") }
                             ),
                             CardGroupItem(
                                 title = "提示词",
                                 subtitle = "管理常用提示词模板",
                                 icon = "📖",
-                                onClick = { page.router().openPage("PromptPage") }
+                                onClick = { ctx.router().openPage("PromptPage") }
                             ),
                             CardGroupItem(
                                 title = "技能",
                                 subtitle = "Agent 技能扩展",
                                 icon = "🧩",
-                                onClick = { page.router().openPage("SkillsPage") }
+                                onClick = { ctx.router().openPage("SkillsPage") }
                             ),
                             CardGroupItem(
                                 title = "工作区",
                                 subtitle = "文件工作区和终端",
                                 icon = "📁",
-                                onClick = { page.router().openPage("WorkspacePage") }
+                                onClick = { ctx.router().openPage("WorkspacePage") }
                             )
                         )
                     )

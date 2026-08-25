@@ -37,7 +37,7 @@ internal class TestHubPage : HelixBasePage() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -67,7 +67,7 @@ internal class TestHubPage : HelixBasePage() {
                         event {
                             click {
                                 // 跳转 Compose 版主界面（原生 DebugPage，从那里进 Compose 各页面）
-                                page.bridge().openUrl("helix://compose-debug")
+                                ctx.bridge().openUrl("helix://compose-debug")
                             }
                         }
                         Text {
@@ -108,7 +108,7 @@ internal class TestHubPage : HelixBasePage() {
                     }
 
                     // ===== 各分类页面入口（vfor 闭包必须单根节点，包一层 View）=====
-                    vfor({ page.categories }) { category ->
+                    vfor({ ctx.categories }) { category ->
                         View {
                             attr {
                                 flexDirectionColumn()
@@ -141,7 +141,7 @@ internal class TestHubPage : HelixBasePage() {
                                 }
                                 event {
                                     click {
-                                        page.openedCount++
+                                        ctx.openedCount++
                                         KuiklyNav.open(pageName)
                                     }
                                 }
@@ -179,7 +179,7 @@ internal class TestHubPage : HelixBasePage() {
                     // 底部说明
                     Text {
                         attr {
-                            text("已打开 ${page.openedCount} 次 | 共 ${KuiklyNav.PAGES.size} 个页面\n点左上角/返回键逐级返回")
+                            text("已打开 ${ctx.openedCount} 次 | 共 ${KuiklyNav.PAGES.size} 个页面\n点左上角/返回键逐级返回")
                             fontSize(11f)
                             color(HelixTheme.current.onSurfaceVariant)
                             marginTop(16f)

@@ -21,7 +21,7 @@ internal class SettingDonatePage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -31,7 +31,7 @@ internal class SettingDonatePage : Pager() {
                 NavBar(
                     title = "捐赠",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -48,7 +48,7 @@ internal class SettingDonatePage : Pager() {
                                 onClick = {
                                     val params = JSONObject()
                                     params.put("url", "https://afdian.net")
-                                    page.router().openPage("WebViewPage", params)
+                                    ctx.router().openPage("WebViewPage", params)
                                 }
                             ),
                             CardGroupItem(

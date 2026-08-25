@@ -28,7 +28,7 @@ internal class AssistantDetailPage : HelixBasePage() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -38,7 +38,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                 NavBar(
                     title = "编辑助手",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 // 助手头部
                 View {
@@ -96,7 +96,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                         backgroundColor(HelixTheme.current.surfaceContainerLow)
                         padding(4f)
                     }
-                    vfor({ page.tabs }) { tab ->
+                    vfor({ ctx.tabs }) { tab ->
                         View {
                             attr {
                                 flex(1f)
@@ -105,20 +105,20 @@ internal class AssistantDetailPage : HelixBasePage() {
                                 justifyContentCenter()
                                 alignItemsCenter()
                                 backgroundColor(
-                                    if (page.tabs.indexOf(tab) == page.currentTab)
+                                    if (ctx.tabs.indexOf(tab) == ctx.currentTab)
                                         HelixTheme.current.primary
                                     else HelixTheme.current.surfaceContainerLow
                                 )
                             }
                             event {
-                                click { page.currentTab = page.tabs.indexOf(tab) }
+                                click { ctx.currentTab = ctx.tabs.indexOf(tab) }
                             }
                             Text {
                                 attr {
                                     text(tab)
                                     fontSize(12f)
                                     color(
-                                        if (page.tabs.indexOf(tab) == page.currentTab)
+                                        if (ctx.tabs.indexOf(tab) == ctx.currentTab)
                                             HelixTheme.current.onPrimary
                                         else HelixTheme.current.onSurfaceVariant
                                     )
@@ -143,7 +143,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                     Text {
                         attr {
                             text(
-                                when (page.currentTab) {
+                                when (ctx.currentTab) {
                                     0 -> "基础信息：名称/头像/描述编辑\n（待接入 AssistantVM）"
                                     1 -> "提示词编辑\n（待接入 AssistantVM）"
                                     2 -> "助手记忆管理\n（待接入 AssistantVM）"

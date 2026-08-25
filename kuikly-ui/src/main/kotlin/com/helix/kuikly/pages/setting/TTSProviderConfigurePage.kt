@@ -18,7 +18,7 @@ import com.tencent.kuikly.core.views.View
 internal class TTSProviderConfigurePage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -28,7 +28,7 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
                 NavBar(
                     title = "TTS 供应商配置",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -41,31 +41,31 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
                                 title = "API Base URL",
                                 subtitle = "https://api.openai.com/v1",
                                 icon = "🔗",
-                                onClick = { page.bridge().toast("编辑（待接入）") }
+                                onClick = { ctx.bridge().toast("编辑（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "API 密钥",
                                 subtitle = "已配置",
                                 icon = "🔑",
-                                onClick = { page.bridge().toast("编辑（待接入）") }
+                                onClick = { ctx.bridge().toast("编辑（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "音色",
                                 subtitle = "alloy（女声·自然）",
                                 icon = "🎵",
-                                onClick = { page.bridge().toast("选择音色（待接入）") }
+                                onClick = { ctx.bridge().toast("选择音色（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "语速",
                                 subtitle = "1.0x",
                                 icon = "⏩",
-                                onClick = { page.bridge().toast("调节语速（待接入）") }
+                                onClick = { ctx.bridge().toast("调节语速（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "试听",
                                 subtitle = "播放示例语音",
                                 icon = "▶️",
-                                onClick = { page.bridge().toast("正在播放...（待接入）") }
+                                onClick = { ctx.bridge().toast("正在播放...（待接入）") }
                             )
                         )
                     )

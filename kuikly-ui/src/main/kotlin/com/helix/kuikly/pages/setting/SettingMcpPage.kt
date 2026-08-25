@@ -39,7 +39,7 @@ internal class SettingMcpPage : HelixBasePage() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -49,9 +49,9 @@ internal class SettingMcpPage : HelixBasePage() {
                 NavBar(
                     title = "MCP",
                     showBack = true,
-                    onBack = { page.closePage() },
+                    onBack = { ctx.closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "＋") { page.bridge().toast("添加 MCP 服务器（待接入）") }
+                        NavBarAction(label = "＋") { ctx.bridge().toast("添加 MCP 服务器（待接入）") }
                     )
                 )
                 View {
@@ -59,7 +59,7 @@ internal class SettingMcpPage : HelixBasePage() {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.servers }) { server ->
+                    vfor({ ctx.servers }) { server ->
                         View {
                             attr {
                                 padding(16f)

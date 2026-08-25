@@ -57,7 +57,7 @@ internal class ChatDrawerPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -90,7 +90,7 @@ internal class ChatDrawerPage : Pager() {
                     }
                     Text {
                         attr {
-                            text(page.currentAssistant)
+                            text(ctx.currentAssistant)
                             fontSize(15f)
                             color(HelixTheme.current.onSurface)
                             marginLeft(12f)
@@ -111,14 +111,14 @@ internal class ChatDrawerPage : Pager() {
                         flexDirectionRow()
                         padding(8f)
                     }
-                    vfor({ page.folders }) { folder ->
+                    vfor({ ctx.folders }) { folder ->
                         View {
                             attr {
                                 marginLeft(4f)
                                 marginRight(4f)
                                 borderRadius(12f)
                                 backgroundColor(
-                                    if (page.folders.indexOf(folder) == page.selectedFolder)
+                                    if (ctx.folders.indexOf(folder) == ctx.selectedFolder)
                                         HelixTheme.current.primary
                                     else HelixTheme.current.surfaceContainerLow
                                 )
@@ -128,7 +128,7 @@ internal class ChatDrawerPage : Pager() {
                                     text(folder)
                                     fontSize(13f)
                                     color(
-                                        if (page.folders.indexOf(folder) == page.selectedFolder)
+                                        if (ctx.folders.indexOf(folder) == ctx.selectedFolder)
                                             HelixTheme.current.onPrimary
                                         else HelixTheme.current.onSurfaceVariant
                                     )
@@ -143,7 +143,7 @@ internal class ChatDrawerPage : Pager() {
                     attr {
                         flex(1f)
                     }
-                    vfor({ page.conversations }) { item ->
+                    vfor({ ctx.conversations }) { item ->
                         View {
                             attr {
                                 flexDirectionRow()
@@ -159,7 +159,7 @@ internal class ChatDrawerPage : Pager() {
                                 )
                             }
                             event {
-                                click { page.router().openPage("ChatPage") }
+                                click { ctx.router().openPage("ChatPage") }
                             }
                             // 标题
                             Text {
@@ -192,11 +192,11 @@ internal class ChatDrawerPage : Pager() {
                         backgroundColor(HelixTheme.current.surfaceContainerLow)
                     }
                     // 新建会话
-                    drawerAction(icon = "✏️", label = "新会话", page = page)
+                    drawerAction(icon = "✏️", label = "新会话", ctx = ctx)
                     // 历史记录
-                    drawerAction(icon = "🕘", label = "历史", page = page)
+                    drawerAction(icon = "🕘", label = "历史", ctx = ctx)
                     // 设置
-                    drawerAction(icon = "⚙️", label = "设置", page = page)
+                    drawerAction(icon = "⚙️", label = "设置", ctx = ctx)
                 }
             }
         }
@@ -206,7 +206,7 @@ internal class ChatDrawerPage : Pager() {
 /**
  * 抽屉底部动作按钮
  */
-private fun ViewContainer<*, *>.drawerAction(icon: String, label: String, page: ChatDrawerPage) {
+private fun ViewContainer<*, *>.drawerAction(icon: String, label: String, ctx: ChatDrawerPage) {
     View {
         attr {
             flex(1f)
@@ -217,9 +217,9 @@ private fun ViewContainer<*, *>.drawerAction(icon: String, label: String, page: 
         event {
             click {
                 when (label) {
-                    "新会话" -> page.routerPublic().openPage("ChatPage")
-                    "历史" -> page.routerPublic().openPage("HistoryPage")
-                    "设置" -> page.routerPublic().openPage("SettingPage")
+                    "新会话" -> ctx.routerPublic().openPage("ChatPage")
+                    "历史" -> ctx.routerPublic().openPage("HistoryPage")
+                    "设置" -> ctx.routerPublic().openPage("SettingPage")
                 }
             }
         }

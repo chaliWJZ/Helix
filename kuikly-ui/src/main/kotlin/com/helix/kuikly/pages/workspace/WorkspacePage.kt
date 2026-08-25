@@ -19,7 +19,7 @@ import com.tencent.kuikly.core.views.View
 internal class WorkspacePage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -29,9 +29,9 @@ internal class WorkspacePage : HelixBasePage() {
                 NavBar(
                     title = "工作区",
                     showBack = true,
-                    onBack = { page.closePage() },
+                    onBack = { ctx.closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "＋") { page.openPage("WorkspaceDetailPage") }
+                        NavBarAction(label = "＋") { ctx.openPage("WorkspaceDetailPage") }
                     )
                 )
                 View {
@@ -45,19 +45,19 @@ internal class WorkspacePage : HelixBasePage() {
                                 title = "默认工作区",
                                 subtitle = "12 个文件 · 上次编辑：今天",
                                 icon = "📁",
-                                onClick = { page.openPage("WorkspaceDetailPage") }
+                                onClick = { ctx.openPage("WorkspaceDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "项目文档",
                                 subtitle = "5 个文件 · 上次编辑：昨天",
                                 icon = "📁",
-                                onClick = { page.openPage("WorkspaceDetailPage") }
+                                onClick = { ctx.openPage("WorkspaceDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "代码片段",
                                 subtitle = "28 个文件 · 上次编辑：8月20日",
                                 icon = "📁",
-                                onClick = { page.openPage("WorkspaceDetailPage") }
+                                onClick = { ctx.openPage("WorkspaceDetailPage") }
                             )
                         )
                     )

@@ -28,7 +28,7 @@ internal class SettingPreferencesUIPage : Pager() {
     private var showTimestamp by observable(true)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -38,7 +38,7 @@ internal class SettingPreferencesUIPage : Pager() {
                 NavBar(
                     title = "界面",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -55,38 +55,38 @@ internal class SettingPreferencesUIPage : Pager() {
                         SwitchRow(
                             title = "紧凑模式",
                             subtitle = "减少消息间距，显示更多内容",
-                            checked = page.compactMode,
-                            onCheckedChange = { page.compactMode = it }
+                            checked = ctx.compactMode,
+                            onCheckedChange = { ctx.compactMode = it }
                         )
                         SwitchRow(
                             title = "气泡样式",
                             subtitle = "消息使用气泡样式展示",
-                            checked = page.bubbleStyle,
-                            onCheckedChange = { page.bubbleStyle = it }
+                            checked = ctx.bubbleStyle,
+                            onCheckedChange = { ctx.bubbleStyle = it }
                         )
                         SwitchRow(
                             title = "显示头像",
                             subtitle = "在消息旁显示用户/助手头像",
-                            checked = page.showAvatar,
-                            onCheckedChange = { page.showAvatar = it }
+                            checked = ctx.showAvatar,
+                            onCheckedChange = { ctx.showAvatar = it }
                         )
                         SwitchRow(
                             title = "全宽消息",
                             subtitle = "消息占满整行宽度",
-                            checked = page.fullWidthMessage,
-                            onCheckedChange = { page.fullWidthMessage = it }
+                            checked = ctx.fullWidthMessage,
+                            onCheckedChange = { ctx.fullWidthMessage = it }
                         )
                         SwitchRow(
                             title = "显示 Token 数",
                             subtitle = "在消息底部显示 Token 消耗",
-                            checked = page.showTokenCount,
-                            onCheckedChange = { page.showTokenCount = it }
+                            checked = ctx.showTokenCount,
+                            onCheckedChange = { ctx.showTokenCount = it }
                         )
                         SwitchRow(
                             title = "显示时间戳",
                             subtitle = "在消息旁显示发送时间",
-                            checked = page.showTimestamp,
-                            onCheckedChange = { page.showTimestamp = it }
+                            checked = ctx.showTimestamp,
+                            onCheckedChange = { ctx.showTimestamp = it }
                         )
                     }
                 }

@@ -42,7 +42,7 @@ internal class PromptPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -52,7 +52,7 @@ internal class PromptPage : Pager() {
                 NavBar(
                     title = "提示词",
                     showBack = true,
-                    onBack = { page.router().closePage() },
+                    onBack = { ctx.router().closePage() },
                     rightActions = listOf(
                         NavBarAction(label = "＋") { /* TODO: 新建提示词 */ }
                     )
@@ -62,7 +62,7 @@ internal class PromptPage : Pager() {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.prompts }) { item ->
+                    vfor({ ctx.prompts }) { item ->
                         View {
                             attr {
                                 padding(16f)

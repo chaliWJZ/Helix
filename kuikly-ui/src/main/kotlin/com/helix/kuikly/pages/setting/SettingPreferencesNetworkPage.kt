@@ -27,7 +27,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
     private var connectionTimeout by observable("30")
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -37,7 +37,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
                 NavBar(
                     title = "网络",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -56,8 +56,8 @@ internal class SettingPreferencesNetworkPage : Pager() {
                         SwitchRow(
                             title = "使用代理",
                             subtitle = "通过 HTTP/SOCKS 代理发送请求",
-                            checked = page.useProxy,
-                            onCheckedChange = { page.useProxy = it }
+                            checked = ctx.useProxy,
+                            onCheckedChange = { ctx.useProxy = it }
                         )
                     }
                     // 超时设置
@@ -78,7 +78,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
                         }
                         Text {
                             attr {
-                                text(page.connectionTimeout)
+                                text(ctx.connectionTimeout)
                                 fontSize(28f)
                                 color(HelixTheme.current.primary)
                                 marginTop(8f)

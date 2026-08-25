@@ -55,7 +55,7 @@ internal class MarkdownDemoPage : Pager() {
     """.trimIndent()
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -65,14 +65,14 @@ internal class MarkdownDemoPage : Pager() {
                 NavBar(
                     title = "Markdown 演示",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
                         flex(1f)
                         padding(16f)
                     }
-                    MarkdownRenderer(markdown = page.demoMarkdown)
+                    MarkdownRenderer(markdown = ctx.demoMarkdown)
                 }
             }
         }

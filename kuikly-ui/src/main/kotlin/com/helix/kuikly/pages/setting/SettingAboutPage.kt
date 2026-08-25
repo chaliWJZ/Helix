@@ -21,7 +21,7 @@ internal class SettingAboutPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -31,7 +31,7 @@ internal class SettingAboutPage : Pager() {
                 NavBar(
                     title = "关于",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -85,7 +85,7 @@ internal class SettingAboutPage : Pager() {
                                 title = "检查更新",
                                 subtitle = "检查并安装最新版本",
                                 icon = "🔄",
-                                onClick = { page.router().openPage("UpdateCheckPage") }
+                                onClick = { ctx.router().openPage("UpdateCheckPage") }
                             ),
                             CardGroupItem(
                                 title = "GitHub",
@@ -94,14 +94,14 @@ internal class SettingAboutPage : Pager() {
                                 onClick = {
                                     val params = JSONObject()
                                     params.put("url", "https://github.com/chaliWJZ/Helix")
-                                    page.router().openPage("WebViewPage", params)
+                                    ctx.router().openPage("WebViewPage", params)
                                 }
                             ),
                             CardGroupItem(
                                 title = "开源许可",
                                 subtitle = "查看使用的开源组件",
                                 icon = "📄",
-                                onClick = { page.router().openPage("SettingAboutLicensePage") }
+                                onClick = { ctx.router().openPage("SettingAboutLicensePage") }
                             )
                         )
                     )

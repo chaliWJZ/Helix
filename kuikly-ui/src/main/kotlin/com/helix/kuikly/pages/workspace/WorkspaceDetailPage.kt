@@ -19,7 +19,7 @@ import com.tencent.kuikly.core.views.View
 internal class WorkspaceDetailPage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -29,9 +29,9 @@ internal class WorkspaceDetailPage : HelixBasePage() {
                 NavBar(
                     title = "默认工作区",
                     showBack = true,
-                    onBack = { page.closePage() },
+                    onBack = { ctx.closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "🖥️") { page.openPage("WorkspaceTerminalPage") }
+                        NavBarAction(label = "🖥️") { ctx.openPage("WorkspaceTerminalPage") }
                     )
                 )
                 View {
@@ -45,31 +45,31 @@ internal class WorkspaceDetailPage : HelixBasePage() {
                                 title = "README.md",
                                 subtitle = "Markdown · 2.1 KB",
                                 icon = "📝",
-                                onClick = { page.openPage("WorkspaceFileEditorPage") }
+                                onClick = { ctx.openPage("WorkspaceFileEditorPage") }
                             ),
                             CardGroupItem(
                                 title = "main.kt",
                                 subtitle = "Kotlin · 5.4 KB",
                                 icon = "📄",
-                                onClick = { page.openPage("WorkspaceFileEditorPage") }
+                                onClick = { ctx.openPage("WorkspaceFileEditorPage") }
                             ),
                             CardGroupItem(
                                 title = "config.json",
                                 subtitle = "JSON · 480 B",
                                 icon = "⚙️",
-                                onClick = { page.openPage("WorkspaceFileEditorPage") }
+                                onClick = { ctx.openPage("WorkspaceFileEditorPage") }
                             ),
                             CardGroupItem(
                                 title = "notes.txt",
                                 subtitle = "文本 · 1.2 KB",
                                 icon = "🗒️",
-                                onClick = { page.openPage("WorkspaceFileEditorPage") }
+                                onClick = { ctx.openPage("WorkspaceFileEditorPage") }
                             ),
                             CardGroupItem(
                                 title = "终端",
                                 subtitle = "打开 Termux 终端环境",
                                 icon = "💻",
-                                onClick = { page.openPage("WorkspaceTerminalPage") }
+                                onClick = { ctx.openPage("WorkspaceTerminalPage") }
                             )
                         )
                     )

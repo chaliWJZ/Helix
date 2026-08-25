@@ -23,7 +23,7 @@ internal class BackupPage : HelixBasePage() {
     private var backingUp by observable(false)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -33,7 +33,7 @@ internal class BackupPage : HelixBasePage() {
                 NavBar(
                     title = "备份",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -53,13 +53,13 @@ internal class BackupPage : HelixBasePage() {
                         }
                         Text {
                             attr {
-                                text(if (page.backingUp) "备份中..." else "💾")
+                                text(if (ctx.backingUp) "备份中..." else "💾")
                                 fontSize(40f)
                             }
                         }
                         Text {
                             attr {
-                                text("上次备份：${page.lastBackupTime}")
+                                text("上次备份：${ctx.lastBackupTime}")
                                 fontSize(14f)
                                 color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(8f)
@@ -73,25 +73,25 @@ internal class BackupPage : HelixBasePage() {
                                 title = "立即备份",
                                 subtitle = "备份会话/设置/供应商配置到本地",
                                 icon = "⬆️",
-                                onClick = { page.bridge().toast("开始备份（待接入）") }
+                                onClick = { ctx.bridge().toast("开始备份（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "恢复备份",
                                 subtitle = "从备份文件恢复数据",
                                 icon = "⬇️",
-                                onClick = { page.bridge().toast("恢复功能（待接入）") }
+                                onClick = { ctx.bridge().toast("恢复功能（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "WebDAV 设置",
                                 subtitle = "配置远程 WebDAV 服务器",
                                 icon = "☁️",
-                                onClick = { page.bridge().toast("WebDAV 配置（待接入）") }
+                                onClick = { ctx.bridge().toast("WebDAV 配置（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "自动备份",
                                 subtitle = "每天自动备份到 WebDAV",
                                 icon = "🕐",
-                                onClick = { page.bridge().toast("自动备份设置（待接入）") }
+                                onClick = { ctx.bridge().toast("自动备份设置（待接入）") }
                             )
                         )
                     )

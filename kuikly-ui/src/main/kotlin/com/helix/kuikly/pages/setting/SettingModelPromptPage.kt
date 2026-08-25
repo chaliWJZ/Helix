@@ -34,7 +34,7 @@ internal class SettingModelPromptPage : Pager() {
     )
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         val items = promptItems
         return {
             View {
@@ -45,7 +45,7 @@ internal class SettingModelPromptPage : Pager() {
                 NavBar(
                     title = "提示词",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -58,7 +58,7 @@ internal class SettingModelPromptPage : Pager() {
                                 title = title,
                                 subtitle = desc,
                                 icon = "📝",
-                                onClick = { page.editingIndex = 0 }
+                                onClick = { ctx.editingIndex = 0 }
                             )
                         }
                     )

@@ -22,7 +22,7 @@ internal class ImgGenPage : HelixBasePage() {
     private var generating by observable(false)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -32,7 +32,7 @@ internal class ImgGenPage : HelixBasePage() {
                 NavBar(
                     title = "图片生成",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -57,7 +57,7 @@ internal class ImgGenPage : HelixBasePage() {
                                 flex(1f)
                             }
                             event {
-                                textDidChange { page.prompt = it.text }
+                                textDidChange { ctx.prompt = it.text }
                             }
                         }
                     }
@@ -75,15 +75,15 @@ internal class ImgGenPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                if (page.prompt.isNotEmpty()) {
-                                    page.generating = true
+                                if (ctx.prompt.isNotEmpty()) {
+                                    ctx.generating = true
                                     // TODO: 接入图片生成 Module
                                 }
                             }
                         }
                         Text {
                             attr {
-                                text(if (page.generating) "生成中..." else "生成图片")
+                                text(if (ctx.generating) "生成中..." else "生成图片")
                                 fontSize(15f)
                                 color(HelixTheme.current.onPrimary)
                             }
@@ -103,14 +103,14 @@ internal class ImgGenPage : HelixBasePage() {
                         }
                         Text {
                             attr {
-                                text(if (page.generating) "🎨" else "🖼️")
+                                text(if (ctx.generating) "🎨" else "🖼️")
                                 fontSize(48f)
                             }
                         }
                         Text {
                             attr {
                                 text(
-                                    if (page.generating) "正在生成图片..."
+                                    if (ctx.generating) "正在生成图片..."
                                     else "生成的图片将显示在这里"
                                 )
                                 fontSize(13f)

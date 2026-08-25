@@ -51,7 +51,7 @@ internal class LogPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -61,14 +61,14 @@ internal class LogPage : Pager() {
                 NavBar(
                     title = "日志",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.logs }) { item ->
+                    vfor({ ctx.logs }) { item ->
                         View {
                             attr {
                                 flexDirectionRow()
@@ -83,7 +83,7 @@ internal class LogPage : Pager() {
                                 attr {
                                     text(item.level)
                                     fontSize(10f)
-                                    color(page.levelColor(item.level))
+                                    color(ctx.levelColor(item.level))
                                     fontWeight700()
                                 }
                             }

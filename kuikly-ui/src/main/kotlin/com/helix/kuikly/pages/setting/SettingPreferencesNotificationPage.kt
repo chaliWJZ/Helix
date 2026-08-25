@@ -23,7 +23,7 @@ internal class SettingPreferencesNotificationPage : Pager() {
     private var notificationVibrate by observable(false)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -33,7 +33,7 @@ internal class SettingPreferencesNotificationPage : Pager() {
                 NavBar(
                     title = "通知",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -51,20 +51,20 @@ internal class SettingPreferencesNotificationPage : Pager() {
                         SwitchRow(
                             title = "启用通知",
                             subtitle = "接收消息和提醒通知",
-                            checked = page.enableNotification,
-                            onCheckedChange = { page.enableNotification = it }
+                            checked = ctx.enableNotification,
+                            onCheckedChange = { ctx.enableNotification = it }
                         )
                         SwitchRow(
                             title = "通知声音",
                             subtitle = "通知时播放提示音",
-                            checked = page.notificationSound,
-                            onCheckedChange = { page.notificationSound = it }
+                            checked = ctx.notificationSound,
+                            onCheckedChange = { ctx.notificationSound = it }
                         )
                         SwitchRow(
                             title = "振动",
                             subtitle = "通知时振动提醒",
-                            checked = page.notificationVibrate,
-                            onCheckedChange = { page.notificationVibrate = it }
+                            checked = ctx.notificationVibrate,
+                            onCheckedChange = { ctx.notificationVibrate = it }
                         )
                     }
                 }

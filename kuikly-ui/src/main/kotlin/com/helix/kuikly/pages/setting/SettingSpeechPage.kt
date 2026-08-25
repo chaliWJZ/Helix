@@ -19,7 +19,7 @@ import com.tencent.kuikly.core.views.View
 internal class SettingSpeechPage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -29,9 +29,9 @@ internal class SettingSpeechPage : HelixBasePage() {
                 NavBar(
                     title = "TTS 服务",
                     showBack = true,
-                    onBack = { page.closePage() },
+                    onBack = { ctx.closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "＋") { page.openPage("TTSProviderConfigurePage") }
+                        NavBarAction(label = "＋") { ctx.openPage("TTSProviderConfigurePage") }
                     )
                 )
                 View {
@@ -45,25 +45,25 @@ internal class SettingSpeechPage : HelixBasePage() {
                                 title = "系统 TTS",
                                 subtitle = "使用 Android 系统 TextToSpeech 引擎",
                                 icon = "🔊",
-                                onClick = { page.bridge().toast("系统 TTS 配置（待接入）") }
+                                onClick = { ctx.bridge().toast("系统 TTS 配置（待接入）") }
                             ),
                             CardGroupItem(
                                 title = "OpenAI TTS",
                                 subtitle = "OpenAI 文字转语音 API",
                                 icon = "🎤",
-                                onClick = { page.openPage("TTSProviderConfigurePage") }
+                                onClick = { ctx.openPage("TTSProviderConfigurePage") }
                             ),
                             CardGroupItem(
                                 title = "Azure TTS",
                                 subtitle = "微软 Azure 语音服务",
                                 icon = "🌐",
-                                onClick = { page.openPage("TTSProviderConfigurePage") }
+                                onClick = { ctx.openPage("TTSProviderConfigurePage") }
                             ),
                             CardGroupItem(
                                 title = "火山引擎 TTS",
                                 subtitle = "火山引擎语音合成",
                                 icon = "🌋",
-                                onClick = { page.openPage("TTSProviderConfigurePage") }
+                                onClick = { ctx.openPage("TTSProviderConfigurePage") }
                             )
                         )
                     )

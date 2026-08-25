@@ -49,7 +49,7 @@ internal class HistoryPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -59,7 +59,7 @@ internal class HistoryPage : Pager() {
                 NavBar(
                     title = "历史记录",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
@@ -67,7 +67,7 @@ internal class HistoryPage : Pager() {
                         marginTop(8f)
                     }
                     // 会话列表
-                    vfor({ page.conversations }) { item ->
+                    vfor({ ctx.conversations }) { item ->
                         View {
                             attr {
                                 flexDirectionRow()
@@ -79,7 +79,7 @@ internal class HistoryPage : Pager() {
                                 backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
-                                click { page.router().openPage("ChatPage") }
+                                click { ctx.router().openPage("ChatPage") }
                             }
                             // 会话图标
                             Text {

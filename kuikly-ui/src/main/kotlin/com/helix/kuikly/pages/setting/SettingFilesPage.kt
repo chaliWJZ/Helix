@@ -34,7 +34,7 @@ internal class SettingFilesPage : Pager() {
     )
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -44,9 +44,9 @@ internal class SettingFilesPage : Pager() {
                 NavBar(
                     title = "文件管理",
                     showBack = true,
-                    onBack = { page.router().closePage() },
-                    rightActions = if (page.fileItems.isNotEmpty()) {
-                        listOf(NavBarAction(label = "清空") { page.fileItems = emptyList() })
+                    onBack = { ctx.router().closePage() },
+                    rightActions = if (ctx.fileItems.isNotEmpty()) {
+                        listOf(NavBarAction(label = "清空") { ctx.fileItems = emptyList() })
                     } else {
                         emptyList()
                     }
@@ -59,7 +59,7 @@ internal class SettingFilesPage : Pager() {
                         alignItemsCenter()
                     }
                     // 空状态
-                    vif({ page.fileItems.isEmpty() }) {
+                    vif({ ctx.fileItems.isEmpty() }) {
                         Text {
                             attr {
                                 text("📁")
@@ -76,8 +76,8 @@ internal class SettingFilesPage : Pager() {
                         }
                     }
                     // 文件列表
-                    vif({ page.fileItems.isNotEmpty() }) {
-                        CardGroup(items = page.fileItems)
+                    vif({ ctx.fileItems.isNotEmpty() }) {
+                        CardGroup(items = ctx.fileItems)
                     }
                 }
                 // 统计信息
@@ -89,7 +89,7 @@ internal class SettingFilesPage : Pager() {
                     }
                     Text {
                         attr {
-                            text("共 ${page.fileItems.size} 个文件")
+                            text("共 ${ctx.fileItems.size} 个文件")
                             fontSize(12f)
                             color(HelixTheme.current.onSurfaceVariant)
                         }

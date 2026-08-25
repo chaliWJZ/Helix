@@ -22,7 +22,7 @@ internal class WorkspaceTerminalPage : HelixBasePage() {
     )
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -32,7 +32,7 @@ internal class WorkspaceTerminalPage : HelixBasePage() {
                 NavBar(
                     title = "终端",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 // 终端输出区（黑底绿字）
                 View {
@@ -45,7 +45,7 @@ internal class WorkspaceTerminalPage : HelixBasePage() {
                     }
                     Text {
                         attr {
-                            text(page.terminalOutput)
+                            text(ctx.terminalOutput)
                             fontSize(13f)
                             color(HelixTheme.Dark.primary)
                             fontFamily("monospace")

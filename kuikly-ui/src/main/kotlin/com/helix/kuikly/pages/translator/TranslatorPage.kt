@@ -25,7 +25,7 @@ internal class TranslatorPage : HelixBasePage() {
     private var targetLang by observable("英语")
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -35,7 +35,7 @@ internal class TranslatorPage : HelixBasePage() {
                 NavBar(
                     title = "翻译",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 // 语言选择栏
                 View {
@@ -47,7 +47,7 @@ internal class TranslatorPage : HelixBasePage() {
                     }
                     Text {
                         attr {
-                            text(page.sourceLang)
+                            text(ctx.sourceLang)
                             fontSize(14f)
                             color(HelixTheme.current.primary)
                             margin(8f)
@@ -63,7 +63,7 @@ internal class TranslatorPage : HelixBasePage() {
                     }
                     Text {
                         attr {
-                            text(page.targetLang)
+                            text(ctx.targetLang)
                             fontSize(14f)
                             color(HelixTheme.current.primary)
                             margin(8f)
@@ -88,7 +88,7 @@ internal class TranslatorPage : HelixBasePage() {
                             flex(1f)
                         }
                         event {
-                            textDidChange { page.sourceText = it.text }
+                            textDidChange { ctx.sourceText = it.text }
                         }
                     }
                 }
@@ -106,15 +106,15 @@ internal class TranslatorPage : HelixBasePage() {
                     }
                     event {
                         click {
-                            page.translating = true
+                            ctx.translating = true
                             // TODO: 接入翻译 Module
-                            page.resultText = "（翻译功能待接入 AI Module）"
-                            page.translating = false
+                            ctx.resultText = "（翻译功能待接入 AI Module）"
+                            ctx.translating = false
                         }
                     }
                     Text {
                         attr {
-                            text(if (page.translating) "翻译中..." else "翻译")
+                            text(if (ctx.translating) "翻译中..." else "翻译")
                             fontSize(15f)
                             color(HelixTheme.current.onPrimary)
                         }
@@ -133,10 +133,10 @@ internal class TranslatorPage : HelixBasePage() {
                     }
                     Text {
                         attr {
-                            text(if (page.resultText.isEmpty()) "翻译结果将显示在这里" else page.resultText)
+                            text(if (ctx.resultText.isEmpty()) "翻译结果将显示在这里" else ctx.resultText)
                             fontSize(15f)
                             color(
-                                if (page.resultText.isEmpty()) HelixTheme.current.onSurfaceVariant
+                                if (ctx.resultText.isEmpty()) HelixTheme.current.onSurfaceVariant
                                 else HelixTheme.current.onSurface
                             )
                         }

@@ -41,7 +41,7 @@ internal class SkillsPage : Pager() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -51,14 +51,14 @@ internal class SkillsPage : Pager() {
                 NavBar(
                     title = "技能",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 View {
                     attr {
                         flex(1f)
                         marginTop(8f)
                     }
-                    vfor({ page.skills }) { item ->
+                    vfor({ ctx.skills }) { item ->
                         View {
                             attr {
                                 flexDirectionRow()

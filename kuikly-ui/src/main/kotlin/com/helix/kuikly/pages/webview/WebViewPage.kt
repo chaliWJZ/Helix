@@ -51,7 +51,7 @@ internal class WebViewPage : HelixBasePage() {
     }
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -59,9 +59,9 @@ internal class WebViewPage : HelixBasePage() {
                     backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
-                    title = page.title,
+                    title = ctx.title,
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 // 内容区（原生 WebView 覆盖在此区域上，此处为占位 UI）
                 View {
@@ -78,7 +78,7 @@ internal class WebViewPage : HelixBasePage() {
                     }
                     Text {
                         attr {
-                            text(page.url)
+                            text(ctx.url)
                             fontSize(13f)
                             color(HelixTheme.current.primary)
                             marginTop(8f)
@@ -87,7 +87,7 @@ internal class WebViewPage : HelixBasePage() {
                     Text {
                         attr {
                             text(
-                                if (page.loading) "正在通过原生 WebView 加载..." else "WebView 已交给原生渲染"
+                                if (ctx.loading) "正在通过原生 WebView 加载..." else "WebView 已交给原生渲染"
                             )
                             fontSize(12f)
                             color(HelixTheme.current.onSurfaceVariant)

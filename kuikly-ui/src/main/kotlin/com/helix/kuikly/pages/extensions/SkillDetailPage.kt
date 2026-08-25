@@ -22,7 +22,7 @@ internal class SkillDetailPage : HelixBasePage() {
     private var enabled by observable(true)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -32,7 +32,7 @@ internal class SkillDetailPage : HelixBasePage() {
                 NavBar(
                     title = "技能详情",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -64,14 +64,14 @@ internal class SkillDetailPage : HelixBasePage() {
                             }
                             Text {
                                 attr {
-                                    text(page.skillName)
+                                    text(ctx.skillName)
                                     fontSize(17f)
                                     color(HelixTheme.current.onSurface)
                                 }
                             }
                             Text {
                                 attr {
-                                    text(page.skillDesc)
+                                    text(ctx.skillDesc)
                                     fontSize(13f)
                                     color(HelixTheme.current.onSurfaceVariant)
                                     marginTop(2f)

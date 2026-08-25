@@ -35,7 +35,7 @@ internal class SettingModelPage : Pager() {
     private var suggestionModel by observable("未设置")
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -45,7 +45,7 @@ internal class SettingModelPage : Pager() {
                 NavBar(
                     title = "模型设置",
                     showBack = true,
-                    onBack = { page.router().closePage() }
+                    onBack = { ctx.router().closePage() }
                 )
                 // Tab 切换栏
                 View {
@@ -67,16 +67,16 @@ internal class SettingModelPage : Pager() {
                             borderRadius(10f)
                             justifyContentCenter()
                             alignItemsCenter()
-                            backgroundColor(if (page.currentTab == 0) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
+                            backgroundColor(if (ctx.currentTab == 0) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
                         }
                         event {
-                            click { page.currentTab = 0 }
+                            click { ctx.currentTab = 0 }
                         }
                         Text {
                             attr {
                                 text("模型")
                                 fontSize(14f)
-                                color(if (page.currentTab == 0) HelixTheme.current.onPrimary else HelixTheme.current.onSurfaceVariant)
+                                color(if (ctx.currentTab == 0) HelixTheme.current.onPrimary else HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }
@@ -88,16 +88,16 @@ internal class SettingModelPage : Pager() {
                             borderRadius(10f)
                             justifyContentCenter()
                             alignItemsCenter()
-                            backgroundColor(if (page.currentTab == 1) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
+                            backgroundColor(if (ctx.currentTab == 1) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
                         }
                         event {
-                            click { page.currentTab = 1 }
+                            click { ctx.currentTab = 1 }
                         }
                         Text {
                             attr {
                                 text("提示词")
                                 fontSize(14f)
-                                color(if (page.currentTab == 1) HelixTheme.current.onPrimary else HelixTheme.current.onSurfaceVariant)
+                                color(if (ctx.currentTab == 1) HelixTheme.current.onPrimary else HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }
@@ -108,81 +108,81 @@ internal class SettingModelPage : Pager() {
                         flex(1f)
                     }
                     // Tab 0: 模型选择列表
-                    vif({ page.currentTab == 0 }) {
+                    vif({ ctx.currentTab == 0 }) {
                         CardGroup(
                             items = listOf(
                                 CardGroupItem(
                                     title = "聊天模型",
-                                    subtitle = page.chatModel,
+                                    subtitle = ctx.chatModel,
                                     icon = "💬",
-                                    onClick = { page.router().openPage("ModelPickerPage") }
+                                    onClick = { ctx.router().openPage("ModelPickerPage") }
                                 ),
                                 CardGroupItem(
                                     title = "快速模型",
-                                    subtitle = page.fastModel,
+                                    subtitle = ctx.fastModel,
                                     icon = "⚡",
-                                    onClick = { page.router().openPage("ModelPickerPage") }
+                                    onClick = { ctx.router().openPage("ModelPickerPage") }
                                 ),
                                 CardGroupItem(
                                     title = "标题模型",
-                                    subtitle = page.titleModel,
+                                    subtitle = ctx.titleModel,
                                     icon = "🏷️",
-                                    onClick = { page.router().openPage("ModelPickerPage") }
+                                    onClick = { ctx.router().openPage("ModelPickerPage") }
                                 ),
                                 CardGroupItem(
                                     title = "建议模型",
-                                    subtitle = page.suggestionModel,
+                                    subtitle = ctx.suggestionModel,
                                     icon = "💡",
-                                    onClick = { page.router().openPage("ModelPickerPage") }
+                                    onClick = { ctx.router().openPage("ModelPickerPage") }
                                 ),
                                 CardGroupItem(
                                     title = "翻译模型",
-                                    subtitle = page.translateModel,
+                                    subtitle = ctx.translateModel,
                                     icon = "🌐",
-                                    onClick = { page.router().openPage("ModelPickerPage") }
+                                    onClick = { ctx.router().openPage("ModelPickerPage") }
                                 ),
                                 CardGroupItem(
                                     title = "OCR 模型",
-                                    subtitle = page.ocrModel,
+                                    subtitle = ctx.ocrModel,
                                     icon = "👁️",
-                                    onClick = { page.router().openPage("ModelPickerPage") }
+                                    onClick = { ctx.router().openPage("ModelPickerPage") }
                                 )
                             )
                         )
                     }
                     // Tab 1: 提示词设置
-                    vif({ page.currentTab == 1 }) {
+                    vif({ ctx.currentTab == 1 }) {
                         CardGroup(
                             items = listOf(
                                 CardGroupItem(
                                     title = "翻译提示词",
                                     subtitle = "翻译功能使用的提示词",
                                     icon = "📝",
-                                    onClick = { page.router().openPage("SettingModelPromptPage") }
+                                    onClick = { ctx.router().openPage("SettingModelPromptPage") }
                                 ),
                                 CardGroupItem(
                                     title = "标题提示词",
                                     subtitle = "生成对话标题的提示词",
                                     icon = "📝",
-                                    onClick = { page.router().openPage("SettingModelPromptPage") }
+                                    onClick = { ctx.router().openPage("SettingModelPromptPage") }
                                 ),
                                 CardGroupItem(
                                     title = "建议提示词",
                                     subtitle = "生成回复建议的提示词",
                                     icon = "📝",
-                                    onClick = { page.router().openPage("SettingModelPromptPage") }
+                                    onClick = { ctx.router().openPage("SettingModelPromptPage") }
                                 ),
                                 CardGroupItem(
                                     title = "OCR 提示词",
                                     subtitle = "图片文字识别的提示词",
                                     icon = "📝",
-                                    onClick = { page.router().openPage("SettingModelPromptPage") }
+                                    onClick = { ctx.router().openPage("SettingModelPromptPage") }
                                 ),
                                 CardGroupItem(
                                     title = "上下文压缩提示词",
                                     subtitle = "压缩上下文的提示词",
                                     icon = "📝",
-                                    onClick = { page.router().openPage("SettingModelPromptPage") }
+                                    onClick = { ctx.router().openPage("SettingModelPromptPage") }
                                 )
                             )
                         )

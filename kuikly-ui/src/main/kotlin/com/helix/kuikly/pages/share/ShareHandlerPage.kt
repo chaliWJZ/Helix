@@ -20,7 +20,7 @@ internal class ShareHandlerPage : HelixBasePage() {
     private var sharedText by observable("（分享内容待接收）")
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -30,7 +30,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                 NavBar(
                     title = "接收分享",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 View {
                     attr {
@@ -59,7 +59,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                         }
                         Text {
                             attr {
-                                text(page.sharedText)
+                                text(ctx.sharedText)
                                 fontSize(14f)
                                 color(HelixTheme.current.onSurfaceVariant)
                             }
@@ -77,7 +77,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                             backgroundColor(HelixTheme.current.primary)
                         }
                         event {
-                            click { page.openPage("ChatPage") }
+                            click { ctx.openPage("ChatPage") }
                         }
                         Text {
                             attr {

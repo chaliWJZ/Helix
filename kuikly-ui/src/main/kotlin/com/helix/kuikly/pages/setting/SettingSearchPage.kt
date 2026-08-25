@@ -22,7 +22,7 @@ internal class SettingSearchPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -32,9 +32,9 @@ internal class SettingSearchPage : Pager() {
                 NavBar(
                     title = "搜索服务",
                     showBack = true,
-                    onBack = { page.router().closePage() },
+                    onBack = { ctx.router().closePage() },
                     rightActions = listOf(
-                        NavBarAction(label = "添加") { page.router().openPage("SettingSearchDetailPage") }
+                        NavBarAction(label = "添加") { ctx.router().openPage("SettingSearchDetailPage") }
                     )
                 )
                 View {
@@ -48,31 +48,31 @@ internal class SettingSearchPage : Pager() {
                                 title = "Bing",
                                 subtitle = "微软必应搜索",
                                 icon = "🔍",
-                                onClick = { page.router().openPage("SettingSearchDetailPage") }
+                                onClick = { ctx.router().openPage("SettingSearchDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "Google",
                                 subtitle = "谷歌搜索",
                                 icon = "🔍",
-                                onClick = { page.router().openPage("SettingSearchDetailPage") }
+                                onClick = { ctx.router().openPage("SettingSearchDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "SearXNG",
                                 subtitle = "开源聚合搜索引擎",
                                 icon = "🔍",
-                                onClick = { page.router().openPage("SettingSearchDetailPage") }
+                                onClick = { ctx.router().openPage("SettingSearchDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "Tavily",
                                 subtitle = "AI 优化的搜索 API",
                                 icon = "🔍",
-                                onClick = { page.router().openPage("SettingSearchDetailPage") }
+                                onClick = { ctx.router().openPage("SettingSearchDetailPage") }
                             ),
                             CardGroupItem(
                                 title = "博查",
                                 subtitle = "国内 AI 搜索服务",
                                 icon = "🔍",
-                                onClick = { page.router().openPage("SettingSearchDetailPage") }
+                                onClick = { ctx.router().openPage("SettingSearchDetailPage") }
                             )
                         )
                     )

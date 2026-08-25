@@ -17,7 +17,7 @@ import com.helix.kuikly.theme.HelixTheme
 internal class WorkspaceFileEditorPage : HelixBasePage() {
 
     override fun body(): ViewBuilder {
-        val page = this
+        val ctx = this
         return {
             View {
                 attr {
@@ -27,7 +27,7 @@ internal class WorkspaceFileEditorPage : HelixBasePage() {
                 NavBar(
                     title = "文件编辑",
                     showBack = true,
-                    onBack = { page.closePage() }
+                    onBack = { ctx.closePage() }
                 )
                 // 编辑区（占位：真实编辑器通过 Module 桥接 CodeEditor）
                 View {
