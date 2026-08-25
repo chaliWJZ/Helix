@@ -5,6 +5,7 @@ import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.tencent.kuikly.core.views.compose.Button
 import com.helix.kuikly.theme.HelixTheme
 
 // ==================== 数据类 ====================
@@ -159,32 +160,29 @@ fun ViewContainer<*, *>.CardGroup(
 }
 
 private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: Boolean) {
-    View {
+    Button {
         attr {
             flexDirectionRow()
             alignItemsCenter()
             padding(16f)
-        }
-        event {
-            item.onClick?.let { handler ->
-                click {
-                    KLog.i(UI_LOG_TAG, "👆 [Click] 列表项[${item.title}]")
-                    handler()
-                }
-            }
+            alignSelfStretch()
         }
         if (item.icon.isNotEmpty()) {
             Text {
                 attr {
                     text(item.icon)
                     fontSize(20f)
+                    marginLeft(16f)
                     marginRight(12f)
                 }
             }
+        } else {
+            View { attr { width(16f) } }
         }
         View {
             attr {
                 flex(1f)
+                flexDirectionColumn()
             }
             Text {
                 attr {
@@ -197,7 +195,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                 Text {
                     attr {
                         text(item.subtitle)
-                        fontSize(14f)
+                        fontSize(13f)
                         color(HelixTheme.Light.onSurfaceVariant)
                         marginTop(2f)
                     }
@@ -210,6 +208,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                     text(item.trailingText)
                     fontSize(14f)
                     color(HelixTheme.Light.onSurfaceVariant)
+                    marginRight(8f)
                 }
             }
         }
@@ -217,10 +216,19 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
             Text {
                 attr {
                     text("›")
-                    fontSize(18f)
+                    fontSize(20f)
                     color(HelixTheme.Light.onSurfaceVariant)
                     marginLeft(4f)
+                    marginRight(16f)
                 }
+            }
+        } else {
+            View { attr { width(16f) } }
+        }
+        event {
+            click {
+                KLog.i(UI_LOG_TAG, "👆 [Click] 列表项[${item.title}]")
+                item.onClick?.invoke()
             }
         }
     }
