@@ -25,7 +25,6 @@ internal class SettingPage : Pager() {
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
     // 颜色模式状态
-    private var colorMode by observable(0) // 0=系统 1=亮色 2=暗色
 
     override fun body(): ViewBuilder {
         val page = this
@@ -52,19 +51,6 @@ internal class SettingPage : Pager() {
                     SectionHeader(title = "通用设置")
                     CardGroup(
                         items = listOf(
-                            CardGroupItem(
-                                title = "颜色模式",
-                                subtitle = when (page.colorMode) {
-                                    1 -> "亮色"
-                                    2 -> "暗色"
-                                    else -> "跟随系统"
-                                },
-                                icon = "☀️",
-                                onClick = {
-                                    // 跳转到主题偏好页（含颜色模式单选）
-                                    page.router().openPage("SettingPreferencesThemePage")
-                                }
-                            ),
                             CardGroupItem(
                                 title = "偏好设置",
                                 subtitle = "应用偏好和个性化配置",
