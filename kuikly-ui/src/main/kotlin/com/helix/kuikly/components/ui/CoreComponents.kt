@@ -5,7 +5,6 @@ import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
-import com.tencent.kuikly.core.views.compose.Button
 import com.helix.kuikly.theme.HelixTheme
 
 // ==================== 数据类 ====================
@@ -160,11 +159,17 @@ fun ViewContainer<*, *>.CardGroup(
 }
 
 private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: Boolean) {
-    Button {
+    View {
         attr {
             flexDirectionRow()
             alignItemsCenter()
-            padding(16f)
+            padding(14f)
+            marginLeft(16f)
+            marginRight(16f)
+            marginTop(4f)
+            marginBottom(4f)
+            borderRadius(14f)
+            backgroundColor(HelixTheme.current.surfaceContainerLow)
             alignSelfStretch()
         }
         if (item.icon.isNotEmpty()) {

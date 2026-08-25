@@ -4,7 +4,6 @@ import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
-import com.tencent.kuikly.core.views.compose.Button
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -13,7 +12,7 @@ import com.helix.kuikly.theme.HelixTheme
  * 布局：左 emoji + 中标题副标题 + 右 Radio 圆圈
  * 选中 = 紫色实心圆；未选中 = 灰底 + 中心灰点
  *
- * 使用 Button 组件（ComposeView）确保 click 事件能正常触发
+ * 用普通 View + event.click（与 TestHub 入口同款可命中的写法）
  */
 fun ViewContainer<*, *>.RadioRow(
     title: String,
@@ -22,19 +21,33 @@ fun ViewContainer<*, *>.RadioRow(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    Button {
+    View {
         attr {
             flexDirectionRow()
             alignItemsCenter()
-            padding(16f)
+            marginLeft(16f)
+            marginRight(16f)
+            marginTop(4f)
+            marginBottom(4f)
+            padding(14f)
+            borderRadius(14f)
+            // 与 TestHub 入口一致：有背景色保证 hit-test 命中
+            backgroundColor(
+                if (selected) HelixTheme.current.primaryContainer
+                else HelixTheme.current.surfaceContainerLow
+            )
             alignSelfStretch()
+        }
+        event {
+            click {
+                onClick()
+            }
         }
         if (icon.isNotEmpty()) {
             Text {
                 attr {
                     text(icon)
                     fontSize(22f)
-                    marginLeft(16f)
                     marginRight(12f)
                 }
             }
@@ -70,7 +83,6 @@ fun ViewContainer<*, *>.RadioRow(
                     height(22f)
                     borderRadius(11f)
                     backgroundColor(HelixTheme.current.primary)
-                    marginRight(16f)
                     justifyContentCenter()
                     alignItemsCenter()
                 }
@@ -90,7 +102,6 @@ fun ViewContainer<*, *>.RadioRow(
                     height(22f)
                     borderRadius(11f)
                     backgroundColor(Color(0xFFE0E0E0L))
-                    marginRight(16f)
                     justifyContentCenter()
                     alignItemsCenter()
                 }
@@ -102,12 +113,6 @@ fun ViewContainer<*, *>.RadioRow(
                         backgroundColor(HelixTheme.current.background)
                     }
                 }
-            }
-        }
-        // Button 的 click 事件
-        event {
-            click {
-                onClick()
             }
         }
     }

@@ -152,6 +152,17 @@ class KuiklyHostActivity : Activity() {
         super.onDestroy()
     }
 
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // 系统日夜间切换：recreate 让 Kuikly 页面重建并读取新 sysTheme
+        // （仅跟随系统模式下需要；用户手动选了浅/深色时 ThemeManager.followSystem=false 也不会被覆盖——重建时仍读 sysTheme，
+        //   简化处理：重建即跟随系统。手动模式持久化接入后改为按用户选择恢复）
+        val newNight = (newConfig.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        Log.i(TAG, "🌗 [Theme-Change] 系统日夜间变化 → $newNight，recreate 跟随")
+        recreate()
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             val handled = delegator.onBackPressed()
