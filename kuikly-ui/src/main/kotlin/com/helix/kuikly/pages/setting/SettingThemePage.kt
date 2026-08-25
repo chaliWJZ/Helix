@@ -44,7 +44,7 @@ internal class SettingThemePage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "主题",
@@ -76,7 +76,7 @@ internal class SettingThemePage : Pager() {
                         attr {
                             text("主题色")
                             fontSize(14f)
-                            color(HelixTheme.Light.primary)
+                            color(HelixTheme.current.primary)
                             marginLeft(16f)
                             marginTop(16f)
                             marginBottom(8f)
@@ -100,7 +100,7 @@ internal class SettingThemePage : Pager() {
                                     margin(8f)
                                     justifyContentCenter()
                                     alignItemsCenter()
-                                    border(Border(2f, BorderStyle.SOLID, HelixTheme.Light.onSurface))
+                                    border(Border(2f, BorderStyle.SOLID, HelixTheme.current.onSurface))
                                 }
                                 event {
                                     click { page.selectedColorIndex = index }

@@ -33,7 +33,7 @@ internal class SettingPreferencesGeneralPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "通用",
@@ -48,7 +48,7 @@ internal class SettingPreferencesGeneralPage : Pager() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                         }

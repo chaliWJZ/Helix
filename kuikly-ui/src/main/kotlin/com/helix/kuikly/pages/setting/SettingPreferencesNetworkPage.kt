@@ -32,7 +32,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "网络",
@@ -48,7 +48,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             marginBottom(16f)
@@ -64,7 +64,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             padding(16f)
@@ -73,14 +73,14 @@ internal class SettingPreferencesNetworkPage : Pager() {
                             attr {
                                 text("连接超时（秒）")
                                 fontSize(16f)
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                             }
                         }
                         Text {
                             attr {
                                 text(page.connectionTimeout)
                                 fontSize(28f)
-                                color(HelixTheme.Light.primary)
+                                color(HelixTheme.current.primary)
                                 marginTop(8f)
                             }
                         }
@@ -88,7 +88,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
                             attr {
                                 text("与 AI 服务建立连接的最长等待时间")
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(8f)
                             }
                         }

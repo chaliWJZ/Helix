@@ -45,7 +45,7 @@ internal class FavoritePage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "收藏",
@@ -65,13 +65,13 @@ internal class FavoritePage : Pager() {
                                 marginRight(16f)
                                 marginBottom(8f)
                                 borderRadius(16f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             Text {
                                 attr {
                                     text(item.content)
                                     fontSize(14f)
-                                    color(HelixTheme.Light.onSurface)
+                                    color(HelixTheme.current.onSurface)
                                 }
                             }
                             View {
@@ -83,7 +83,7 @@ internal class FavoritePage : Pager() {
                                     attr {
                                         text("来自：${item.conversationTitle}")
                                         fontSize(12f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                         flex(1f)
                                     }
                                 }
@@ -91,7 +91,7 @@ internal class FavoritePage : Pager() {
                                     attr {
                                         text(item.time)
                                         fontSize(12f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                     }
                                 }
                             }

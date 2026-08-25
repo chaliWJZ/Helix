@@ -26,7 +26,7 @@ internal class SettingDonatePage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "捐赠",
@@ -70,7 +70,7 @@ internal class SettingDonatePage : Pager() {
                         attr {
                             text("赞助者列表")
                             fontSize(14f)
-                            color(HelixTheme.Light.primary)
+                            color(HelixTheme.current.primary)
                             marginLeft(16f)
                             marginTop(24f)
                             marginBottom(8f)
@@ -79,7 +79,7 @@ internal class SettingDonatePage : Pager() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             padding(16f)
@@ -89,7 +89,7 @@ internal class SettingDonatePage : Pager() {
                             attr {
                                 text("感谢所有赞助者的支持 ❤️")
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }

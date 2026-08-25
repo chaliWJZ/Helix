@@ -25,7 +25,7 @@ internal class ShareHandlerPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "接收分享",
@@ -45,7 +45,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                             marginTop(8f)
                             marginBottom(12f)
                             borderRadius(16f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                         }
                         Text {
                             attr {
@@ -53,7 +53,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                                 )
                                 fontSize(14f)
                                 fontWeight700()
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                                 marginBottom(8f)
                             }
                         }
@@ -61,7 +61,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                             attr {
                                 text(page.sharedText)
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }
@@ -74,7 +74,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                             marginRight(16f)
                             justifyContentCenter()
                             alignItemsCenter()
-                            backgroundColor(HelixTheme.Light.primary)
+                            backgroundColor(HelixTheme.current.primary)
                         }
                         event {
                             click { page.openPage("ChatPage") }
@@ -83,7 +83,7 @@ internal class ShareHandlerPage : HelixBasePage() {
                             attr {
                                 text("发送到新会话")
                                 fontSize(15f)
-                                color(HelixTheme.Light.onPrimary)
+                                color(HelixTheme.current.onPrimary)
                             }
                         }
                     }

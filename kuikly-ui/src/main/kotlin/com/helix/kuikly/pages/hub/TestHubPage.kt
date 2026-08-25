@@ -42,7 +42,7 @@ internal class TestHubPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "Helix Kuikly 测试中枢",
@@ -62,7 +62,7 @@ internal class TestHubPage : HelixBasePage() {
                             margin(16f)
                             padding(16f)
                             borderRadius(16f)
-                            backgroundColor(HelixTheme.Light.primaryContainer)
+                            backgroundColor(HelixTheme.current.primaryContainer)
                         }
                         event {
                             click {
@@ -86,14 +86,14 @@ internal class TestHubPage : HelixBasePage() {
                                     text("Compose 版对比入口")
                                     fontSize(16f)
                                     fontWeight700()
-                                    color(HelixTheme.Light.onPrimaryContainer)
+                                    color(HelixTheme.current.onPrimaryContainer)
                                 }
                             }
                             Text {
                                 attr {
                                     text("跳转到 Compose 版调试页，对比原版 UI 效果")
                                     fontSize(12f)
-                                    color(HelixTheme.Light.onPrimaryContainer)
+                                    color(HelixTheme.current.onPrimaryContainer)
                                     marginTop(2f)
                                 }
                             }
@@ -102,7 +102,7 @@ internal class TestHubPage : HelixBasePage() {
                             attr {
                                 text("›")
                                 fontSize(20f)
-                                color(HelixTheme.Light.onPrimaryContainer)
+                                color(HelixTheme.current.onPrimaryContainer)
                             }
                         }
                     }
@@ -120,7 +120,7 @@ internal class TestHubPage : HelixBasePage() {
                                     text("${category.emoji} ${category.name}（${category.pages.size}页）")
                                     fontSize(14f)
                                     fontWeight700()
-                                    color(HelixTheme.Light.primary)
+                                    color(HelixTheme.current.primary)
                                     marginLeft(16f)
                                     marginTop(12f)
                                     marginBottom(4f)
@@ -137,7 +137,7 @@ internal class TestHubPage : HelixBasePage() {
                                     marginBottom(4f)
                                     padding(12f)
                                     borderRadius(12f)
-                                    backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                    backgroundColor(HelixTheme.current.surfaceContainerLow)
                                 }
                                 event {
                                     click {
@@ -151,7 +151,7 @@ internal class TestHubPage : HelixBasePage() {
                                         text(pageName)
                                         fontSize(13f)
                                         fontFamily("monospace")
-                                        color(HelixTheme.Light.onSurface)
+                                        color(HelixTheme.current.onSurface)
                                         flex(1f)
                                     }
                                 }
@@ -160,7 +160,7 @@ internal class TestHubPage : HelixBasePage() {
                                     attr {
                                         text(KuiklyNav.title(pageName))
                                         fontSize(14f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                         marginRight(8f)
                                     }
                                 }
@@ -168,7 +168,7 @@ internal class TestHubPage : HelixBasePage() {
                                     attr {
                                         text("›")
                                         fontSize(16f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                     }
                                 }
                             }
@@ -181,7 +181,7 @@ internal class TestHubPage : HelixBasePage() {
                         attr {
                             text("已打开 ${page.openedCount} 次 | 共 ${KuiklyNav.PAGES.size} 个页面\n点左上角/返回键逐级返回")
                             fontSize(11f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                             marginTop(16f)
                             marginBottom(32f)
                             alignSelfCenter()

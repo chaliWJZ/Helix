@@ -31,7 +31,7 @@ internal class SettingWebPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "Web 服务器",
@@ -47,7 +47,7 @@ internal class SettingWebPage : Pager() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             marginBottom(16f)
@@ -63,7 +63,7 @@ internal class SettingWebPage : Pager() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             padding(16f)
@@ -72,14 +72,14 @@ internal class SettingWebPage : Pager() {
                             attr {
                                 text("端口")
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                             }
                         }
                         Text {
                             attr {
                                 text(page.webServerPort)
                                 fontSize(16f)
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                                 marginTop(4f)
                             }
                         }
@@ -87,7 +87,7 @@ internal class SettingWebPage : Pager() {
                             attr {
                                 text("API 密钥")
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(16f)
                             }
                         }
@@ -95,7 +95,7 @@ internal class SettingWebPage : Pager() {
                             attr {
                                 text(if (page.webApiKey.isEmpty()) "未设置" else page.webApiKey)
                                 fontSize(16f)
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                                 marginTop(4f)
                             }
                         }

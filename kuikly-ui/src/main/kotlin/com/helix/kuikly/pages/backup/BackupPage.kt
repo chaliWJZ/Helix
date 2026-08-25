@@ -28,7 +28,7 @@ internal class BackupPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "备份",
@@ -44,7 +44,7 @@ internal class BackupPage : HelixBasePage() {
                     View {
                         attr {
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             marginBottom(16f)
@@ -61,7 +61,7 @@ internal class BackupPage : HelixBasePage() {
                             attr {
                                 text("上次备份：${page.lastBackupTime}")
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(8f)
                             }
                         }

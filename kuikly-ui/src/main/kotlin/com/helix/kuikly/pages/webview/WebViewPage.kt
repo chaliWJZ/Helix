@@ -56,7 +56,7 @@ internal class WebViewPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = page.title,
@@ -80,7 +80,7 @@ internal class WebViewPage : HelixBasePage() {
                         attr {
                             text(page.url)
                             fontSize(13f)
-                            color(HelixTheme.Light.primary)
+                            color(HelixTheme.current.primary)
                             marginTop(8f)
                         }
                     }
@@ -90,7 +90,7 @@ internal class WebViewPage : HelixBasePage() {
                                 if (page.loading) "正在通过原生 WebView 加载..." else "WebView 已交给原生渲染"
                             )
                             fontSize(12f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                             marginTop(4f)
                         }
                     }

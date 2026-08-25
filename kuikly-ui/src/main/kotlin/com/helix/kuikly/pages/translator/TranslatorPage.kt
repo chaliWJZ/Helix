@@ -30,7 +30,7 @@ internal class TranslatorPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "翻译",
@@ -49,7 +49,7 @@ internal class TranslatorPage : HelixBasePage() {
                         attr {
                             text(page.sourceLang)
                             fontSize(14f)
-                            color(HelixTheme.Light.primary)
+                            color(HelixTheme.current.primary)
                             margin(8f)
                         }
                     }
@@ -57,7 +57,7 @@ internal class TranslatorPage : HelixBasePage() {
                         attr {
                             text("⇄")
                             fontSize(16f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                             margin(8f)
                         }
                     }
@@ -65,7 +65,7 @@ internal class TranslatorPage : HelixBasePage() {
                         attr {
                             text(page.targetLang)
                             fontSize(14f)
-                            color(HelixTheme.Light.primary)
+                            color(HelixTheme.current.primary)
                             margin(8f)
                         }
                     }
@@ -75,7 +75,7 @@ internal class TranslatorPage : HelixBasePage() {
                     attr {
                         height(150f)
                         borderRadius(16f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                         marginLeft(16f)
                         marginRight(16f)
                         marginBottom(12f)
@@ -102,7 +102,7 @@ internal class TranslatorPage : HelixBasePage() {
                         marginBottom(12f)
                         justifyContentCenter()
                         alignItemsCenter()
-                        backgroundColor(HelixTheme.Light.primary)
+                        backgroundColor(HelixTheme.current.primary)
                     }
                     event {
                         click {
@@ -116,7 +116,7 @@ internal class TranslatorPage : HelixBasePage() {
                         attr {
                             text(if (page.translating) "翻译中..." else "翻译")
                             fontSize(15f)
-                            color(HelixTheme.Light.onPrimary)
+                            color(HelixTheme.current.onPrimary)
                         }
                     }
                 }
@@ -125,7 +125,7 @@ internal class TranslatorPage : HelixBasePage() {
                     attr {
                         flex(1f)
                         borderRadius(16f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                         marginLeft(16f)
                         marginRight(16f)
                         marginBottom(16f)
@@ -136,8 +136,8 @@ internal class TranslatorPage : HelixBasePage() {
                             text(if (page.resultText.isEmpty()) "翻译结果将显示在这里" else page.resultText)
                             fontSize(15f)
                             color(
-                                if (page.resultText.isEmpty()) HelixTheme.Light.onSurfaceVariant
-                                else HelixTheme.Light.onSurface
+                                if (page.resultText.isEmpty()) HelixTheme.current.onSurfaceVariant
+                                else HelixTheme.current.onSurface
                             )
                         }
                     }

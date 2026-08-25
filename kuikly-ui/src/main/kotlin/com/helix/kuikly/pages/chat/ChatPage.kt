@@ -89,7 +89,7 @@ internal class ChatPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 // 顶部导航栏
                 NavBar(
@@ -131,13 +131,13 @@ internal class ChatPage : Pager() {
                             attr {
                                 width(250f)
                                 flex(1f)
-                                backgroundColor(HelixTheme.Light.surface)
+                                backgroundColor(HelixTheme.current.surface)
                             }
                             Text {
                                 attr {
                                     text("会话抽屉")
                                     fontSize(16f)
-                                    color(HelixTheme.Light.onSurface)
+                                    color(HelixTheme.current.onSurface)
                                     margin(16f)
                                 }
                             }
@@ -161,8 +161,8 @@ private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.
             padding(12f)
             borderRadius(16f)
             backgroundColor(
-                if (message.role == "user") HelixTheme.Light.primary
-                else HelixTheme.Light.surfaceContainerLow
+                if (message.role == "user") HelixTheme.current.primary
+                else HelixTheme.current.surfaceContainerLow
             )
         }
         // 思维链展示
@@ -171,7 +171,7 @@ private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.
                 attr {
                     text("💭 $thinking")
                     fontSize(12f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                     marginBottom(6f)
                 }
             }
@@ -184,7 +184,7 @@ private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.
                 attr {
                     text(message.content)
                     fontSize(15f)
-                    color(HelixTheme.Light.onPrimary)
+                    color(HelixTheme.current.onPrimary)
                 }
             }
         }
@@ -194,8 +194,8 @@ private fun ViewContainer<*, *>.MessageBubble(page: ChatPage, message: ChatPage.
                 text(message.time)
                 fontSize(10f)
                 color(
-                    if (message.role == "user") HelixTheme.Light.onPrimary
-                    else HelixTheme.Light.onSurfaceVariant
+                    if (message.role == "user") HelixTheme.current.onPrimary
+                    else HelixTheme.current.onSurfaceVariant
                 )
                 marginTop(4f)
             }
@@ -212,7 +212,7 @@ private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
             flexDirectionRow()
             alignItemsCenter()
             padding(8f)
-            backgroundColor(HelixTheme.Light.surface)
+            backgroundColor(HelixTheme.current.surface)
         }
         // 输入框
         View {
@@ -221,7 +221,7 @@ private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
                 minHeight(40f)
                 borderRadius(20f)
                 marginLeft(16f)
-                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                backgroundColor(HelixTheme.current.surfaceContainerLow)
                 justifyContentCenter()
             }
             Input {
@@ -246,8 +246,8 @@ private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
                 justifyContentCenter()
                 alignItemsCenter()
                 backgroundColor(
-                    if (page.inputText.isNotEmpty()) HelixTheme.Light.primary
-                    else HelixTheme.Light.surfaceContainerHighest
+                    if (page.inputText.isNotEmpty()) HelixTheme.current.primary
+                    else HelixTheme.current.surfaceContainerHighest
                 )
             }
             event {
@@ -261,7 +261,7 @@ private fun ViewContainer<*, *>.ChatInputBar(page: ChatPage) {
                 attr {
                     text("↑")
                     fontSize(18f)
-                    color(HelixTheme.Light.onPrimary)
+                    color(HelixTheme.current.onPrimary)
                 }
             }
         }

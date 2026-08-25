@@ -62,7 +62,7 @@ internal class ChatDrawerPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.surface)
+                    backgroundColor(HelixTheme.current.surface)
                 }
                 // ==================== 顶部：当前助手 ====================
                 View {
@@ -70,14 +70,14 @@ internal class ChatDrawerPage : Pager() {
                         flexDirectionRow()
                         alignItemsCenter()
                         padding(16f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                     }
                     View {
                         attr {
                             width(40f)
                             height(40f)
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.primaryContainer)
+                            backgroundColor(HelixTheme.current.primaryContainer)
                             justifyContentCenter()
                             alignItemsCenter()
                         }
@@ -92,7 +92,7 @@ internal class ChatDrawerPage : Pager() {
                         attr {
                             text(page.currentAssistant)
                             fontSize(15f)
-                            color(HelixTheme.Light.onSurface)
+                            color(HelixTheme.current.onSurface)
                             marginLeft(12f)
                             flex(1f)
                         }
@@ -101,7 +101,7 @@ internal class ChatDrawerPage : Pager() {
                         attr {
                             text("切换 ›")
                             fontSize(13f)
-                            color(HelixTheme.Light.primary)
+                            color(HelixTheme.current.primary)
                         }
                     }
                 }
@@ -119,8 +119,8 @@ internal class ChatDrawerPage : Pager() {
                                 borderRadius(12f)
                                 backgroundColor(
                                     if (page.folders.indexOf(folder) == page.selectedFolder)
-                                        HelixTheme.Light.primary
-                                    else HelixTheme.Light.surfaceContainerLow
+                                        HelixTheme.current.primary
+                                    else HelixTheme.current.surfaceContainerLow
                                 )
                             }
                             Text {
@@ -129,8 +129,8 @@ internal class ChatDrawerPage : Pager() {
                                     fontSize(13f)
                                     color(
                                         if (page.folders.indexOf(folder) == page.selectedFolder)
-                                            HelixTheme.Light.onPrimary
-                                        else HelixTheme.Light.onSurfaceVariant
+                                            HelixTheme.current.onPrimary
+                                        else HelixTheme.current.onSurfaceVariant
                                     )
                                     margin(8f)
                                 }
@@ -154,8 +154,8 @@ internal class ChatDrawerPage : Pager() {
                                 marginBottom(4f)
                                 borderRadius(12f)
                                 backgroundColor(
-                                    if (item.active) HelixTheme.Light.primaryContainer
-                                    else HelixTheme.Light.surface
+                                    if (item.active) HelixTheme.current.primaryContainer
+                                    else HelixTheme.current.surface
                                 )
                             }
                             event {
@@ -167,8 +167,8 @@ internal class ChatDrawerPage : Pager() {
                                     text(item.title)
                                     fontSize(14f)
                                     color(
-                                        if (item.active) HelixTheme.Light.onPrimaryContainer
-                                        else HelixTheme.Light.onSurface
+                                        if (item.active) HelixTheme.current.onPrimaryContainer
+                                        else HelixTheme.current.onSurface
                                     )
                                     flex(1f)
                                 }
@@ -178,7 +178,7 @@ internal class ChatDrawerPage : Pager() {
                                 attr {
                                     text(item.time)
                                     fontSize(11f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                 }
                             }
                         }
@@ -189,7 +189,7 @@ internal class ChatDrawerPage : Pager() {
                     attr {
                         flexDirectionRow()
                         padding(16f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                     }
                     // 新建会话
                     drawerAction(icon = "✏️", label = "新会话", page = page)
@@ -233,7 +233,7 @@ private fun ViewContainer<*, *>.drawerAction(icon: String, label: String, page: 
             attr {
                 text(label)
                 fontSize(11f)
-                color(HelixTheme.Light.onSurfaceVariant)
+                color(HelixTheme.current.onSurfaceVariant)
                 marginTop(4f)
             }
         }

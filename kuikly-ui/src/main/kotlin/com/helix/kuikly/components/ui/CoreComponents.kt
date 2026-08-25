@@ -45,7 +45,7 @@ fun ViewContainer<*, *>.NavBar(
     View {
         attr {
             flexDirectionColumn()
-            backgroundColor(HelixTheme.Light.surface)
+            backgroundColor(HelixTheme.current.surface)
         }
         // 状态栏占位
         View {
@@ -81,7 +81,7 @@ fun ViewContainer<*, *>.NavBar(
                             text("‹")
                             fontSize(28f)
                             fontWeight700()
-                            color(HelixTheme.Light.onSurface)
+                            color(HelixTheme.current.onSurface)
                         }
                     }
                 }
@@ -99,7 +99,7 @@ fun ViewContainer<*, *>.NavBar(
                         text(title)
                         fontSize(18f)
                         fontWeight700()
-                        color(HelixTheme.Light.onSurface)
+                        color(HelixTheme.current.onSurface)
                         // 单行省略
                     }
                 }
@@ -124,7 +124,7 @@ fun ViewContainer<*, *>.NavBar(
                         attr {
                             text(action.label)
                             fontSize(20f)
-                            color(HelixTheme.Light.onSurface)
+                            color(HelixTheme.current.onSurface)
                         }
                     }
                 }
@@ -148,7 +148,7 @@ fun ViewContainer<*, *>.CardGroup(
     View {
         attr {
             borderRadius(cornerRadius)
-            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+            backgroundColor(HelixTheme.current.surfaceContainerLow)
             marginLeft(16f)
             marginRight(16f)
             marginBottom(8f)
@@ -188,7 +188,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                 attr {
                     text(item.title)
                     fontSize(16f)
-                    color(HelixTheme.Light.onSurface)
+                    color(HelixTheme.current.onSurface)
                 }
             }
             if (item.subtitle.isNotEmpty()) {
@@ -196,7 +196,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                     attr {
                         text(item.subtitle)
                         fontSize(13f)
-                        color(HelixTheme.Light.onSurfaceVariant)
+                        color(HelixTheme.current.onSurfaceVariant)
                         marginTop(2f)
                     }
                 }
@@ -207,7 +207,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                 attr {
                     text(item.trailingText)
                     fontSize(14f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                     marginRight(8f)
                 }
             }
@@ -217,7 +217,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                 attr {
                     text("›")
                     fontSize(20f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                     marginLeft(4f)
                     marginRight(16f)
                 }
@@ -238,7 +238,7 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
                 height(0.5f)
                 marginLeft(16f)
                 marginRight(16f)
-                backgroundColor(HelixTheme.Light.outlineVariant)
+                backgroundColor(HelixTheme.current.outlineVariant)
             }
         }
     }
@@ -262,7 +262,7 @@ fun ViewContainer<*, *>.TextInput(
                 attr {
                     text(label)
                     fontSize(14f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                     marginBottom(4f)
                 }
             }
@@ -274,13 +274,13 @@ fun ViewContainer<*, *>.TextInput(
                 paddingLeft(12f)
                 paddingRight(12f)
                 justifyContentCenter()
-                backgroundColor(HelixTheme.Light.surfaceContainer)
+                backgroundColor(HelixTheme.current.surfaceContainer)
             }
             Text {
                 attr {
                     text(if (value.isEmpty()) placeholder else value)
                     fontSize(16f)
-                    color(if (value.isEmpty()) HelixTheme.Light.outline else HelixTheme.Light.onSurface)
+                    color(if (value.isEmpty()) HelixTheme.current.outline else HelixTheme.current.onSurface)
                 }
             }
         }
@@ -295,7 +295,7 @@ private fun tagBackgroundColor(type: TagType): Color {
         TagType.ERROR -> Color(0xFFFDCDC9L)
         TagType.WARNING -> Color(0xFFFFE4BBL)
         TagType.INFO -> Color(0xFFD6E4FFL)
-        else -> HelixTheme.Light.tertiaryContainer
+        else -> HelixTheme.current.tertiaryContainer
     }
 }
 
@@ -305,7 +305,7 @@ private fun tagTextColor(type: TagType): Color {
         TagType.ERROR -> Color(0xFFCB2B2BL)
         TagType.WARNING -> Color(0xFFD8650CL)
         TagType.INFO -> Color(0xFF165DFFL)
-        else -> HelixTheme.Light.onTertiaryContainer
+        else -> HelixTheme.current.onTertiaryContainer
     }
 }
 
@@ -360,7 +360,7 @@ fun ViewContainer<*, *>.SwitchRow(
                 attr {
                     text(title)
                     fontSize(16f)
-                    color(HelixTheme.Light.onSurface)
+                    color(HelixTheme.current.onSurface)
                 }
             }
             if (subtitle.isNotEmpty()) {
@@ -368,7 +368,7 @@ fun ViewContainer<*, *>.SwitchRow(
                     attr {
                         text(subtitle)
                         fontSize(14f)
-                        color(HelixTheme.Light.onSurfaceVariant)
+                        color(HelixTheme.current.onSurfaceVariant)
                         marginTop(2f)
                     }
                 }
@@ -380,8 +380,8 @@ fun ViewContainer<*, *>.SwitchRow(
                 height(28f)
                 borderRadius(14f)
                 backgroundColor(
-                    if (checked) HelixTheme.Light.primary
-                    else HelixTheme.Light.surfaceContainerHighest
+                    if (checked) HelixTheme.current.primary
+                    else HelixTheme.current.surfaceContainerHighest
                 )
                 justifyContentCenter()
             }
@@ -431,14 +431,14 @@ fun ViewContainer<*, *>.ConfirmDialog(
                 attr {
                     width(280f)
                     borderRadius(16f)
-                    backgroundColor(HelixTheme.Light.surfaceContainerHigh)
+                    backgroundColor(HelixTheme.current.surfaceContainerHigh)
                     padding(24f)
                 }
                 Text {
                     attr {
                         text(title)
                         fontSize(18f)
-                        color(HelixTheme.Light.onSurface)
+                        color(HelixTheme.current.onSurface)
                         marginBottom(12f)
                     }
                 }
@@ -446,7 +446,7 @@ fun ViewContainer<*, *>.ConfirmDialog(
                     attr {
                         text(message)
                         fontSize(14f)
-                        color(HelixTheme.Light.onSurfaceVariant)
+                        color(HelixTheme.current.onSurfaceVariant)
                         marginBottom(24f)
                     }
                 }
@@ -469,7 +469,7 @@ fun ViewContainer<*, *>.ConfirmDialog(
                             attr {
                                 text(cancelText)
                                 fontSize(14f)
-                                color(HelixTheme.Light.primary)
+                                color(HelixTheme.current.primary)
                             }
                         }
                     }
@@ -487,7 +487,7 @@ fun ViewContainer<*, *>.ConfirmDialog(
                             attr {
                                 text(confirmText)
                                 fontSize(14f)
-                                color(HelixTheme.Light.primary)
+                                color(HelixTheme.current.primary)
                             }
                         }
                     }
@@ -510,7 +510,7 @@ fun ViewContainer<*, *>.DotLoading() {
             attr {
                 text("•  •  •")
                 fontSize(16f)
-                color(HelixTheme.Light.outline)
+                color(HelixTheme.current.outline)
             }
         }
     }

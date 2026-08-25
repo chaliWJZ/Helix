@@ -39,7 +39,7 @@ internal class SettingFilesPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "文件管理",
@@ -70,7 +70,7 @@ internal class SettingFilesPage : Pager() {
                             attr {
                                 text("暂无文件")
                                 fontSize(14f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(8f)
                             }
                         }
@@ -91,7 +91,7 @@ internal class SettingFilesPage : Pager() {
                         attr {
                             text("共 ${page.fileItems.size} 个文件")
                             fontSize(12f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                         }
                     }
                 }

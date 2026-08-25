@@ -54,7 +54,7 @@ internal class HistoryPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "历史记录",
@@ -76,7 +76,7 @@ internal class HistoryPage : Pager() {
                                 marginLeft(16f)
                                 marginRight(16f)
                                 marginBottom(1f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
                                 click { page.router().openPage("ChatPage") }
@@ -98,14 +98,14 @@ internal class HistoryPage : Pager() {
                                     attr {
                                         text(item.title)
                                         fontSize(16f)
-                                        color(HelixTheme.Light.onSurface)
+                                        color(HelixTheme.current.onSurface)
                                     }
                                 }
                                 Text {
                                     attr {
                                         text("${item.messageCount} 条消息")
                                         fontSize(13f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                         marginTop(2f)
                                     }
                                 }
@@ -115,7 +115,7 @@ internal class HistoryPage : Pager() {
                                 attr {
                                     text(item.time)
                                     fontSize(12f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                 }
                             }
                         }

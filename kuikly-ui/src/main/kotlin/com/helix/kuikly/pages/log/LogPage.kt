@@ -56,7 +56,7 @@ internal class LogPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "日志",
@@ -76,7 +76,7 @@ internal class LogPage : Pager() {
                                 marginLeft(16f)
                                 marginRight(16f)
                                 marginBottom(1f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             // 级别
                             Text {
@@ -97,7 +97,7 @@ internal class LogPage : Pager() {
                                     attr {
                                         text("[${item.tag}] ${item.message}")
                                         fontSize(12f)
-                                        color(HelixTheme.Light.onSurface)
+                                        color(HelixTheme.current.onSurface)
                                     }
                                 }
                             }
@@ -106,7 +106,7 @@ internal class LogPage : Pager() {
                                 attr {
                                     text(item.time)
                                     fontSize(10f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                 }
                             }
                         }

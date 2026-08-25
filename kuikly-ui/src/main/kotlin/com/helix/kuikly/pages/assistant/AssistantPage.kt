@@ -48,7 +48,7 @@ internal class AssistantPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "助手",
@@ -73,7 +73,7 @@ internal class AssistantPage : Pager() {
                                 marginRight(16f)
                                 marginBottom(8f)
                                 borderRadius(16f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
                                 click { page.router().openPage("AssistantDetailPage") }
@@ -84,7 +84,7 @@ internal class AssistantPage : Pager() {
                                     width(48f)
                                     height(48f)
                                     borderRadius(24f)
-                                    backgroundColor(HelixTheme.Light.primaryContainer)
+                                    backgroundColor(HelixTheme.current.primaryContainer)
                                     justifyContentCenter()
                                     alignItemsCenter()
                                 }
@@ -105,14 +105,14 @@ internal class AssistantPage : Pager() {
                                     attr {
                                         text(item.name)
                                         fontSize(16f)
-                                        color(HelixTheme.Light.onSurface)
+                                        color(HelixTheme.current.onSurface)
                                     }
                                 }
                                 Text {
                                     attr {
                                         text(item.description)
                                         fontSize(13f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                         marginTop(2f)
                                     }
                                 }
@@ -122,7 +122,7 @@ internal class AssistantPage : Pager() {
                                 attr {
                                     text("›")
                                     fontSize(20f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                 }
                             }
                         }

@@ -174,6 +174,10 @@ class KuiklyHostActivity : Activity() {
             }
         }
         data["sysLang"] = resources.configuration.locale.language
+        // 告诉 Kuikly 页面当前系统是 light/dark（用于主题跟随）
+        val isNight = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        data["sysTheme"] = if (isNight) "dark" else "light"
         return data
     }
 

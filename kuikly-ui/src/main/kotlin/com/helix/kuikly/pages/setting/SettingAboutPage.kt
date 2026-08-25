@@ -26,7 +26,7 @@ internal class SettingAboutPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "关于",
@@ -45,7 +45,7 @@ internal class SettingAboutPage : Pager() {
                             width(80f)
                             height(80f)
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.primaryContainer)
+                            backgroundColor(HelixTheme.current.primaryContainer)
                             justifyContentCenter()
                             alignItemsCenter()
                         }
@@ -53,7 +53,7 @@ internal class SettingAboutPage : Pager() {
                             attr {
                                 text("H")
                                 fontSize(40f)
-                                color(HelixTheme.Light.primary)
+                                color(HelixTheme.current.primary)
                             }
                         }
                     }
@@ -61,7 +61,7 @@ internal class SettingAboutPage : Pager() {
                         attr {
                             text("Helix")
                             fontSize(24f)
-                            color(HelixTheme.Light.onBackground)
+                            color(HelixTheme.current.onBackground)
                             marginTop(12f)
                         }
                     }
@@ -69,7 +69,7 @@ internal class SettingAboutPage : Pager() {
                         attr {
                             text("v1.0.0")
                             fontSize(14f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                             marginTop(4f)
                         }
                     }

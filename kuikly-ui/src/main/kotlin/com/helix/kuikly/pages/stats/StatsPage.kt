@@ -26,7 +26,7 @@ internal class StatsPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "统计",
@@ -70,7 +70,7 @@ private fun ViewContainer<*, *>.statCard(icon: String, value: String, label: Str
             height(100f)
             margin(8f)
             borderRadius(20f)
-            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+            backgroundColor(HelixTheme.current.surfaceContainerLow)
             justifyContentCenter()
             alignItemsCenter()
         }
@@ -85,7 +85,7 @@ private fun ViewContainer<*, *>.statCard(icon: String, value: String, label: Str
                 text(value)
                 fontSize(24f)
                 fontWeight700()
-                color(HelixTheme.Light.onSurface)
+                color(HelixTheme.current.onSurface)
                 marginTop(4f)
             }
         }
@@ -93,7 +93,7 @@ private fun ViewContainer<*, *>.statCard(icon: String, value: String, label: Str
             attr {
                 text(label)
                 fontSize(12f)
-                color(HelixTheme.Light.onSurfaceVariant)
+                color(HelixTheme.current.onSurfaceVariant)
                 marginTop(2f)
             }
         }

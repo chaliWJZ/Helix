@@ -43,7 +43,7 @@ internal class QuickMessagesPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "快捷消息",
@@ -64,13 +64,13 @@ internal class QuickMessagesPage : Pager() {
                                 marginLeft(16f)
                                 marginRight(16f)
                                 marginBottom(1f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             Text {
                                 attr {
                                     text(item)
                                     fontSize(15f)
-                                    color(HelixTheme.Light.onSurface)
+                                    color(HelixTheme.current.onSurface)
                                     flex(1f)
                                 }
                             }
@@ -78,7 +78,7 @@ internal class QuickMessagesPage : Pager() {
                                 attr {
                                     text("✕")
                                     fontSize(14f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                 }
                             }
                         }

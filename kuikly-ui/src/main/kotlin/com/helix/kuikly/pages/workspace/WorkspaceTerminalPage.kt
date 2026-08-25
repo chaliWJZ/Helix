@@ -27,7 +27,7 @@ internal class WorkspaceTerminalPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "终端",
@@ -63,7 +63,7 @@ internal class WorkspaceTerminalPage : HelixBasePage() {
                         attr {
                             text("终端输入由原生 Termux 层处理（Module 桥接）")
                             fontSize(12f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                         }
                     }
                 }

@@ -46,7 +46,7 @@ internal class SkillsPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "技能",
@@ -68,7 +68,7 @@ internal class SkillsPage : Pager() {
                                 marginRight(16f)
                                 marginBottom(8f)
                                 borderRadius(16f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             View {
                                 attr {
@@ -78,14 +78,14 @@ internal class SkillsPage : Pager() {
                                     attr {
                                         text(item.name)
                                         fontSize(15f)
-                                        color(HelixTheme.Light.onSurface)
+                                        color(HelixTheme.current.onSurface)
                                     }
                                 }
                                 Text {
                                     attr {
                                         text(item.description)
                                         fontSize(13f)
-                                        color(HelixTheme.Light.onSurfaceVariant)
+                                        color(HelixTheme.current.onSurfaceVariant)
                                         marginTop(2f)
                                     }
                                 }
@@ -96,8 +96,8 @@ internal class SkillsPage : Pager() {
                                     text(if (item.enabled) "已启用" else "未启用")
                                     fontSize(12f)
                                     color(
-                                        if (item.enabled) HelixTheme.Light.primary
-                                        else HelixTheme.Light.onSurfaceVariant
+                                        if (item.enabled) HelixTheme.current.primary
+                                        else HelixTheme.current.onSurfaceVariant
                                     )
                                 }
                             }

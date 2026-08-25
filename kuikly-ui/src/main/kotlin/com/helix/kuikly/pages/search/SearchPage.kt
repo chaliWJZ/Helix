@@ -40,7 +40,7 @@ internal class SearchPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "搜索",
@@ -57,7 +57,7 @@ internal class SearchPage : Pager() {
                         marginTop(8f)
                         paddingLeft(16f)
                         paddingRight(16f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                         justifyContentCenter()
                     }
                     Input {
@@ -81,7 +81,7 @@ internal class SearchPage : Pager() {
                         marginTop(12f)
                         justifyContentCenter()
                         alignItemsCenter()
-                        backgroundColor(HelixTheme.Light.primary)
+                        backgroundColor(HelixTheme.current.primary)
                     }
                     event {
                         click {
@@ -94,7 +94,7 @@ internal class SearchPage : Pager() {
                         attr {
                             text(if (page.searching) "搜索中..." else "搜索")
                             fontSize(15f)
-                            color(HelixTheme.Light.onPrimary)
+                            color(HelixTheme.current.onPrimary)
                         }
                     }
                 }
@@ -112,20 +112,20 @@ internal class SearchPage : Pager() {
                                 marginRight(16f)
                                 marginBottom(8f)
                                 borderRadius(16f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             Text {
                                 attr {
                                     text(item.title)
                                     fontSize(15f)
-                                    color(HelixTheme.Light.primary)
+                                    color(HelixTheme.current.primary)
                                 }
                             }
                             Text {
                                 attr {
                                     text(item.snippet)
                                     fontSize(13f)
-                                    color(HelixTheme.Light.onSurface)
+                                    color(HelixTheme.current.onSurface)
                                     marginTop(4f)
                                 }
                             }
@@ -133,7 +133,7 @@ internal class SearchPage : Pager() {
                                 attr {
                                     text(item.url)
                                     fontSize(11f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                     marginTop(4f)
                                 }
                             }

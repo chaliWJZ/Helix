@@ -47,7 +47,7 @@ private fun ViewContainer<*, *>.renderHeading(element: MarkdownParser.MdElement.
                 }
             )
             fontWeight700()
-            color(HelixTheme.Light.onSurface)
+            color(HelixTheme.current.onSurface)
             marginTop(12f)
             marginBottom(6f)
         }
@@ -60,7 +60,7 @@ private fun ViewContainer<*, *>.renderParagraph(element: MarkdownParser.MdElemen
         attr {
             text(element.text)
             fontSize(15f)
-            color(HelixTheme.Light.onSurface)
+            color(HelixTheme.current.onSurface)
             marginTop(6f)
             marginBottom(6f)
         }
@@ -120,7 +120,7 @@ private fun ViewContainer<*, *>.renderListItem(element: MarkdownParser.MdElement
                     else "• "
                 )
                 fontSize(15f)
-                color(HelixTheme.Light.primary)
+                color(HelixTheme.current.primary)
                 marginRight(6f)
             }
         }
@@ -129,7 +129,7 @@ private fun ViewContainer<*, *>.renderListItem(element: MarkdownParser.MdElement
             attr {
                 text(element.text)
                 fontSize(15f)
-                color(HelixTheme.Light.onSurface)
+                color(HelixTheme.current.onSurface)
                 flex(1f)
             }
         }
@@ -150,7 +150,7 @@ private fun ViewContainer<*, *>.renderQuote(element: MarkdownParser.MdElement.Qu
             attr {
                 width(3f)
                 borderRadius(2f)
-                backgroundColor(HelixTheme.Light.primaryContainer)
+                backgroundColor(HelixTheme.current.primaryContainer)
                 marginRight(10f)
             }
         }
@@ -159,7 +159,7 @@ private fun ViewContainer<*, *>.renderQuote(element: MarkdownParser.MdElement.Qu
             attr {
                 text(element.text)
                 fontSize(14f)
-                color(HelixTheme.Light.onSurfaceVariant)
+                color(HelixTheme.current.onSurfaceVariant)
                 flex(1f)
             }
         }
@@ -171,7 +171,7 @@ private fun ViewContainer<*, *>.renderDivider() {
     View {
         attr {
             height(1f)
-            backgroundColor(HelixTheme.Light.outlineVariant)
+            backgroundColor(HelixTheme.current.outlineVariant)
             marginTop(12f)
             marginBottom(12f)
             alignSelfStretch()

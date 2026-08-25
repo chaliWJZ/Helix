@@ -27,7 +27,7 @@ internal class ImgGenPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "图片生成",
@@ -43,7 +43,7 @@ internal class ImgGenPage : HelixBasePage() {
                         attr {
                             height(100f)
                             borderRadius(16f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             marginTop(8f)
@@ -71,7 +71,7 @@ internal class ImgGenPage : HelixBasePage() {
                             marginBottom(16f)
                             justifyContentCenter()
                             alignItemsCenter()
-                            backgroundColor(HelixTheme.Light.primary)
+                            backgroundColor(HelixTheme.current.primary)
                         }
                         event {
                             click {
@@ -85,7 +85,7 @@ internal class ImgGenPage : HelixBasePage() {
                             attr {
                                 text(if (page.generating) "生成中..." else "生成图片")
                                 fontSize(15f)
-                                color(HelixTheme.Light.onPrimary)
+                                color(HelixTheme.current.onPrimary)
                             }
                         }
                     }
@@ -94,7 +94,7 @@ internal class ImgGenPage : HelixBasePage() {
                         attr {
                             flex(1f)
                             borderRadius(16f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             marginBottom(16f)
@@ -114,7 +114,7 @@ internal class ImgGenPage : HelixBasePage() {
                                     else "生成的图片将显示在这里"
                                 )
                                 fontSize(13f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(8f)
                             }
                         }

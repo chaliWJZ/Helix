@@ -27,7 +27,7 @@ internal class SkillDetailPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "技能详情",
@@ -49,7 +49,7 @@ internal class SkillDetailPage : HelixBasePage() {
                             marginRight(16f)
                             marginBottom(8f)
                             borderRadius(16f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                         }
                         Text {
                             attr {
@@ -66,14 +66,14 @@ internal class SkillDetailPage : HelixBasePage() {
                                 attr {
                                     text(page.skillName)
                                     fontSize(17f)
-                                    color(HelixTheme.Light.onSurface)
+                                    color(HelixTheme.current.onSurface)
                                 }
                             }
                             Text {
                                 attr {
                                     text(page.skillDesc)
                                     fontSize(13f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                     marginTop(2f)
                                 }
                             }
@@ -86,7 +86,7 @@ internal class SkillDetailPage : HelixBasePage() {
                             marginLeft(16f)
                             marginRight(16f)
                             borderRadius(16f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                         }
                         Text {
                             attr {
@@ -94,7 +94,7 @@ internal class SkillDetailPage : HelixBasePage() {
                                 )
                                 fontSize(14f)
                                 fontWeight700()
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                                 marginBottom(8f)
                             }
                         }
@@ -102,7 +102,7 @@ internal class SkillDetailPage : HelixBasePage() {
                             attr {
                                 text("• query: string（必填）搜索关键词\n• limit: int 搜索结果数量，默认 5\n• safe: bool 安全搜索，默认 true")
                                 fontSize(13f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }

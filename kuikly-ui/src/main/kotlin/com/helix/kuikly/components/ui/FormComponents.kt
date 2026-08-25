@@ -34,7 +34,7 @@ fun ViewContainer<*, *>.FormItem(
                 attr {
                     text(label)
                     fontSize(16f)
-                    color(HelixTheme.Light.onSurface)
+                    color(HelixTheme.current.onSurface)
                 }
             }
             if (description.isNotEmpty()) {
@@ -42,7 +42,7 @@ fun ViewContainer<*, *>.FormItem(
                     attr {
                         text(description)
                         fontSize(12f)
-                        color(HelixTheme.Light.onSurfaceVariant)
+                        color(HelixTheme.current.onSurfaceVariant)
                         marginTop(2f)
                     }
                 }
@@ -52,7 +52,7 @@ fun ViewContainer<*, *>.FormItem(
                     attr {
                         text(content)
                         fontSize(14f)
-                        color(HelixTheme.Light.onSurfaceVariant)
+                        color(HelixTheme.current.onSurfaceVariant)
                         marginTop(4f)
                     }
                 }
@@ -80,8 +80,8 @@ fun ViewContainer<*, *>.SwitchDot(
             height(28f)
             borderRadius(14f)
             backgroundColor(
-                if (checked) HelixTheme.Light.primary
-                else HelixTheme.Light.surfaceContainerHighest
+                if (checked) HelixTheme.current.primary
+                else HelixTheme.current.surfaceContainerHighest
             )
             justifyContentCenter()
         }
@@ -129,7 +129,7 @@ fun ViewContainer<*, *>.Select(
                 attr {
                     text(label)
                     fontSize(14f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                     marginBottom(4f)
                 }
             }
@@ -143,7 +143,7 @@ fun ViewContainer<*, *>.Select(
                 paddingRight(16f)
                 flexDirectionRow()
                 alignItemsCenter()
-                backgroundColor(HelixTheme.Light.surfaceContainer)
+                backgroundColor(HelixTheme.current.surfaceContainer)
             }
             event {
                 click { onSelect(-1) } // -1 = toggle dropdown
@@ -152,7 +152,7 @@ fun ViewContainer<*, *>.Select(
                 attr {
                     text(if (selectedIndex in options.indices) options[selectedIndex] else "请选择")
                     fontSize(16f)
-                    color(HelixTheme.Light.onSurface)
+                    color(HelixTheme.current.onSurface)
                     flex(1f)
                 }
             }
@@ -160,7 +160,7 @@ fun ViewContainer<*, *>.Select(
                 attr {
                     text("▾")
                     fontSize(14f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                 }
             }
         }
@@ -199,7 +199,7 @@ fun ViewContainer<*, *>.SelectDropdown(
                     marginLeft(16f)
                     marginRight(16f)
                     borderRadius(12f)
-                    backgroundColor(HelixTheme.Light.surfaceContainerHigh)
+                    backgroundColor(HelixTheme.current.surfaceContainerHigh)
                 }
                 options.forEachIndexed { index, option ->
                     View {
@@ -220,8 +220,8 @@ fun ViewContainer<*, *>.SelectDropdown(
                                 text(option)
                                 fontSize(16f)
                                 color(
-                                    if (index == selectedIndex) HelixTheme.Light.primary
-                                    else HelixTheme.Light.onSurface
+                                    if (index == selectedIndex) HelixTheme.current.primary
+                                    else HelixTheme.current.onSurface
                                 )
                                 flex(1f)
                             }
@@ -231,7 +231,7 @@ fun ViewContainer<*, *>.SelectDropdown(
                                 attr {
                                     text("✓")
                                     fontSize(16f)
-                                    color(HelixTheme.Light.primary)
+                                    color(HelixTheme.current.primary)
                                 }
                             }
                         }
@@ -243,7 +243,7 @@ fun ViewContainer<*, *>.SelectDropdown(
                                 height(0.5f)
                                 marginLeft(16f)
                                 marginRight(16f)
-                                backgroundColor(HelixTheme.Light.outlineVariant)
+                                backgroundColor(HelixTheme.current.outlineVariant)
                             }
                         }
                     }
@@ -274,7 +274,7 @@ fun ViewContainer<*, *>.TextArea(
                 attr {
                     text(label)
                     fontSize(14f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                     marginBottom(4f)
                 }
             }
@@ -287,13 +287,13 @@ fun ViewContainer<*, *>.TextArea(
                 paddingRight(12f)
                 paddingTop(10f)
                 paddingBottom(10f)
-                backgroundColor(HelixTheme.Light.surfaceContainer)
+                backgroundColor(HelixTheme.current.surfaceContainer)
             }
             Text {
                 attr {
                     text(if (value.isEmpty()) placeholder else value)
                     fontSize(16f)
-                    color(if (value.isEmpty()) HelixTheme.Light.outline else HelixTheme.Light.onSurface)
+                    color(if (value.isEmpty()) HelixTheme.current.outline else HelixTheme.current.onSurface)
                 }
             }
         }
@@ -318,13 +318,13 @@ fun ViewContainer<*, *>.StickyHeader(
             paddingRight(16f)
             paddingTop(8f)
             paddingBottom(8f)
-            backgroundColor(HelixTheme.Light.background)
+            backgroundColor(HelixTheme.current.background)
         }
         Text {
             attr {
                 text(title)
                 fontSize(13f)
-                color(HelixTheme.Light.primary)
+                color(HelixTheme.current.primary)
                 flex(1f)
             }
         }
@@ -333,7 +333,7 @@ fun ViewContainer<*, *>.StickyHeader(
                 attr {
                     text(trailing)
                     fontSize(13f)
-                    color(HelixTheme.Light.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                 }
             }
         }
@@ -369,7 +369,7 @@ fun ViewContainer<*, *>.ShareSheet(
             View {
                 attr {
                     borderRadius(20f)
-                    backgroundColor(HelixTheme.Light.surfaceContainerHigh)
+                    backgroundColor(HelixTheme.current.surfaceContainerHigh)
                     paddingBottom(20f)
                 }
                 // 拖拽指示条
@@ -378,7 +378,7 @@ fun ViewContainer<*, *>.ShareSheet(
                         width(36f)
                         height(4f)
                         borderRadius(2f)
-                        backgroundColor(HelixTheme.Light.outlineVariant)
+                        backgroundColor(HelixTheme.current.outlineVariant)
                         marginTop(8f)
                         marginBottom(16f)
                         alignSelfCenter()
@@ -389,7 +389,7 @@ fun ViewContainer<*, *>.ShareSheet(
                     attr {
                         text(title)
                         fontSize(16f)
-                        color(HelixTheme.Light.onSurface)
+                        color(HelixTheme.current.onSurface)
                         marginBottom(16f)
                         marginLeft(16f)
                     }
@@ -420,7 +420,7 @@ fun ViewContainer<*, *>.ShareSheet(
                             attr {
                                 text(option.label)
                                 fontSize(16f)
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                             }
                         }
                     }
@@ -445,7 +445,7 @@ data class ShareOption(
 fun ViewContainer<*, *>.UIAvatar(
     name: String,
     size: Float = 40f,
-    backgroundColor: Color = HelixTheme.Light.primaryContainer
+    backgroundColor: Color = HelixTheme.current.primaryContainer
 ) {
     View {
         attr {
@@ -460,7 +460,7 @@ fun ViewContainer<*, *>.UIAvatar(
             attr {
                 text(name.take(1).uppercase())
                 fontSize(size * 0.4f)
-                color(HelixTheme.Light.onPrimaryContainer)
+                color(HelixTheme.current.onPrimaryContainer)
             }
         }
     }
@@ -489,7 +489,7 @@ fun ViewContainer<*, *>.SectionHeader(
             attr {
                 text(title)
                 fontSize(22f)
-                color(HelixTheme.Light.onBackground)
+                color(HelixTheme.current.onBackground)
                 flex(1f)
             }
         }
@@ -506,7 +506,7 @@ fun ViewContainer<*, *>.SectionHeader(
                     attr {
                         text(trailing)
                         fontSize(14f)
-                        color(HelixTheme.Light.primary)
+                        color(HelixTheme.current.primary)
                     }
                 }
             }
@@ -540,7 +540,7 @@ fun ViewContainer<*, *>.EmptyView(
             attr {
                 text(message)
                 fontSize(14f)
-                color(HelixTheme.Light.onSurfaceVariant)
+                color(HelixTheme.current.onSurfaceVariant)
             }
         }
     }

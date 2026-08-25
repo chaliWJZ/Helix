@@ -48,7 +48,7 @@ fun ViewContainer<*, *>.RadioRow(
                 attr {
                     text(title)
                     fontSize(16f)
-                    color(HelixTheme.Light.onSurface)
+                    color(HelixTheme.current.onSurface)
                 }
             }
             if (subtitle.isNotEmpty()) {
@@ -56,7 +56,7 @@ fun ViewContainer<*, *>.RadioRow(
                     attr {
                         text(subtitle)
                         fontSize(13f)
-                        color(HelixTheme.Light.onSurfaceVariant)
+                        color(HelixTheme.current.onSurfaceVariant)
                         marginTop(2f)
                     }
                 }
@@ -69,7 +69,7 @@ fun ViewContainer<*, *>.RadioRow(
                     width(22f)
                     height(22f)
                     borderRadius(11f)
-                    backgroundColor(HelixTheme.Light.primary)
+                    backgroundColor(HelixTheme.current.primary)
                     marginRight(16f)
                     justifyContentCenter()
                     alignItemsCenter()
@@ -99,7 +99,7 @@ fun ViewContainer<*, *>.RadioRow(
                         width(8f)
                         height(8f)
                         borderRadius(4f)
-                        backgroundColor(HelixTheme.Light.background)
+                        backgroundColor(HelixTheme.current.background)
                     }
                 }
             }

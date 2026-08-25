@@ -47,7 +47,7 @@ internal class PromptPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "提示词",
@@ -70,7 +70,7 @@ internal class PromptPage : Pager() {
                                 marginRight(16f)
                                 marginBottom(8f)
                                 borderRadius(16f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
                                 click { /* TODO: 编辑提示词 */ }
@@ -79,14 +79,14 @@ internal class PromptPage : Pager() {
                                 attr {
                                     text(item.title)
                                     fontSize(16f)
-                                    color(HelixTheme.Light.onSurface)
+                                    color(HelixTheme.current.onSurface)
                                 }
                             }
                             Text {
                                 attr {
                                     text(item.content.take(60) + if (item.content.length > 60) "..." else "")
                                     fontSize(13f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                     marginTop(4f)
                                 }
                             }
@@ -101,12 +101,12 @@ internal class PromptPage : Pager() {
                                         attr {
                                             text(tag)
                                             fontSize(11f)
-                                            color(HelixTheme.Light.primary)
+                                            color(HelixTheme.current.primary)
                                             marginLeft(8f)
                                             marginRight(6f)
                                             marginTop(8f)
                                             borderRadius(8f)
-                                            backgroundColor(HelixTheme.Light.primaryContainer)
+                                            backgroundColor(HelixTheme.current.primaryContainer)
                                         }
                                     }
                                 }

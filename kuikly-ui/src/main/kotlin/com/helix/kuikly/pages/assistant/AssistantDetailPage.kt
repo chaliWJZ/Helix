@@ -33,7 +33,7 @@ internal class AssistantDetailPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "编辑助手",
@@ -52,7 +52,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                             width(56f)
                             height(56f)
                             borderRadius(28f)
-                            backgroundColor(HelixTheme.Light.primaryContainer)
+                            backgroundColor(HelixTheme.current.primaryContainer)
                             justifyContentCenter()
                             alignItemsCenter()
                         }
@@ -72,14 +72,14 @@ internal class AssistantDetailPage : HelixBasePage() {
                             attr {
                                 text("默认助手")
                                 fontSize(18f)
-                                color(HelixTheme.Light.onSurface)
+                                color(HelixTheme.current.onSurface)
                             }
                         }
                         Text {
                             attr {
                                 text("通用的 AI 聊天助手")
                                 fontSize(13f)
-                                color(HelixTheme.Light.onSurfaceVariant)
+                                color(HelixTheme.current.onSurfaceVariant)
                                 marginTop(2f)
                             }
                         }
@@ -93,7 +93,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                         marginRight(16f)
                         marginBottom(8f)
                         borderRadius(12f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                         padding(4f)
                     }
                     vfor({ page.tabs }) { tab ->
@@ -106,8 +106,8 @@ internal class AssistantDetailPage : HelixBasePage() {
                                 alignItemsCenter()
                                 backgroundColor(
                                     if (page.tabs.indexOf(tab) == page.currentTab)
-                                        HelixTheme.Light.primary
-                                    else HelixTheme.Light.surfaceContainerLow
+                                        HelixTheme.current.primary
+                                    else HelixTheme.current.surfaceContainerLow
                                 )
                             }
                             event {
@@ -119,8 +119,8 @@ internal class AssistantDetailPage : HelixBasePage() {
                                     fontSize(12f)
                                     color(
                                         if (page.tabs.indexOf(tab) == page.currentTab)
-                                            HelixTheme.Light.onPrimary
-                                        else HelixTheme.Light.onSurfaceVariant
+                                            HelixTheme.current.onPrimary
+                                        else HelixTheme.current.onSurfaceVariant
                                     )
                                 }
                             }
@@ -132,7 +132,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                     attr {
                         flex(1f)
                         borderRadius(16f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                         marginLeft(16f)
                         marginRight(16f)
                         marginBottom(16f)
@@ -153,7 +153,7 @@ internal class AssistantDetailPage : HelixBasePage() {
                                 }
                             )
                             fontSize(14f)
-                            color(HelixTheme.Light.onSurfaceVariant)
+                            color(HelixTheme.current.onSurfaceVariant)
                         }
                     }
                 }

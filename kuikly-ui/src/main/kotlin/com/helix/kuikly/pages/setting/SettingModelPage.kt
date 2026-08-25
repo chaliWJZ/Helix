@@ -40,7 +40,7 @@ internal class SettingModelPage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "模型设置",
@@ -56,7 +56,7 @@ internal class SettingModelPage : Pager() {
                         marginTop(8f)
                         marginBottom(8f)
                         borderRadius(12f)
-                        backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                        backgroundColor(HelixTheme.current.surfaceContainerLow)
                         padding(4f)
                     }
                     // Tab: 模型
@@ -67,7 +67,7 @@ internal class SettingModelPage : Pager() {
                             borderRadius(10f)
                             justifyContentCenter()
                             alignItemsCenter()
-                            backgroundColor(if (page.currentTab == 0) HelixTheme.Light.primary else HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(if (page.currentTab == 0) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
                         }
                         event {
                             click { page.currentTab = 0 }
@@ -76,7 +76,7 @@ internal class SettingModelPage : Pager() {
                             attr {
                                 text("模型")
                                 fontSize(14f)
-                                color(if (page.currentTab == 0) HelixTheme.Light.onPrimary else HelixTheme.Light.onSurfaceVariant)
+                                color(if (page.currentTab == 0) HelixTheme.current.onPrimary else HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }
@@ -88,7 +88,7 @@ internal class SettingModelPage : Pager() {
                             borderRadius(10f)
                             justifyContentCenter()
                             alignItemsCenter()
-                            backgroundColor(if (page.currentTab == 1) HelixTheme.Light.primary else HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(if (page.currentTab == 1) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
                         }
                         event {
                             click { page.currentTab = 1 }
@@ -97,7 +97,7 @@ internal class SettingModelPage : Pager() {
                             attr {
                                 text("提示词")
                                 fontSize(14f)
-                                color(if (page.currentTab == 1) HelixTheme.Light.onPrimary else HelixTheme.Light.onSurfaceVariant)
+                                color(if (page.currentTab == 1) HelixTheme.current.onPrimary else HelixTheme.current.onSurfaceVariant)
                             }
                         }
                     }

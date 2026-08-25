@@ -11,7 +11,7 @@ import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.CardGroup
 import com.helix.kuikly.components.ui.CardGroupItem
 import com.helix.kuikly.components.ui.NavBar
-import com.helix.kuikly.components.ui.SwitchRow
+import com.helix.kuikly.components.ui.RadioRow
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -26,9 +26,6 @@ internal class SettingPreferencesThemePage : Pager() {
 
     /** 颜色模式：0=系统 1=浅色 2=深色（与 SettingPage 共享语义） */
     internal var colorMode by observable(0)
-    private var dynamicColor by observable(false)
-    private var amoledDark by observable(false)
-    private var pureBlackBg by observable(false)
 
     override fun body(): ViewBuilder {
         val page = this
@@ -36,7 +33,7 @@ internal class SettingPreferencesThemePage : Pager() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "主题",
@@ -49,58 +46,36 @@ internal class SettingPreferencesThemePage : Pager() {
                         alignSelfStretch()
                         marginTop(8f)
                     }
-                    // ==================== 颜色模式（3 选项单选） ====================
-                    CardGroup(
-                        items = listOf(
-                            CardGroupItem(
-                                title = "跟随系统",
-                                subtitle = "跟随系统切换",
-                                icon = "📱",
-                                trailingText = if (page.colorMode == 0) "✓" else "",
-                                onClick = { page.colorMode = 0 }
-                            ),
-                            CardGroupItem(
-                                title = "浅色",
-                                subtitle = "始终使用浅色模式",
-                                icon = "☀️",
-                                trailingText = if (page.colorMode == 1) "✓" else "",
-                                onClick = { page.colorMode = 1 }
-                            ),
-                            CardGroupItem(
-                                title = "深色",
-                                subtitle = "始终使用深色模式",
-                                icon = "🌙",
-                                trailingText = if (page.colorMode == 2) "✓" else "",
-                                onClick = { page.colorMode = 2 }
-                            )
-                        )
-                    )
-                    // 开关项
+                    // ==================== 颜色模式（3 选项单选 Radio） ====================
                     View {
                         attr {
+                            flexDirectionColumn()
                             borderRadius(20f)
-                            backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                            backgroundColor(HelixTheme.current.surfaceContainerLow)
                             marginLeft(16f)
                             marginRight(16f)
                             marginBottom(8f)
                         }
-                        SwitchRow(
-                            title = "动态取色",
-                            subtitle = "Material You 壁纸取色（Android 12+）",
-                            checked = page.dynamicColor,
-                            onCheckedChange = { page.dynamicColor = it }
+                        RadioRow(
+                            title = "跟随系统",
+                            subtitle = "跟随系统切换",
+                            icon = "📱",
+                            selected = page.colorMode == 0,
+                            onClick = { page.colorMode = 0 }
                         )
-                        SwitchRow(
-                            title = "AMOLED 暗色模式",
-                            subtitle = "纯黑背景省电",
-                            checked = page.amoledDark,
-                            onCheckedChange = { page.amoledDark = it }
+                        RadioRow(
+                            title = "浅色",
+                            subtitle = "始终使用浅色模式",
+                            icon = "☀️",
+                            selected = page.colorMode == 1,
+                            onClick = { page.colorMode = 1 }
                         )
-                        SwitchRow(
-                            title = "纯黑背景",
-                            subtitle = "聊天页面使用纯黑背景",
-                            checked = page.pureBlackBg,
-                            onCheckedChange = { page.pureBlackBg = it }
+                        RadioRow(
+                            title = "深色",
+                            subtitle = "始终使用深色模式",
+                            icon = "🌙",
+                            selected = page.colorMode == 2,
+                            onClick = { page.colorMode = 2 }
                         )
                     }
                 }

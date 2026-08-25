@@ -44,7 +44,7 @@ internal class SettingMcpPage : HelixBasePage() {
             View {
                 attr {
                     flex(1f)
-                    backgroundColor(HelixTheme.Light.background)
+                    backgroundColor(HelixTheme.current.background)
                 }
                 NavBar(
                     title = "MCP",
@@ -67,7 +67,7 @@ internal class SettingMcpPage : HelixBasePage() {
                                 marginRight(16f)
                                 marginBottom(8f)
                                 borderRadius(16f)
-                                backgroundColor(HelixTheme.Light.surfaceContainerLow)
+                                backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             View {
                                 attr {
@@ -78,7 +78,7 @@ internal class SettingMcpPage : HelixBasePage() {
                                     attr {
                                         text(server.name)
                                         fontSize(16f)
-                                        color(HelixTheme.Light.onSurface)
+                                        color(HelixTheme.current.onSurface)
                                         flex(1f)
                                     }
                                 }
@@ -88,8 +88,8 @@ internal class SettingMcpPage : HelixBasePage() {
                                         text(if (server.enabled) "● 已启用" else "○ 已禁用")
                                         fontSize(12f)
                                         color(
-                                            if (server.enabled) HelixTheme.Light.primary
-                                            else HelixTheme.Light.onSurfaceVariant
+                                            if (server.enabled) HelixTheme.current.primary
+                                            else HelixTheme.current.onSurfaceVariant
                                         )
                                     }
                                 }
@@ -98,7 +98,7 @@ internal class SettingMcpPage : HelixBasePage() {
                                 attr {
                                     text(server.command)
                                     fontSize(12f)
-                                    color(HelixTheme.Light.onSurfaceVariant)
+                                    color(HelixTheme.current.onSurfaceVariant)
                                     marginTop(4f)
                                     fontFamily("monospace")
                                 }
@@ -107,7 +107,7 @@ internal class SettingMcpPage : HelixBasePage() {
                                 attr {
                                     text("${server.tools} 个工具可用")
                                     fontSize(11f)
-                                    color(HelixTheme.Light.primary)
+                                    color(HelixTheme.current.primary)
                                     marginTop(4f)
                                 }
                             }
