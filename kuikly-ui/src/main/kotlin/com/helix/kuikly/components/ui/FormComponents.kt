@@ -86,7 +86,13 @@ fun ViewContainer<*, *>.SwitchDot(
             justifyContentCenter()
         }
         event {
-            click { onCheckedChange(!checked) }
+            click {
+                com.tencent.kuikly.core.log.KLog.i(
+                    "HelixKuikly",
+                    "👆 [Click] 开关切换 → ${!checked}"
+                )
+                onCheckedChange(!checked)
+            }
         }
         View {
             attr {

@@ -2,6 +2,7 @@ package com.helix.kuikly.components.ui
 
 import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
+import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.theme.HelixTheme
@@ -22,6 +23,9 @@ data class CardGroupItem(
 )
 
 enum class TagType { DEFAULT, SUCCESS, ERROR, WARNING, INFO }
+
+/** UI 交互日志统一 TAG（adb logcat -s HelixKuikly 可过滤） */
+internal const val UI_LOG_TAG = "HelixKuikly"
 
 // ==================== NavBar ====================
 
@@ -66,7 +70,10 @@ fun ViewContainer<*, *>.NavBar(
                         borderRadius(20f)
                     }
                     event {
-                        click { onBack() }
+                        click {
+                            KLog.i(UI_LOG_TAG, "👆 [Click] NavBar返回按钮")
+                            onBack()
+                        }
                     }
                     Text {
                         attr {
@@ -107,7 +114,10 @@ fun ViewContainer<*, *>.NavBar(
                         borderRadius(20f)
                     }
                     event {
-                        click { action.onClick() }
+                        click {
+                            KLog.i(UI_LOG_TAG, "👆 [Click] NavBar动作[${action.label}]")
+                            action.onClick()
+                        }
                     }
                     Text {
                         attr {
@@ -157,7 +167,10 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
         }
         event {
             item.onClick?.let { handler ->
-                click { handler() }
+                click {
+                    KLog.i(UI_LOG_TAG, "👆 [Click] 列表项[${item.title}]")
+                    handler()
+                }
             }
         }
         if (item.icon.isNotEmpty()) {
