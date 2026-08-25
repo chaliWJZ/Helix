@@ -39,7 +39,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "helix"
-include(":app")
+include(":androidApp")
 include(":highlight")
 include(":ai")
 include(":search")
@@ -49,5 +49,5 @@ include(":document")
 include(":web")
 include(":material3")
 include(":workspace")
-include(":app:baselineprofile")
-include(":kuikly-ui")
+include(":androidApp:baselineprofile")
+include(":shared")

@@ -170,7 +170,7 @@ dependencies {
     implementation(libs.guava.listenablefuture)
 
     // Kuikly 跨端 UI 模块（渐进式迁移：Compose 页面与 Kuikly 页面共存）
-    implementation(project(":kuikly-ui"))
+    implementation(project(":shared"))
     // Kuikly core（宿主侧 Module 处理器需要 JSONObject 等 API）
     implementation("com.tencent.kuikly-open:core:2.25.0-2.1.21")
     // Kuikly Android 渲染引擎（宿主 Activity：KuiklyRenderView/Delegator/BaseModule）
@@ -257,7 +257,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
-    baselineProfile(project(":app:baselineprofile"))
+    baselineProfile(project(":androidApp:baselineprofile"))
     ksp(libs.androidx.room.compiler)
 
     // Paging3
