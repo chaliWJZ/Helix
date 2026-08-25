@@ -5,6 +5,7 @@ import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.pager.Pager
 import com.tencent.kuikly.core.reactive.handler.observable
+import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.CardGroup
@@ -15,12 +16,16 @@ import com.helix.kuikly.theme.HelixTheme
 
 /**
  * 主题偏好页面（对应 Compose 的 SettingPreferencesThemePage）
+ *
+ * 顶部 3 选项单选（颜色模式）+ 底部 3 个开关
  */
 @Page("SettingPreferencesThemePage")
 internal class SettingPreferencesThemePage : Pager() {
 
     private fun router(): RouterModule = acquireModule(RouterModule.MODULE_NAME)
 
+    /** 颜色模式：0=系统 1=浅色 2=深色（与 SettingPage 共享语义） */
+    internal var colorMode by observable(0)
     private var dynamicColor by observable(false)
     private var amoledDark by observable(false)
     private var pureBlackBg by observable(false)
@@ -38,18 +43,35 @@ internal class SettingPreferencesThemePage : Pager() {
                     showBack = true,
                     onBack = { page.router().closePage() }
                 )
-                View {
+                Scroller {
                     attr {
                         flex(1f)
+                        alignSelfStretch()
                         marginTop(8f)
                     }
+                    // ==================== 颜色模式（3 选项单选） ====================
                     CardGroup(
                         items = listOf(
                             CardGroupItem(
-                                title = "颜色模式",
-                                subtitle = "选择浅色/深色/跟随系统",
-                                icon = "🎨",
-                                onClick = { /* 颜色选择器 */ }
+                                title = "跟随系统",
+                                subtitle = "跟随系统切换",
+                                icon = "📱",
+                                trailingText = if (page.colorMode == 0) "✓" else "",
+                                onClick = { page.colorMode = 0 }
+                            ),
+                            CardGroupItem(
+                                title = "浅色",
+                                subtitle = "始终使用浅色模式",
+                                icon = "☀️",
+                                trailingText = if (page.colorMode == 1) "✓" else "",
+                                onClick = { page.colorMode = 1 }
+                            ),
+                            CardGroupItem(
+                                title = "深色",
+                                subtitle = "始终使用深色模式",
+                                icon = "🌙",
+                                trailingText = if (page.colorMode == 2) "✓" else "",
+                                onClick = { page.colorMode = 2 }
                             )
                         )
                     )

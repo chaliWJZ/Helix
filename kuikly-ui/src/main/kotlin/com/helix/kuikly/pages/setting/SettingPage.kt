@@ -61,8 +61,8 @@ internal class SettingPage : Pager() {
                                 },
                                 icon = "☀️",
                                 onClick = {
-                                    // 切换颜色模式：系统→亮色→暗色→系统
-                                    page.colorMode = (page.colorMode + 1) % 3
+                                    // 跳转到主题偏好页（含颜色模式单选）
+                                    page.router().openPage("SettingPreferencesThemePage")
                                 }
                             ),
                             CardGroupItem(
