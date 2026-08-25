@@ -27,8 +27,9 @@ class HelixRouterAdapter : IKRRouterAdapter {
     }
 
     override fun closePage(context: Context) {
-        Log.i(TAG, "🔀 [Router-Close] 关闭当前页面")
-        (context as? Activity)?.finish()
+        Log.i(TAG, "🔀 [Router-Close] 关闭当前页面（走页面栈）")
+        (context as? KuiklyHostActivity)?.backOrFinish()
+            ?: (context as? Activity)?.finish()
     }
 
     companion object {

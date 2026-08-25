@@ -43,6 +43,13 @@ class KuiklyHostActivity : Activity() {
             intent.putExtra(KEY_PAGE_NAME, value)
         }
 
+    /** 页面栈（跨 recreate 持久化在 intent 里），用于返回导航 */
+    private var pageStack: ArrayList<String>
+        get() = intent.getStringArrayListExtra(KEY_PAGE_STACK) ?: arrayListOf()
+        set(value) {
+            intent.putExtra(KEY_PAGE_STACK, value)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageLoadStartTime = System.currentTimeMillis()
@@ -149,9 +156,11 @@ class KuiklyHostActivity : Activity() {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             val handled = delegator.onBackPressed()
             Log.d(TAG, "▶ [Back-Press] $pageName 返回键, Kuikly处理=$handled")
-            if (handled) {
-                return true
+            if (!handled) {
+                // Kuikly 未拦截（如无弹窗/键盘），走页面栈返回
+                backOrFinish()
             }
+            return true
         }
         return super.dispatchKeyEvent(event)
     }
@@ -173,6 +182,16 @@ class KuiklyHostActivity : Activity() {
         if (KuiklyRenderAdapterManager.krRouterAdapter == null) {
             KuiklyRenderAdapterManager.krRouterAdapter = HelixRouterAdapter()
         }
+        // 日志适配器：KLog → Android logcat（TAG 原样转发，可被 -s HelixKuikly 过滤）
+        if (KuiklyRenderAdapterManager.krLogAdapter == null) {
+            KuiklyRenderAdapterManager.krLogAdapter = object :
+                com.tencent.kuikly.core.render.android.adapter.IKRLogAdapter {
+                override val asyncLogEnable: Boolean get() = true
+                override fun i(tag: String, msg: String) { Log.i(tag, msg) }
+                override fun d(tag: String, msg: String) { Log.d(tag, msg) }
+                override fun e(tag: String, msg: String) { Log.e(tag, msg) }
+            }
+        }
     }
 
     private fun setupImmersiveMode() {
@@ -193,7 +212,8 @@ class KuiklyHostActivity : Activity() {
         private const val TAG = "HelixKuikly"
         private const val KEY_PAGE_NAME = "pageName"
         private const val KEY_PAGE_DATA = "pageData"
-        private const val DEFAULT_PAGE = "SettingPage"
+        private const val KEY_PAGE_STACK = "pageStack"
+        private const val DEFAULT_PAGE = "TestHubPage"
 
         fun start(context: Context, pageName: String, pageData: JSONObject? = null) {
             val intent = Intent(context, KuiklyHostActivity::class.java)
@@ -204,15 +224,38 @@ class KuiklyHostActivity : Activity() {
     }
 
     /**
-     * 在当前 Activity 内切换页面（由 HelixRouterAdapter.openPage 调用）
-     * 通过 recreate 重新走 onCreate 实现页面切换，避免栈膨胀
+     * 在当前 Activity 内打开新页面（由 HelixRouterAdapter.openPage 调用）
+     * 当前页压入页面栈后切换到新页面，返回时可恢复
      */
     fun openPage(pageName: String, pageData: JSONObject? = null) {
-        Log.i(TAG, "🔀 [Page-Switch] $pageName")
+        Log.i(TAG, "🔀 [Page-Push] $pageName（栈深度 ${pageStack.size + 1}）")
+        val stack = pageStack
+        stack.add(this.pageName)  // 当前页压栈
+        pageStack = stack
         intent.putExtra(KEY_PAGE_NAME, pageName)
         if (pageData != null) {
             intent.putExtra(KEY_PAGE_DATA, pageData.toString())
+        } else {
+            intent.removeExtra(KEY_PAGE_DATA)
         }
         recreate()
+    }
+
+    /**
+     * 返回上一页：栈非空弹栈恢复，栈空 finish 退出
+     */
+    fun backOrFinish() {
+        val stack = pageStack
+        if (stack.isNotEmpty()) {
+            val previous = stack.removeAt(stack.lastIndex)
+            pageStack = stack
+            Log.i(TAG, "🔀 [Page-Pop] 返回 $previous（剩余栈深度 ${stack.size}）")
+            intent.putExtra(KEY_PAGE_NAME, previous)
+            intent.removeExtra(KEY_PAGE_DATA)
+            recreate()
+        } else {
+            Log.i(TAG, "🔀 [Page-Exit] 栈空，退出")
+            finish()
+        }
     }
 }

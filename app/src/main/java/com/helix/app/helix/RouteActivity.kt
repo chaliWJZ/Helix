@@ -173,6 +173,17 @@ class RouteActivity : ComponentActivity() {
             finish()
             return
         }
+        // Kuikly 主入口模式：普通启动直接进 Kuikly 测试中枢页
+        // 分享接收 / 通知点击会话 / force_compose 对比 等场景走 Compose
+        val isSpecialIntent = intent?.action == Intent.ACTION_SEND
+                || intent?.action == Intent.ACTION_PROCESS_TEXT
+                || intent?.hasExtra("conversationId") == true
+                || intent?.getBooleanExtra("force_compose", false) == true
+        if (!isSpecialIntent) {
+            com.helix.app.helix.kuikly.KuiklyHostActivity.start(this, "TestHubPage")
+            finish()
+            return
+        }
         setContent {
             HelixhubTheme {
                 setSingletonImageLoaderFactory { context ->

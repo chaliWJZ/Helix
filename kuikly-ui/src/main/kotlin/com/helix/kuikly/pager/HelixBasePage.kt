@@ -15,6 +15,15 @@ import com.helix.kuikly.modules.HelixBridgeModule
  */
 abstract class HelixBasePage : Pager() {
 
+    override fun created() {
+        super.created()
+        // 登记 pager 引用供 KuiklyNav 统一跳转
+        com.helix.kuikly.nav.KuiklyNav.currentPager = this
+    }
+
+    /** 统一跳转（KuiklyNav 快捷方式） */
+    protected fun nav() = com.helix.kuikly.nav.KuiklyNav
+
     override fun createExternalModules(): Map<String, Module>? {
         val externalModules = hashMapOf<String, Module>()
         externalModules[HelixBridgeModule.MODULE_NAME] = HelixBridgeModule()

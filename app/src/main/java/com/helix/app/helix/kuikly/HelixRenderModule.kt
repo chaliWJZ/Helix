@@ -29,16 +29,26 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
             }
 
             METHOD_OPEN_URL, METHOD_OPEN_WEBVIEW -> {
-                // 安全加固：仅允许 http/https scheme（对应 BugBot 缺陷 stbug-bSqq9sO6H7）
                 val url = json?.optString("url") ?: ""
-                if (isSafeUrl(url)) {
-                    runCatching {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                when {
+                    // 内部 scheme：跳 Compose 版对比
+                    url == COMPOSE_DEBUG_URL -> {
+                        val intent = Intent(context, com.helix.app.RouteActivity::class.java)
+                        intent.putExtra("force_compose", true)
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         context?.startActivity(intent)
                     }
-                } else {
-                    context?.let { Toast.makeText(it, "不支持的链接类型", Toast.LENGTH_SHORT).show() }
+                    // 安全加固：仅允许 http/https scheme
+                    isSafeUrl(url) -> {
+                        runCatching {
+                            val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context?.startActivity(viewIntent)
+                        }
+                    }
+                    else -> {
+                        context?.let { Toast.makeText(it, "不支持的链接类型", Toast.LENGTH_SHORT).show() }
+                    }
                 }
                 null
             }
@@ -102,5 +112,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_GET_SETTING = "getSetting"
         const val METHOD_SET_SETTING = "setSetting"
         private const val MAX_URL_LENGTH = 2048
+        /** 内部约定 scheme：跳 Compose 版对比 */
+        const val COMPOSE_DEBUG_URL = "helix://compose-debug"
     }
 }
