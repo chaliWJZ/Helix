@@ -5,6 +5,7 @@ import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.pager.Pager
 import com.tencent.kuikly.core.reactive.handler.observable
+import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.CardGroup
@@ -39,9 +40,11 @@ internal class SettingPage : Pager() {
                     showBack = true,
                     onBack = { page.router().closePage() }
                 )
-                View {
+                // 内容区域（Scroller 支持滚动）
+                Scroller {
                     attr {
                         flex(1f)
+                        alignSelfStretch()
                         marginTop(8f)
                     }
 
