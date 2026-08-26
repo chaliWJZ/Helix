@@ -40,12 +40,6 @@ internal class SettingPreferencesPage : Pager() {
                     CardGroup(
                         items = listOf(
                             CardGroupItem(
-                                title = "主题",
-                                subtitle = "应用主题模式设置",
-                                icon = "☀️",
-                                onClick = { ctx.router().openPage("SettingPreferencesThemePage") }
-                            ),
-                            CardGroupItem(
                                 title = "通知",
                                 subtitle = "通知设置和渠道配置",
                                 icon = "🔔",
