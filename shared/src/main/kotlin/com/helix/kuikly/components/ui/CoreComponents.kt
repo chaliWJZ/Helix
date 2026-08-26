@@ -348,7 +348,7 @@ fun ViewContainer<*, *>.Tag(
 fun ViewContainer<*, *>.SwitchRow(
     title: String,
     subtitle: String = "",
-    checked: Boolean,
+    checked: () -> Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
     View {
@@ -385,13 +385,20 @@ fun ViewContainer<*, *>.SwitchRow(
                 height(28f)
                 borderRadius(14f)
                 backgroundColor(
-                    if (checked) HelixTheme.current.primary
+                    if (checked()) HelixTheme.current.primary
                     else HelixTheme.current.surfaceContainerHighest
                 )
                 justifyContentCenter()
             }
             event {
-                click { onCheckedChange(!checked) }
+                click {
+                    val newValue = !checked()
+                    com.tencent.kuikly.core.log.KLog.i(
+                        "HelixKuikly",
+                        "👆 [Click] SwitchRow[$title] → $newValue"
+                    )
+                    onCheckedChange(newValue)
+                }
             }
             View {
                 attr {
@@ -399,7 +406,7 @@ fun ViewContainer<*, *>.SwitchRow(
                     height(22f)
                     borderRadius(11f)
                     backgroundColor(Color(0xFFFFFFFFL))
-                    marginLeft(if (checked) 22f else 2f)
+                    marginLeft(if (checked()) 22f else 2f)
                 }
             }
         }
