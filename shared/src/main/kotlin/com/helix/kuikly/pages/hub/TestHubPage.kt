@@ -68,8 +68,8 @@ internal class TestHubPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                safeRun("测试导航中枢-Compose对比入口") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 测试导航中枢-Compose对比入口")
+                                safeRun("[TestHubPage#body] 测试导航中枢-Compose对比入口") {
+                                    KLog.i("HelixKuikly", "👆 [Click] [TestHubPage#body] 测试导航中枢-Compose对比入口")
                                     // 跳转 Compose 版主界面（原生 DebugPage，从那里进 Compose 各页面）
                                     ctx.bridge().openUrl("helix://compose-debug")
                             
@@ -148,8 +148,8 @@ internal class TestHubPage : HelixBasePage() {
                                 }
                                 event {
                                     click {
-                                        safeRun("测试导航中枢-页面跳转入口") {
-                                            KLog.i("HelixKuikly", "👆 [Click] 测试导航中枢-页面跳转入口")
+                                        safeRun("[TestHubPage#body] 测试导航中枢-页面跳转入口") {
+                                            KLog.i("HelixKuikly", "👆 [Click] [TestHubPage#body] 测试导航中枢-页面跳转入口")
                                             ctx.openedCount++
                                             KuiklyNav.open(pageName)
                                     

@@ -127,8 +127,8 @@ internal class ChatPage : Pager() {
                         }
                         event {
                             click {
-                                safeRun("聊天页-遮罩关闭抽屉") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 聊天页-遮罩关闭抽屉")
+                                safeRun("[ChatPage#body] 聊天页-遮罩关闭抽屉") {
+                                    KLog.i("HelixKuikly", "👆 [Click] [ChatPage#body] 聊天页-遮罩关闭抽屉")
                                     ctx.showDrawer = false
                             
                                 }
@@ -261,8 +261,8 @@ private fun ViewContainer<*, *>.ChatInputBar(ctx: ChatPage) {
             }
             event {
                 click {
-                    safeRun("聊天页-发送按钮") {
-                        KLog.i("HelixKuikly", "👆 [Click] 聊天页-发送按钮")
+                    safeRun("[ChatPage#body] 聊天页-发送按钮") {
+                        KLog.i("HelixKuikly", "👆 [Click] [ChatPage#body] 聊天页-发送按钮")
                         if (ctx.inputText.isNotEmpty() && !ctx.isGenerating) {
                             ctx.sendMessage(ctx.inputText)
                         }

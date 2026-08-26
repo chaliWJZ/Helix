@@ -75,6 +75,8 @@ fun ViewContainer<*, *>.SwitchDot(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val tag = componentTag("SwitchDot")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag checked=$checked")
     View {
         attr {
             width(48f)
@@ -88,15 +90,10 @@ fun ViewContainer<*, *>.SwitchDot(
         }
         event {
             click {
-                safeRun("开关切换 → ${!checked}") {
-                    com.tencent.kuikly.core.log.KLog.i(
-                        "HelixKuikly",
-                        "👆 [Click] 开关切换 → ${!checked}"
-                    )
+                safeRun("$tag 切换→${!checked}") {
+                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag 切换→${!checked}")
                     onCheckedChange(!checked)
-            
                 }
-            
             }
         }
         View {
@@ -124,6 +121,8 @@ fun ViewContainer<*, *>.Select(
     selectedIndex: Int,
     onSelect: (Int) -> Unit
 ) {
+    val tag = componentTag("Select")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$label] index=$selectedIndex")
     View {
         attr {
             marginTop(8f)
@@ -152,8 +151,11 @@ fun ViewContainer<*, *>.Select(
             }
             event {
                 click {
-                    safeRun("下拉[$label") { KLog.i("HelixKuikly", "👆 [Click] 下拉[$label]"); onSelect(-1) 
-                    }} // -1 = toggle dropdown
+                    safeRun("$tag [$label]") {
+                        KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$label]")
+                        onSelect(-1)
+                    }
+                } // -1 = toggle dropdown
             }
             Text {
                 attr {
@@ -188,6 +190,8 @@ fun ViewContainer<*, *>.SelectDropdown(
     onDismiss: () -> Unit
 ) {
     if (visible) {
+        val tag = componentTag("SelectDropdown")
+        KLog.i(UI_LOG_TAG, "🖼 [Render] $tag ${options.size}项")
         View {
             attr {
                 positionAbsolute()
@@ -199,8 +203,7 @@ fun ViewContainer<*, *>.SelectDropdown(
             }
             event {
                 click {
-                    safeRun("unnamed") { onDismiss() 
-                    }
+                    safeRun("$tag 遮罩关闭") { onDismiss() }
                 }
             }
             View {
@@ -221,13 +224,11 @@ fun ViewContainer<*, *>.SelectDropdown(
                         }
                         event {
                             click {
-                                safeRun("下拉选项[$option") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 下拉选项[$option]")
+                                safeRun("$tag 选项[$option]") {
+                                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag 选项[$option]")
                                     onSelect(index)
                                     onDismiss()
-                            
                                 }
-                            
                             }
                         }
                         Text {
@@ -368,6 +369,8 @@ fun ViewContainer<*, *>.ShareSheet(
     onDismiss: () -> Unit = {}
 ) {
     if (visible) {
+        val tag = componentTag("ShareSheet")
+        KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title]")
         View {
             attr {
                 positionAbsolute()
@@ -380,8 +383,7 @@ fun ViewContainer<*, *>.ShareSheet(
             }
             event {
                 click {
-                    safeRun("unnamed") { onDismiss() 
-                    }
+                    safeRun("$tag 遮罩关闭") { onDismiss() }
                 }
             }
             View {
@@ -423,12 +425,11 @@ fun ViewContainer<*, *>.ShareSheet(
                         }
                         event {
                             click {
-                                safeRun("unnamed") {
+                                safeRun("$tag 选项[${option.label}]") {
+                                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag 选项[${option.label}]")
                                     option.onClick()
                                     onDismiss()
-                            
                                 }
-                            
                             }
                         }
                         Text {
@@ -516,6 +517,7 @@ fun ViewContainer<*, *>.SectionHeader(
             }
         }
         if (trailing.isNotEmpty()) {
+            val tag = componentTag("SectionHeader")
             View {
                 attr {
                     paddingLeft(8f)
@@ -523,8 +525,10 @@ fun ViewContainer<*, *>.SectionHeader(
                 }
                 event {
                     onTrailingClick?.let { click {
-                        safeRun("unnamed") { it() 
-                        }} }
+                        safeRun("$tag 尾部[$trailing]") {
+                            KLog.i(UI_LOG_TAG, "👆 [Click] $tag 尾部[$trailing]")
+                            it()
+                        } } }
                 }
                 Text {
                     attr {

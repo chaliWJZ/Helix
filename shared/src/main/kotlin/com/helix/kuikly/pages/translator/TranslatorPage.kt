@@ -108,8 +108,8 @@ internal class TranslatorPage : HelixBasePage() {
                     }
                     event {
                         click {
-                            safeRun("翻译页-翻译按钮") {
-                                KLog.i("HelixKuikly", "👆 [Click] 翻译页-翻译按钮")
+                            safeRun("[TranslatorPage#body] 翻译页-翻译按钮") {
+                                KLog.i("HelixKuikly", "👆 [Click] [TranslatorPage#body] 翻译页-翻译按钮")
                                 ctx.translating = true
                                 // TODO: 接入翻译 Module
                                 ctx.resultText = "（翻译功能待接入 AI Module）"

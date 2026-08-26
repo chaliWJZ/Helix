@@ -87,8 +87,8 @@ internal class SearchPage : Pager() {
                     }
                     event {
                         click {
-                            safeRun("搜索页-搜索按钮") {
-                                KLog.i("HelixKuikly", "👆 [Click] 搜索页-搜索按钮")
+                            safeRun("[SearchPage#body] 搜索页-搜索按钮") {
+                                KLog.i("HelixKuikly", "👆 [Click] [SearchPage#body] 搜索页-搜索按钮")
                                 ctx.searching = true
                                 ctx.searched = false
                                 // TODO: 通过 SearchModule 执行真实搜索

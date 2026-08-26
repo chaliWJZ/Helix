@@ -79,8 +79,8 @@ internal class AssistantPage : Pager() {
                             }
                             event {
                                 click {
-                                    safeRun("助手列表页-助手项") {
-                                        KLog.i("HelixKuikly", "👆 [Click] 助手列表页-助手项")
+                                    safeRun("[AssistantPage#body] 助手列表页-助手项") {
+                                        KLog.i("HelixKuikly", "👆 [Click] [AssistantPage#body] 助手列表页-助手项")
                                         ctx.router().openPage("AssistantDetailPage")
                                 
                                     }

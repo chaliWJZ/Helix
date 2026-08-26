@@ -162,8 +162,8 @@ internal class ChatDrawerPage : Pager() {
                             }
                             event {
                                 click {
-                                    safeRun("会话抽屉页-会话项") {
-                                        KLog.i("HelixKuikly", "👆 [Click] 会话抽屉页-会话项")
+                                    safeRun("[ChatDrawerPage#body] 会话抽屉页-会话项") {
+                                        KLog.i("HelixKuikly", "👆 [Click] [ChatDrawerPage#body] 会话抽屉页-会话项")
                                         ctx.router().openPage("ChatPage")
                                 
                                     }
@@ -225,8 +225,8 @@ private fun ViewContainer<*, *>.drawerAction(icon: String, label: String, ctx: C
         }
         event {
             click {
-                safeRun("会话抽屉页-菜单项") {
-                    KLog.i("HelixKuikly", "👆 [Click] 会话抽屉页-菜单项")
+                safeRun("[ChatDrawerPage#body] 会话抽屉页-菜单项") {
+                    KLog.i("HelixKuikly", "👆 [Click] [ChatDrawerPage#body] 会话抽屉页-菜单项")
                     when (label) {
                         "新会话" -> ctx.routerPublic().openPage("ChatPage")
                         "历史" -> ctx.routerPublic().openPage("HistoryPage")

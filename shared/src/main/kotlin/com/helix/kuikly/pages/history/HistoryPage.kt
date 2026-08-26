@@ -82,8 +82,8 @@ internal class HistoryPage : Pager() {
                             }
                             event {
                                 click {
-                                    safeRun("历史记录页-历史会话项") {
-                                        KLog.i("HelixKuikly", "👆 [Click] 历史记录页-历史会话项")
+                                    safeRun("[HistoryPage#body] 历史记录页-历史会话项") {
+                                        KLog.i("HelixKuikly", "👆 [Click] [HistoryPage#body] 历史记录页-历史会话项")
                                         ctx.router().openPage("ChatPage")
                                 
                                     }

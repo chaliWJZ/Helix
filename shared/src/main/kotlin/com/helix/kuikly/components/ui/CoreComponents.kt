@@ -28,16 +28,36 @@ enum class TagType { DEFAULT, SUCCESS, ERROR, WARNING, INFO }
 internal const val UI_LOG_TAG = "HelixKuikly"
 
 /**
+ * 构建期从调用栈自动提取「页面类名#方法名」。
+ *
+ * 必须在 View 树构建期间调用（body() 执行时调用栈里才有页面帧）。
+ * 组件函数体顶部调用一次并持有，click 闭包捕获后点击时依然可用。
+ */
+internal inline fun callerTag(): String {
+    val frame = Thread.currentThread().stackTrace.firstOrNull {
+        it.className.startsWith("com.helix.kuikly.pages")
+    } ?: return "[Unknown]"
+    return "[${frame.className.substringAfterLast('.')}#${frame.methodName}]"
+}
+
+/**
+ * 组件层统一日志前缀：「[页面类名#方法名] [组件名]」。
+ *
+ * 在组件函数体顶部调用（构建期求值），例：[SettingPreferencesPage#body] [SwitchRow]
+ */
+internal inline fun componentTag(component: String): String = "${callerTag()} [$component]"
+
+/**
  * 安全执行（统一异常捕获 + 日志）
  *
  * 所有 click handler / 回调统一走此入口，防止异常导致页面崩溃或静默失败。
- * 用法：safeRun("描述") { 可能抛异常的代码 }
+ * 用法：safeRun(tag, "描述") { 可能抛异常的代码 }
  */
-internal inline fun safeRun(action: String, block: () -> Unit) {
+internal inline fun safeRun(tag: String, block: () -> Unit) {
     try {
         block()
     } catch (e: Exception) {
-        KLog.e(UI_LOG_TAG, "⚠ [Error] $action: ${e.message}")
+        KLog.e(UI_LOG_TAG, "⚠ [Error] $tag: ${e.message}")
     }
 }
 
@@ -55,7 +75,8 @@ fun ViewContainer<*, *>.NavBar(
     onBack: () -> Unit = {},
     rightActions: List<NavBarAction> = listOf()
 ) {
-    KLog.i(UI_LOG_TAG, "🖼 [Render] NavBar[$title]")
+    val tag = componentTag("NavBar")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title]")
     View {
         attr {
             flexDirectionColumn()
@@ -86,12 +107,10 @@ fun ViewContainer<*, *>.NavBar(
                     }
                     event {
                         click {
-                            safeRun("NavBar返回按钮") {
-                                KLog.i(UI_LOG_TAG, "👆 [Click] NavBar返回按钮")
+                            safeRun("$tag 返回按钮") {
+                                KLog.i(UI_LOG_TAG, "👆 [Click] $tag 返回按钮")
                                 onBack()
-                        
                             }
-                        
                         }
                     }
                     Text {
@@ -134,12 +153,10 @@ fun ViewContainer<*, *>.NavBar(
                     }
                     event {
                         click {
-                            safeRun("NavBar动作[${action.label}") {
-                                KLog.i(UI_LOG_TAG, "👆 [Click] NavBar动作[${action.label}]")
+                            safeRun("$tag 动作[${action.label}]") {
+                                KLog.i(UI_LOG_TAG, "👆 [Click] $tag 动作[${action.label}]")
                                 action.onClick()
-                        
                             }
-                        
                         }
                     }
                     Text {
@@ -182,7 +199,8 @@ fun ViewContainer<*, *>.CardGroup(
 }
 
 private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: Boolean) {
-    KLog.i(UI_LOG_TAG, "🖼 [Render] 列表项[${item.title}]")
+    val tag = componentTag("CardGroupRow")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [${item.title}]")
     View {
         attr {
             flexDirectionRow()
@@ -256,12 +274,10 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
         }
         event {
             click {
-                safeRun("列表项[${item.title}") {
-                    KLog.i(UI_LOG_TAG, "👆 [Click] 列表项[${item.title}]")
+                safeRun("$tag [${item.title}]") {
+                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag [${item.title}]")
                     item.onClick?.invoke()
-            
                 }
-            
             }
         }
     }
@@ -285,6 +301,8 @@ fun ViewContainer<*, *>.TextInput(
     placeholder: String = "",
     onValueChange: (String) -> Unit = {}
 ) {
+    val tag = componentTag("TextInput")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [${if (label.isNotEmpty()) label else placeholder}]")
     View {
         attr {
             marginTop(8f)
@@ -347,7 +365,8 @@ fun ViewContainer<*, *>.Tag(
     type: TagType = TagType.DEFAULT,
     onClick: (() -> Unit)? = null
 ) {
-    KLog.i(UI_LOG_TAG, "🖼 [Render] 标签[$text]")
+    val tag = componentTag("Tag")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$text]")
     View {
         attr {
             borderRadius(9999f)
@@ -360,7 +379,9 @@ fun ViewContainer<*, *>.Tag(
         event {
             onClick?.let { handler ->
                 click {
-                    safeRun("unnamed") { handler() 
+                    safeRun("$tag [$text]") {
+                        KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$text]")
+                        handler()
                     }
                 }
             }
@@ -383,7 +404,8 @@ fun ViewContainer<*, *>.SwitchRow(
     checked: () -> Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    KLog.i("HelixKuikly", "🖼 [Render] 开关[$title] checked=${checked()}")
+    val tag = componentTag("SwitchRow")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title] checked=${checked()}")
     View {
         attr {
             flexDirectionRow()
@@ -425,16 +447,11 @@ fun ViewContainer<*, *>.SwitchRow(
             }
             event {
                 click {
-                    safeRun("SwitchRow[$title") {
+                    safeRun("$tag [$title]") {
                         val newValue = !checked()
-                        com.tencent.kuikly.core.log.KLog.i(
-                            "HelixKuikly",
-                            "👆 [Click] SwitchRow[$title] → $newValue"
-                        )
+                        KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$title] → $newValue")
                         onCheckedChange(newValue)
-                
                     }
-                
                 }
             }
             View {
@@ -461,7 +478,9 @@ fun ViewContainer<*, *>.ConfirmDialog(
     onConfirm: () -> Unit = {},
     onCancel: () -> Unit = {}
 ) {
+    val tag = componentTag("ConfirmDialog")
     if (visible) {
+        KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title]")
         View {
             attr {
                 positionAbsolute()
@@ -475,7 +494,9 @@ fun ViewContainer<*, *>.ConfirmDialog(
             }
             event {
                 click {
-                    safeRun("unnamed") { onCancel() 
+                    safeRun("$tag 遮罩取消") {
+                        KLog.i(UI_LOG_TAG, "👆 [Click] $tag 遮罩取消")
+                        onCancel()
                     }
                 }
             }
@@ -516,7 +537,9 @@ fun ViewContainer<*, *>.ConfirmDialog(
                         }
                         event {
                             click {
-                                safeRun("unnamed") { onCancel() 
+                                safeRun("$tag 取消按钮") {
+                                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag 取消按钮")
+                                    onCancel()
                                 }
                             }
                         }
@@ -537,7 +560,9 @@ fun ViewContainer<*, *>.ConfirmDialog(
                         }
                         event {
                             click {
-                                safeRun("unnamed") { onConfirm() 
+                                safeRun("$tag 确认按钮") {
+                                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag 确认按钮")
+                                    onConfirm()
                                 }
                             }
                         }
@@ -580,6 +605,8 @@ fun ViewContainer<*, *>.ErrorCard(
     message: String,
     onRetry: (() -> Unit)? = null
 ) {
+    val tag = componentTag("ErrorCard")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$message]")
     View {
         attr {
             borderRadius(12f)
@@ -609,7 +636,9 @@ fun ViewContainer<*, *>.ErrorCard(
                 }
                 event {
                     click {
-                        safeRun("unnamed") { onRetry() 
+                        safeRun("$tag 重试按钮") {
+                            KLog.i(UI_LOG_TAG, "👆 [Click] $tag 重试按钮")
+                            onRetry()
                         }
                     }
                 }

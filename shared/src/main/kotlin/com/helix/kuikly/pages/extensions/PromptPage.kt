@@ -76,8 +76,8 @@ internal class PromptPage : Pager() {
                             }
                             event {
                                 click {
-                                    safeRun("提示词页-编辑提示词") {
-                                        KLog.i("HelixKuikly", "👆 [Click] 提示词页-编辑提示词")
+                                    safeRun("[PromptPage#body] 提示词页-编辑提示词") {
+                                        KLog.i("HelixKuikly", "👆 [Click] [PromptPage#body] 提示词页-编辑提示词")
                                         /* TODO: 编辑提示词 */
                                 
                                     }

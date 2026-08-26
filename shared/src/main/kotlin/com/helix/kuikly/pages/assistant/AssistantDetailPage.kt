@@ -114,8 +114,8 @@ internal class AssistantDetailPage : HelixBasePage() {
                             }
                             event {
                                 click {
-                                    safeRun("助手详情页-Tab切换") {
-                                        KLog.i("HelixKuikly", "👆 [Click] 助手详情页-Tab切换")
+                                    safeRun("[AssistantDetailPage#body] 助手详情页-Tab切换") {
+                                        KLog.i("HelixKuikly", "👆 [Click] [AssistantDetailPage#body] 助手详情页-Tab切换")
                                         ctx.currentTab = ctx.tabs.indexOf(tab)
                                 
                                     }

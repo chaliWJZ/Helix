@@ -22,7 +22,8 @@ fun ViewContainer<*, *>.RadioRow(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    KLog.i("HelixKuikly", "🖼 [Render] 单选[$title] selected=$selected")
+    val tag = componentTag("RadioRow")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title] selected=$selected")
     View {
         attr {
             flexDirectionRow()
@@ -42,12 +43,10 @@ fun ViewContainer<*, *>.RadioRow(
         }
         event {
             click {
-                safeRun("单选[$title") {
-                    KLog.i("HelixKuikly", "👆 [Click] 单选[$title]")
+                safeRun("$tag [$title]") {
+                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$title]")
                     onClick()
-            
                 }
-            
             }
         }
         if (icon.isNotEmpty()) {

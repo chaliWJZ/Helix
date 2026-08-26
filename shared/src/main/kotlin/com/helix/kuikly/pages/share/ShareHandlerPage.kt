@@ -80,8 +80,8 @@ internal class ShareHandlerPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                safeRun("分享处理页-发送到新会话") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 分享处理页-发送到新会话")
+                                safeRun("[ShareHandlerPage#body] 分享处理页-发送到新会话") {
+                                    KLog.i("HelixKuikly", "👆 [Click] [ShareHandlerPage#body] 分享处理页-发送到新会话")
                                     ctx.openPage("ChatPage")
                             
                                 }

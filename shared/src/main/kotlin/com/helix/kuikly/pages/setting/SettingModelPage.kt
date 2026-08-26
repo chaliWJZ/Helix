@@ -73,8 +73,8 @@ internal class SettingModelPage : Pager() {
                         }
                         event {
                             click {
-                                safeRun("默认模型页-模型Tab") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 默认模型页-模型Tab")
+                                safeRun("[SettingModelPage#body] 默认模型页-模型Tab") {
+                                    KLog.i("HelixKuikly", "👆 [Click] [SettingModelPage#body] 默认模型页-模型Tab")
                                     ctx.currentTab = 0
                             
                                 }
@@ -101,8 +101,8 @@ internal class SettingModelPage : Pager() {
                         }
                         event {
                             click {
-                                safeRun("默认模型页-提示词Tab") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 默认模型页-提示词Tab")
+                                safeRun("[SettingModelPage#body] 默认模型页-提示词Tab") {
+                                    KLog.i("HelixKuikly", "👆 [Click] [SettingModelPage#body] 默认模型页-提示词Tab")
                                     ctx.currentTab = 1
                             
                                 }

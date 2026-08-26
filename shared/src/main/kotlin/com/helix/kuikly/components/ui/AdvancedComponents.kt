@@ -16,6 +16,7 @@ fun ViewContainer<*, *>.ChainOfThought(
     onToggle: () -> Unit = {},
     thinkingTime: String = ""
 ) {
+    val tag = componentTag("ChainOfThought")
     View {
         attr {
             borderRadius(12f)
@@ -26,7 +27,7 @@ fun ViewContainer<*, *>.ChainOfThought(
         View {
             attr { flexDirectionRow(); alignItemsCenter() }
             event { click {
-                safeRun("思维链折叠") { KLog.i("HelixKuikly", "👆 [Click] 思维链折叠"); onToggle() 
+                safeRun("$tag 折叠") { KLog.i(UI_LOG_TAG, "👆 [Click] $tag 折叠"); onToggle() 
                 }} }
             Text { attr { text("💭 思考中..."); fontSize(14f); color(HelixTheme.current.onSurfaceVariant); flex(1f) } }
             if (thinkingTime.isNotEmpty()) {
@@ -71,7 +72,8 @@ fun ViewContainer<*, *>.UpdateCard(
     onUpdate: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
-    KLog.i("HelixKuikly", "🖼 [Render] 更新卡片[v$version]")
+    val tag = componentTag("UpdateCard")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [v$version]")
     View {
         attr {
             borderRadius(16f); backgroundColor(HelixTheme.current.primaryContainer)
@@ -83,7 +85,7 @@ fun ViewContainer<*, *>.UpdateCard(
             View {
                 attr { paddingLeft(8f); paddingRight(8f) }
                 event { click {
-                    safeRun("更新卡片关闭") { KLog.i("HelixKuikly", "👆 [Click] 更新卡片关闭"); onDismiss() 
+                    safeRun("$tag 关闭") { KLog.i(UI_LOG_TAG, "👆 [Click] $tag 关闭"); onDismiss() 
                     }} }
                 Text { attr { text("✕"); fontSize(14f); color(HelixTheme.current.onPrimaryContainer) } }
             }
@@ -98,7 +100,7 @@ fun ViewContainer<*, *>.UpdateCard(
                 borderRadius(20f); backgroundColor(HelixTheme.current.primary); alignSelfFlexStart()
             }
             event { click {
-                safeRun("更新卡片立即更新") { KLog.i("HelixKuikly", "👆 [Click] 更新卡片立即更新"); onUpdate() 
+                safeRun("$tag 立即更新") { KLog.i(UI_LOG_TAG, "👆 [Click] $tag 立即更新"); onUpdate() 
                 }} }
             Text { attr { text("立即更新"); fontSize(14f); color(HelixTheme.current.onPrimary) } }
         }
@@ -132,14 +134,15 @@ fun ViewContainer<*, *>.ListSelectableItem(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    KLog.i("HelixKuikly", "🖼 [Render] 可选项[$title] selected=$selected")
+    val tag = componentTag("ListSelectableItem")
+    KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title] selected=$selected")
     View {
         attr {
             flexDirectionRow(); alignItemsCenter(); padding(14f); paddingLeft(16f)
             backgroundColor(if (selected) HelixTheme.current.secondaryContainer else Color(0x00000000L))
         }
         event { click {
-            safeRun("可选项[$title") { KLog.i("HelixKuikly", "👆 [Click] 可选项[$title]"); onClick() 
+            safeRun("$tag [$title]") { KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$title]"); onClick() 
             }} }
         // 选择指示器（用背景色切换替代边框）
         View {

@@ -77,8 +77,8 @@ internal class ImgGenPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                safeRun("图片生成页-生成按钮") {
-                                    KLog.i("HelixKuikly", "👆 [Click] 图片生成页-生成按钮")
+                                safeRun("[ImgGenPage#body] 图片生成页-生成按钮") {
+                                    KLog.i("HelixKuikly", "👆 [Click] [ImgGenPage#body] 图片生成页-生成按钮")
                                     if (ctx.prompt.isNotEmpty()) {
                                         ctx.generating = true
                                         // TODO: 接入图片生成 Module
