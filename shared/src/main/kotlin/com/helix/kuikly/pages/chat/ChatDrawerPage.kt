@@ -11,6 +11,7 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -159,7 +160,10 @@ internal class ChatDrawerPage : Pager() {
                                 )
                             }
                             event {
-                                click { ctx.router().openPage("ChatPage") }
+                                click {
+                                    KLog.i("HelixKuikly", "👆 [Click] 会话抽屉页-会话项")
+                                    ctx.router().openPage("ChatPage")
+                                }
                             }
                             // 标题
                             Text {
@@ -216,6 +220,7 @@ private fun ViewContainer<*, *>.drawerAction(icon: String, label: String, ctx: C
         }
         event {
             click {
+                KLog.i("HelixKuikly", "👆 [Click] 会话抽屉页-菜单项")
                 when (label) {
                     "新会话" -> ctx.routerPublic().openPage("ChatPage")
                     "历史" -> ctx.routerPublic().openPage("HistoryPage")

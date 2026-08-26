@@ -10,6 +10,7 @@ import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.NavBarAction
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -76,7 +77,10 @@ internal class AssistantPage : Pager() {
                                 backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
-                                click { ctx.router().openPage("AssistantDetailPage") }
+                                click {
+                                    KLog.i("HelixKuikly", "👆 [Click] 助手列表页-助手项")
+                                    ctx.router().openPage("AssistantDetailPage")
+                                }
                             }
                             // 助手头像
                             View {

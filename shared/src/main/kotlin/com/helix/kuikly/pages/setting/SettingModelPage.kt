@@ -11,6 +11,7 @@ import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.CardGroup
 import com.helix.kuikly.components.ui.CardGroupItem
 import com.helix.kuikly.components.ui.NavBar
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -70,7 +71,10 @@ internal class SettingModelPage : Pager() {
                             backgroundColor(if (ctx.currentTab == 0) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
                         }
                         event {
-                            click { ctx.currentTab = 0 }
+                            click {
+                                KLog.i("HelixKuikly", "👆 [Click] 默认模型页-模型Tab")
+                                ctx.currentTab = 0
+                            }
                         }
                         Text {
                             attr {
@@ -91,7 +95,10 @@ internal class SettingModelPage : Pager() {
                             backgroundColor(if (ctx.currentTab == 1) HelixTheme.current.primary else HelixTheme.current.surfaceContainerLow)
                         }
                         event {
-                            click { ctx.currentTab = 1 }
+                            click {
+                                KLog.i("HelixKuikly", "👆 [Click] 默认模型页-提示词Tab")
+                                ctx.currentTab = 1
+                            }
                         }
                         Text {
                             attr {

@@ -10,6 +10,7 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -79,7 +80,10 @@ internal class HistoryPage : Pager() {
                                 backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
-                                click { ctx.router().openPage("ChatPage") }
+                                click {
+                                    KLog.i("HelixKuikly", "👆 [Click] 历史记录页-历史会话项")
+                                    ctx.router().openPage("ChatPage")
+                                }
                             }
                             // 会话图标
                             Text {

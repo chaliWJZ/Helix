@@ -15,6 +15,7 @@ import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.richtext.MarkdownRenderer
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.NavBarAction
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -124,7 +125,10 @@ internal class ChatPage : Pager() {
                             backgroundColor(0x33000000)
                         }
                         event {
-                            click { ctx.showDrawer = false }
+                            click {
+                                KLog.i("HelixKuikly", "👆 [Click] 聊天页-遮罩关闭抽屉")
+                                ctx.showDrawer = false
+                            }
                         }
                         // 抽屉面板（左侧）
                         View {
@@ -252,6 +256,7 @@ private fun ViewContainer<*, *>.ChatInputBar(ctx: ChatPage) {
             }
             event {
                 click {
+                    KLog.i("HelixKuikly", "👆 [Click] 聊天页-发送按钮")
                     if (ctx.inputText.isNotEmpty() && !ctx.isGenerating) {
                         ctx.sendMessage(ctx.inputText)
                     }

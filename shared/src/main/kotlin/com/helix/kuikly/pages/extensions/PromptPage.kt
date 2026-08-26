@@ -10,6 +10,7 @@ import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.NavBarAction
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -73,7 +74,10 @@ internal class PromptPage : Pager() {
                                 backgroundColor(HelixTheme.current.surfaceContainerLow)
                             }
                             event {
-                                click { /* TODO: 编辑提示词 */ }
+                                click {
+                                    KLog.i("HelixKuikly", "👆 [Click] 提示词页-编辑提示词")
+                                    /* TODO: 编辑提示词 */
+                                }
                             }
                             Text {
                                 attr {
