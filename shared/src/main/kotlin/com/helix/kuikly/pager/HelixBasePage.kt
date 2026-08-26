@@ -18,7 +18,7 @@ abstract class HelixBasePage : Pager() {
     override fun created() {
         super.created()
         // 登记 pager 引用供 KuiklyNav 统一跳转
-        com.helix.kuikly.nav.KuiklyNav.currentPager = this
+        com.helix.kuikly.nav.KuiklyNav.setCurrentPager(this)
         // 读取系统主题（原生 Activity 传入 pageData.sysTheme），同步到 ThemeManager
         val sysTheme = runCatching { pageData.params.optString("sysTheme") }.getOrNull()
         com.helix.kuikly.theme.ThemeManager.initFromSystem(sysTheme)

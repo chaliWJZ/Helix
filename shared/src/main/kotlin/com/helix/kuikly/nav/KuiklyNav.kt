@@ -3,6 +3,7 @@ package com.helix.kuikly.nav
 import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.pager.Pager
+import java.lang.ref.WeakReference
 
 /**
  * Kuikly 公共跳转工具
@@ -114,7 +115,8 @@ object KuiklyNav {
 
     /** 打开页面（带可选参数） */
     fun open(pageName: String, params: Map<String, Any>? = null) {
-        val router = currentPager?.acquireModule<RouterModule>(RouterModule.MODULE_NAME)
+        val pager = currentPagerRef?.get()
+        val router = pager?.acquireModule<RouterModule>(RouterModule.MODULE_NAME)
         val json = params?.let {
             JSONObject().apply { it.forEach { (k, v) -> put(k, v) } }
         }
@@ -126,8 +128,22 @@ object KuiklyNav {
         pager.acquireModule<RouterModule>(RouterModule.MODULE_NAME).closePage()
     }
 
-    /** 当前 Pager 引用（由 HelixBasePage 维护） */
-    internal var currentPager: Pager? = null
+    /**
+     * 当前 Pager 引用（由 HelixBasePage 维护）
+     *
+     * WeakReference 弱引用：单例不阻止页面被 GC（修复内存泄漏 stbug-kzSX6QIAbP/stbug-nFDZxdC8g9）。
+     * 页面销毁后 get() 返回 null，open() 静默不跳转（页面已销毁无需跳转）。
+     */
+    private var currentPagerRef: WeakReference<Pager>? = null
+
+    /** 供 HelixBasePage.created() 登记（弱引用包装） */
+    fun setCurrentPager(pager: Pager) {
+        currentPagerRef = WeakReference(pager)
+    }
+
+    /** 当前 Pager（可能已回收返回 null） */
+    val currentPager: Pager?
+        get() = currentPagerRef?.get()
 
     /** 页面名 → 中文标题（未知页面返回页面名本身） */
     fun title(pageName: String): String = PAGES[pageName] ?: pageName
