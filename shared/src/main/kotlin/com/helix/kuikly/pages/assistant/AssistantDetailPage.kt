@@ -8,6 +8,7 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
@@ -113,8 +114,12 @@ internal class AssistantDetailPage : HelixBasePage() {
                             }
                             event {
                                 click {
-                                    KLog.i("HelixKuikly", "👆 [Click] 助手详情页-Tab切换")
-                                    ctx.currentTab = ctx.tabs.indexOf(tab)
+                                    safeRun("助手详情页-Tab切换") {
+                                        KLog.i("HelixKuikly", "👆 [Click] 助手详情页-Tab切换")
+                                        ctx.currentTab = ctx.tabs.indexOf(tab)
+                                
+                                    }
+                                
                                 }
                             }
                             Text {

@@ -9,6 +9,7 @@ import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.CardGroup
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.components.ui.CardGroupItem
 import com.helix.kuikly.components.ui.NavBar
 import com.tencent.kuikly.core.log.KLog
@@ -72,8 +73,12 @@ internal class SettingModelPage : Pager() {
                         }
                         event {
                             click {
-                                KLog.i("HelixKuikly", "👆 [Click] 默认模型页-模型Tab")
-                                ctx.currentTab = 0
+                                safeRun("默认模型页-模型Tab") {
+                                    KLog.i("HelixKuikly", "👆 [Click] 默认模型页-模型Tab")
+                                    ctx.currentTab = 0
+                            
+                                }
+                            
                             }
                         }
                         Text {
@@ -96,8 +101,12 @@ internal class SettingModelPage : Pager() {
                         }
                         event {
                             click {
-                                KLog.i("HelixKuikly", "👆 [Click] 默认模型页-提示词Tab")
-                                ctx.currentTab = 1
+                                safeRun("默认模型页-提示词Tab") {
+                                    KLog.i("HelixKuikly", "👆 [Click] 默认模型页-提示词Tab")
+                                    ctx.currentTab = 1
+                            
+                                }
+                            
                             }
                         }
                         Text {

@@ -9,6 +9,7 @@ import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.nav.KuiklyNav
 import com.helix.kuikly.pager.HelixBasePage
 import com.tencent.kuikly.core.log.KLog
@@ -67,9 +68,13 @@ internal class TestHubPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                KLog.i("HelixKuikly", "👆 [Click] 测试导航中枢-Compose对比入口")
-                                // 跳转 Compose 版主界面（原生 DebugPage，从那里进 Compose 各页面）
-                                ctx.bridge().openUrl("helix://compose-debug")
+                                safeRun("测试导航中枢-Compose对比入口") {
+                                    KLog.i("HelixKuikly", "👆 [Click] 测试导航中枢-Compose对比入口")
+                                    // 跳转 Compose 版主界面（原生 DebugPage，从那里进 Compose 各页面）
+                                    ctx.bridge().openUrl("helix://compose-debug")
+                            
+                                }
+                            
                             }
                         }
                         Text {
@@ -143,9 +148,13 @@ internal class TestHubPage : HelixBasePage() {
                                 }
                                 event {
                                     click {
-                                        KLog.i("HelixKuikly", "👆 [Click] 测试导航中枢-页面跳转入口")
-                                        ctx.openedCount++
-                                        KuiklyNav.open(pageName)
+                                        safeRun("测试导航中枢-页面跳转入口") {
+                                            KLog.i("HelixKuikly", "👆 [Click] 测试导航中枢-页面跳转入口")
+                                            ctx.openedCount++
+                                            KuiklyNav.open(pageName)
+                                    
+                                        }
+                                    
                                     }
                                 }
                                 // 页面名（英文）

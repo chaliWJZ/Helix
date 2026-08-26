@@ -7,6 +7,7 @@ import com.tencent.kuikly.core.views.Input
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
@@ -107,11 +108,15 @@ internal class TranslatorPage : HelixBasePage() {
                     }
                     event {
                         click {
-                            KLog.i("HelixKuikly", "👆 [Click] 翻译页-翻译按钮")
-                            ctx.translating = true
-                            // TODO: 接入翻译 Module
-                            ctx.resultText = "（翻译功能待接入 AI Module）"
-                            ctx.translating = false
+                            safeRun("翻译页-翻译按钮") {
+                                KLog.i("HelixKuikly", "👆 [Click] 翻译页-翻译按钮")
+                                ctx.translating = true
+                                // TODO: 接入翻译 Module
+                                ctx.resultText = "（翻译功能待接入 AI Module）"
+                                ctx.translating = false
+                        
+                            }
+                        
                         }
                     }
                     Text {

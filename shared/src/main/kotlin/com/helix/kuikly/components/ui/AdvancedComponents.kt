@@ -25,7 +25,9 @@ fun ViewContainer<*, *>.ChainOfThought(
         }
         View {
             attr { flexDirectionRow(); alignItemsCenter() }
-            event { click { KLog.i("HelixKuikly", "👆 [Click] 思维链折叠"); onToggle() } }
+            event { click {
+                safeRun("思维链折叠") { KLog.i("HelixKuikly", "👆 [Click] 思维链折叠"); onToggle() 
+                }} }
             Text { attr { text("💭 思考中..."); fontSize(14f); color(HelixTheme.current.onSurfaceVariant); flex(1f) } }
             if (thinkingTime.isNotEmpty()) {
                 Text { attr { text(thinkingTime); fontSize(12f); color(HelixTheme.current.outline) } }
@@ -80,7 +82,9 @@ fun ViewContainer<*, *>.UpdateCard(
             Text { attr { text("🎉 发现新版本 v$version"); fontSize(16f); color(HelixTheme.current.onPrimaryContainer); flex(1f) } }
             View {
                 attr { paddingLeft(8f); paddingRight(8f) }
-                event { click { KLog.i("HelixKuikly", "👆 [Click] 更新卡片关闭"); onDismiss() } }
+                event { click {
+                    safeRun("更新卡片关闭") { KLog.i("HelixKuikly", "👆 [Click] 更新卡片关闭"); onDismiss() 
+                    }} }
                 Text { attr { text("✕"); fontSize(14f); color(HelixTheme.current.onPrimaryContainer) } }
             }
         }
@@ -93,7 +97,9 @@ fun ViewContainer<*, *>.UpdateCard(
                 paddingLeft(16f); paddingRight(16f)
                 borderRadius(20f); backgroundColor(HelixTheme.current.primary); alignSelfFlexStart()
             }
-            event { click { KLog.i("HelixKuikly", "👆 [Click] 更新卡片立即更新"); onUpdate() } }
+            event { click {
+                safeRun("更新卡片立即更新") { KLog.i("HelixKuikly", "👆 [Click] 更新卡片立即更新"); onUpdate() 
+                }} }
             Text { attr { text("立即更新"); fontSize(14f); color(HelixTheme.current.onPrimary) } }
         }
     }
@@ -132,7 +138,9 @@ fun ViewContainer<*, *>.ListSelectableItem(
             flexDirectionRow(); alignItemsCenter(); padding(14f); paddingLeft(16f)
             backgroundColor(if (selected) HelixTheme.current.secondaryContainer else Color(0x00000000L))
         }
-        event { click { KLog.i("HelixKuikly", "👆 [Click] 可选项[$title]"); onClick() } }
+        event { click {
+            safeRun("可选项[$title") { KLog.i("HelixKuikly", "👆 [Click] 可选项[$title]"); onClick() 
+            }} }
         // 选择指示器（用背景色切换替代边框）
         View {
             attr {

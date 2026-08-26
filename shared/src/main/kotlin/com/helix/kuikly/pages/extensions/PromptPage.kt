@@ -9,6 +9,7 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.components.ui.NavBarAction
 import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
@@ -75,8 +76,12 @@ internal class PromptPage : Pager() {
                             }
                             event {
                                 click {
-                                    KLog.i("HelixKuikly", "👆 [Click] 提示词页-编辑提示词")
-                                    /* TODO: 编辑提示词 */
+                                    safeRun("提示词页-编辑提示词") {
+                                        KLog.i("HelixKuikly", "👆 [Click] 提示词页-编辑提示词")
+                                        /* TODO: 编辑提示词 */
+                                
+                                    }
+                                
                                 }
                             }
                             Text {

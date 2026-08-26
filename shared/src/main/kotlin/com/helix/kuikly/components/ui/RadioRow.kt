@@ -42,8 +42,12 @@ fun ViewContainer<*, *>.RadioRow(
         }
         event {
             click {
-                KLog.i("HelixKuikly", "👆 [Click] 单选[$title]")
-                onClick()
+                safeRun("单选[$title") {
+                    KLog.i("HelixKuikly", "👆 [Click] 单选[$title]")
+                    onClick()
+            
+                }
+            
             }
         }
         if (icon.isNotEmpty()) {

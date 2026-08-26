@@ -27,6 +27,20 @@ enum class TagType { DEFAULT, SUCCESS, ERROR, WARNING, INFO }
 /** UI 交互日志统一 TAG（adb logcat -s HelixKuikly 可过滤） */
 internal const val UI_LOG_TAG = "HelixKuikly"
 
+/**
+ * 安全执行（统一异常捕获 + 日志）
+ *
+ * 所有 click handler / 回调统一走此入口，防止异常导致页面崩溃或静默失败。
+ * 用法：safeRun("描述") { 可能抛异常的代码 }
+ */
+internal inline fun safeRun(action: String, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: Exception) {
+        KLog.e(UI_LOG_TAG, "⚠ [Error] $action: ${e.message}")
+    }
+}
+
 // ==================== NavBar ====================
 
 /**
@@ -72,8 +86,12 @@ fun ViewContainer<*, *>.NavBar(
                     }
                     event {
                         click {
-                            KLog.i(UI_LOG_TAG, "👆 [Click] NavBar返回按钮")
-                            onBack()
+                            safeRun("NavBar返回按钮") {
+                                KLog.i(UI_LOG_TAG, "👆 [Click] NavBar返回按钮")
+                                onBack()
+                        
+                            }
+                        
                         }
                     }
                     Text {
@@ -116,8 +134,12 @@ fun ViewContainer<*, *>.NavBar(
                     }
                     event {
                         click {
-                            KLog.i(UI_LOG_TAG, "👆 [Click] NavBar动作[${action.label}]")
-                            action.onClick()
+                            safeRun("NavBar动作[${action.label}") {
+                                KLog.i(UI_LOG_TAG, "👆 [Click] NavBar动作[${action.label}]")
+                                action.onClick()
+                        
+                            }
+                        
                         }
                     }
                     Text {
@@ -234,8 +256,12 @@ private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: B
         }
         event {
             click {
-                KLog.i(UI_LOG_TAG, "👆 [Click] 列表项[${item.title}]")
-                item.onClick?.invoke()
+                safeRun("列表项[${item.title}") {
+                    KLog.i(UI_LOG_TAG, "👆 [Click] 列表项[${item.title}]")
+                    item.onClick?.invoke()
+            
+                }
+            
             }
         }
     }
@@ -333,7 +359,10 @@ fun ViewContainer<*, *>.Tag(
         }
         event {
             onClick?.let { handler ->
-                click { handler() }
+                click {
+                    safeRun("unnamed") { handler() 
+                    }
+                }
             }
         }
         Text {
@@ -396,12 +425,16 @@ fun ViewContainer<*, *>.SwitchRow(
             }
             event {
                 click {
-                    val newValue = !checked()
-                    com.tencent.kuikly.core.log.KLog.i(
-                        "HelixKuikly",
-                        "👆 [Click] SwitchRow[$title] → $newValue"
-                    )
-                    onCheckedChange(newValue)
+                    safeRun("SwitchRow[$title") {
+                        val newValue = !checked()
+                        com.tencent.kuikly.core.log.KLog.i(
+                            "HelixKuikly",
+                            "👆 [Click] SwitchRow[$title] → $newValue"
+                        )
+                        onCheckedChange(newValue)
+                
+                    }
+                
                 }
             }
             View {
@@ -441,7 +474,10 @@ fun ViewContainer<*, *>.ConfirmDialog(
                 alignItemsCenter()
             }
             event {
-                click { onCancel() }
+                click {
+                    safeRun("unnamed") { onCancel() 
+                    }
+                }
             }
             View {
                 attr {
@@ -479,7 +515,10 @@ fun ViewContainer<*, *>.ConfirmDialog(
                             paddingBottom(8f)
                         }
                         event {
-                            click { onCancel() }
+                            click {
+                                safeRun("unnamed") { onCancel() 
+                                }
+                            }
                         }
                         Text {
                             attr {
@@ -497,7 +536,10 @@ fun ViewContainer<*, *>.ConfirmDialog(
                             paddingBottom(8f)
                         }
                         event {
-                            click { onConfirm() }
+                            click {
+                                safeRun("unnamed") { onConfirm() 
+                                }
+                            }
                         }
                         Text {
                             attr {
@@ -566,7 +608,10 @@ fun ViewContainer<*, *>.ErrorCard(
                     backgroundColor(Color(0xFFCB2B2BL))
                 }
                 event {
-                    click { onRetry() }
+                    click {
+                        safeRun("unnamed") { onRetry() 
+                        }
+                    }
                 }
                 Text {
                     attr {

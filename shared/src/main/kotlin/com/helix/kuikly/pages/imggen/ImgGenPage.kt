@@ -7,6 +7,7 @@ import com.tencent.kuikly.core.views.Input
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
@@ -76,11 +77,15 @@ internal class ImgGenPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                KLog.i("HelixKuikly", "👆 [Click] 图片生成页-生成按钮")
-                                if (ctx.prompt.isNotEmpty()) {
-                                    ctx.generating = true
-                                    // TODO: 接入图片生成 Module
+                                safeRun("图片生成页-生成按钮") {
+                                    KLog.i("HelixKuikly", "👆 [Click] 图片生成页-生成按钮")
+                                    if (ctx.prompt.isNotEmpty()) {
+                                        ctx.generating = true
+                                        // TODO: 接入图片生成 Module
+                                    }
+                            
                                 }
+                            
                             }
                         }
                         Text {

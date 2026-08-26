@@ -88,11 +88,15 @@ fun ViewContainer<*, *>.SwitchDot(
         }
         event {
             click {
-                com.tencent.kuikly.core.log.KLog.i(
-                    "HelixKuikly",
-                    "👆 [Click] 开关切换 → ${!checked}"
-                )
-                onCheckedChange(!checked)
+                safeRun("开关切换 → ${!checked}") {
+                    com.tencent.kuikly.core.log.KLog.i(
+                        "HelixKuikly",
+                        "👆 [Click] 开关切换 → ${!checked}"
+                    )
+                    onCheckedChange(!checked)
+            
+                }
+            
             }
         }
         View {
@@ -147,7 +151,9 @@ fun ViewContainer<*, *>.Select(
                 backgroundColor(HelixTheme.current.surfaceContainer)
             }
             event {
-                click { KLog.i("HelixKuikly", "👆 [Click] 下拉[$label]"); onSelect(-1) } // -1 = toggle dropdown
+                click {
+                    safeRun("下拉[$label") { KLog.i("HelixKuikly", "👆 [Click] 下拉[$label]"); onSelect(-1) 
+                    }} // -1 = toggle dropdown
             }
             Text {
                 attr {
@@ -192,7 +198,10 @@ fun ViewContainer<*, *>.SelectDropdown(
                 backgroundColor(Color(0x40000000L))
             }
             event {
-                click { onDismiss() }
+                click {
+                    safeRun("unnamed") { onDismiss() 
+                    }
+                }
             }
             View {
                 attr {
@@ -212,9 +221,13 @@ fun ViewContainer<*, *>.SelectDropdown(
                         }
                         event {
                             click {
-                                KLog.i("HelixKuikly", "👆 [Click] 下拉选项[$option]")
-                                onSelect(index)
-                                onDismiss()
+                                safeRun("下拉选项[$option") {
+                                    KLog.i("HelixKuikly", "👆 [Click] 下拉选项[$option]")
+                                    onSelect(index)
+                                    onDismiss()
+                            
+                                }
+                            
                             }
                         }
                         Text {
@@ -366,7 +379,10 @@ fun ViewContainer<*, *>.ShareSheet(
                 justifyContentFlexEnd()
             }
             event {
-                click { onDismiss() }
+                click {
+                    safeRun("unnamed") { onDismiss() 
+                    }
+                }
             }
             View {
                 attr {
@@ -407,8 +423,12 @@ fun ViewContainer<*, *>.ShareSheet(
                         }
                         event {
                             click {
-                                option.onClick()
-                                onDismiss()
+                                safeRun("unnamed") {
+                                    option.onClick()
+                                    onDismiss()
+                            
+                                }
+                            
                             }
                         }
                         Text {
@@ -502,7 +522,9 @@ fun ViewContainer<*, *>.SectionHeader(
                     paddingRight(8f)
                 }
                 event {
-                    onTrailingClick?.let { click { it() } }
+                    onTrailingClick?.let { click {
+                        safeRun("unnamed") { it() 
+                        }} }
                 }
                 Text {
                     attr {

@@ -11,6 +11,7 @@ import com.tencent.kuikly.core.views.Input
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
@@ -86,10 +87,14 @@ internal class SearchPage : Pager() {
                     }
                     event {
                         click {
-                            KLog.i("HelixKuikly", "👆 [Click] 搜索页-搜索按钮")
-                            ctx.searching = true
-                            ctx.searched = false
-                            // TODO: 通过 SearchModule 执行真实搜索
+                            safeRun("搜索页-搜索按钮") {
+                                KLog.i("HelixKuikly", "👆 [Click] 搜索页-搜索按钮")
+                                ctx.searching = true
+                                ctx.searched = false
+                                // TODO: 通过 SearchModule 执行真实搜索
+                        
+                            }
+                        
                         }
                     }
                     Text {

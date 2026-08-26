@@ -6,6 +6,7 @@ import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
@@ -79,8 +80,12 @@ internal class ShareHandlerPage : HelixBasePage() {
                         }
                         event {
                             click {
-                                KLog.i("HelixKuikly", "👆 [Click] 分享处理页-发送到新会话")
-                                ctx.openPage("ChatPage")
+                                safeRun("分享处理页-发送到新会话") {
+                                    KLog.i("HelixKuikly", "👆 [Click] 分享处理页-发送到新会话")
+                                    ctx.openPage("ChatPage")
+                            
+                                }
+                            
                             }
                         }
                         Text {
