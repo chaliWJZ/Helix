@@ -34,7 +34,6 @@ object KuiklyNav {
         // ===== 设置系 =====
         "SettingPage" to "设置页",
         "SettingPreferencesPage" to "偏好设置页",
-        "SettingPreferencesThemePage" to "主题偏好页",
         "SettingPreferencesNotificationPage" to "通知偏好页",
         "SettingPreferencesGeneralPage" to "通用偏好页",
         "SettingPreferencesUIPage" to "界面偏好页",
@@ -53,7 +52,6 @@ object KuiklyNav {
         "SettingAboutLicensePage" to "开源许可页",
         "SettingDonatePage" to "捐赠页",
         "SettingFilesPage" to "文件管理页",
-        "SettingThemePage" to "主题设置页",
 
         // ===== 列表系 =====
         "HistoryPage" to "历史记录页",
@@ -89,7 +87,7 @@ object KuiklyNav {
             "ChatPage", "ChatDrawerPage", "MarkdownDemoPage", "WebViewPage"
         )),
         Triple("⚙️", "设置系", listOf(
-            "SettingPage", "SettingPreferencesPage", "SettingPreferencesThemePage",
+            "SettingPage", "SettingPreferencesPage",
             "SettingPreferencesNotificationPage", "SettingPreferencesGeneralPage",
             "SettingPreferencesUIPage", "SettingPreferencesNetworkPage",
             "SettingModelPage", "SettingModelPromptPage",
@@ -97,7 +95,7 @@ object KuiklyNav {
             "SettingSearchPage", "SettingSearchDetailPage",
             "SettingSpeechPage", "TTSProviderConfigurePage",
             "SettingMcpPage", "SettingWebPage",
-            "SettingAboutPage", "SettingDonatePage", "SettingFilesPage", "SettingThemePage"
+            "SettingAboutPage", "SettingDonatePage", "SettingFilesPage"
         )),
         Triple("📋", "列表系", listOf(
             "HistoryPage", "FavoritePage", "AssistantPage", "AssistantDetailPage",
