@@ -56,7 +56,7 @@ internal class SettingPreferencesNetworkPage : Pager() {
                         SwitchRow(
                             title = "使用代理",
                             subtitle = "通过 HTTP/SOCKS 代理发送请求",
-                            checked = ctx.useProxy,
+                            checked = { ctx.useProxy },
                             onCheckedChange = { ctx.useProxy = it }
                         )
                     }

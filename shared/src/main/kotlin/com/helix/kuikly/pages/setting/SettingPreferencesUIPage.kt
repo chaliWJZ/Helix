@@ -55,37 +55,37 @@ internal class SettingPreferencesUIPage : Pager() {
                         SwitchRow(
                             title = "紧凑模式",
                             subtitle = "减少消息间距，显示更多内容",
-                            checked = ctx.compactMode,
+                            checked = { ctx.compactMode },
                             onCheckedChange = { ctx.compactMode = it }
                         )
                         SwitchRow(
                             title = "气泡样式",
                             subtitle = "消息使用气泡样式展示",
-                            checked = ctx.bubbleStyle,
+                            checked = { ctx.bubbleStyle },
                             onCheckedChange = { ctx.bubbleStyle = it }
                         )
                         SwitchRow(
                             title = "显示头像",
                             subtitle = "在消息旁显示用户/助手头像",
-                            checked = ctx.showAvatar,
+                            checked = { ctx.showAvatar },
                             onCheckedChange = { ctx.showAvatar = it }
                         )
                         SwitchRow(
                             title = "全宽消息",
                             subtitle = "消息占满整行宽度",
-                            checked = ctx.fullWidthMessage,
+                            checked = { ctx.fullWidthMessage },
                             onCheckedChange = { ctx.fullWidthMessage = it }
                         )
                         SwitchRow(
                             title = "显示 Token 数",
                             subtitle = "在消息底部显示 Token 消耗",
-                            checked = ctx.showTokenCount,
+                            checked = { ctx.showTokenCount },
                             onCheckedChange = { ctx.showTokenCount = it }
                         )
                         SwitchRow(
                             title = "显示时间戳",
                             subtitle = "在消息旁显示发送时间",
-                            checked = ctx.showTimestamp,
+                            checked = { ctx.showTimestamp },
                             onCheckedChange = { ctx.showTimestamp = it }
                         )
                     }

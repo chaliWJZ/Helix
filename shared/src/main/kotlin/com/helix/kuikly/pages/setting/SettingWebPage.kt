@@ -55,7 +55,7 @@ internal class SettingWebPage : Pager() {
                         SwitchRow(
                             title = "启用 Web 服务器",
                             subtitle = "在浏览器中访问 Helix 聊天界面",
-                            checked = ctx.webServerEnabled,
+                            checked = { ctx.webServerEnabled },
                             onCheckedChange = { ctx.webServerEnabled = it }
                         )
                     }

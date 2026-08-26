@@ -51,19 +51,19 @@ internal class SettingPreferencesNotificationPage : Pager() {
                         SwitchRow(
                             title = "启用通知",
                             subtitle = "接收消息和提醒通知",
-                            checked = ctx.enableNotification,
+                            checked = { ctx.enableNotification },
                             onCheckedChange = { ctx.enableNotification = it }
                         )
                         SwitchRow(
                             title = "通知声音",
                             subtitle = "通知时播放提示音",
-                            checked = ctx.notificationSound,
+                            checked = { ctx.notificationSound },
                             onCheckedChange = { ctx.notificationSound = it }
                         )
                         SwitchRow(
                             title = "振动",
                             subtitle = "通知时振动提醒",
-                            checked = ctx.notificationVibrate,
+                            checked = { ctx.notificationVibrate },
                             onCheckedChange = { ctx.notificationVibrate = it }
                         )
                     }
