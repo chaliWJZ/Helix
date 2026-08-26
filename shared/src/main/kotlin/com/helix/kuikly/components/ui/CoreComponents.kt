@@ -41,6 +41,7 @@ fun ViewContainer<*, *>.NavBar(
     onBack: () -> Unit = {},
     rightActions: List<NavBarAction> = listOf()
 ) {
+    KLog.i(UI_LOG_TAG, "🖼 [Render] NavBar[$title]")
     View {
         attr {
             flexDirectionColumn()
@@ -159,6 +160,7 @@ fun ViewContainer<*, *>.CardGroup(
 }
 
 private fun ViewContainer<*, *>.CardGroupRow(item: CardGroupItem, showDivider: Boolean) {
+    KLog.i(UI_LOG_TAG, "🖼 [Render] 列表项[${item.title}]")
     View {
         attr {
             flexDirectionRow()
@@ -319,6 +321,7 @@ fun ViewContainer<*, *>.Tag(
     type: TagType = TagType.DEFAULT,
     onClick: (() -> Unit)? = null
 ) {
+    KLog.i(UI_LOG_TAG, "🖼 [Render] 标签[$text]")
     View {
         attr {
             borderRadius(9999f)
@@ -351,6 +354,7 @@ fun ViewContainer<*, *>.SwitchRow(
     checked: () -> Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    KLog.i("HelixKuikly", "🖼 [Render] 开关[$title] checked=${checked()}")
     View {
         attr {
             flexDirectionRow()

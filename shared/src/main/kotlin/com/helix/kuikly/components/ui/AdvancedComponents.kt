@@ -4,6 +4,7 @@ import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -24,7 +25,7 @@ fun ViewContainer<*, *>.ChainOfThought(
         }
         View {
             attr { flexDirectionRow(); alignItemsCenter() }
-            event { click { onToggle() } }
+            event { click { KLog.i("HelixKuikly", "👆 [Click] 思维链折叠"); onToggle() } }
             Text { attr { text("💭 思考中..."); fontSize(14f); color(HelixTheme.current.onSurfaceVariant); flex(1f) } }
             if (thinkingTime.isNotEmpty()) {
                 Text { attr { text(thinkingTime); fontSize(12f); color(HelixTheme.current.outline) } }
@@ -68,6 +69,7 @@ fun ViewContainer<*, *>.UpdateCard(
     onUpdate: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
+    KLog.i("HelixKuikly", "🖼 [Render] 更新卡片[v$version]")
     View {
         attr {
             borderRadius(16f); backgroundColor(HelixTheme.current.primaryContainer)
@@ -78,7 +80,7 @@ fun ViewContainer<*, *>.UpdateCard(
             Text { attr { text("🎉 发现新版本 v$version"); fontSize(16f); color(HelixTheme.current.onPrimaryContainer); flex(1f) } }
             View {
                 attr { paddingLeft(8f); paddingRight(8f) }
-                event { click { onDismiss() } }
+                event { click { KLog.i("HelixKuikly", "👆 [Click] 更新卡片关闭"); onDismiss() } }
                 Text { attr { text("✕"); fontSize(14f); color(HelixTheme.current.onPrimaryContainer) } }
             }
         }
@@ -91,7 +93,7 @@ fun ViewContainer<*, *>.UpdateCard(
                 paddingLeft(16f); paddingRight(16f)
                 borderRadius(20f); backgroundColor(HelixTheme.current.primary); alignSelfFlexStart()
             }
-            event { click { onUpdate() } }
+            event { click { KLog.i("HelixKuikly", "👆 [Click] 更新卡片立即更新"); onUpdate() } }
             Text { attr { text("立即更新"); fontSize(14f); color(HelixTheme.current.onPrimary) } }
         }
     }
@@ -124,12 +126,13 @@ fun ViewContainer<*, *>.ListSelectableItem(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    KLog.i("HelixKuikly", "🖼 [Render] 可选项[$title] selected=$selected")
     View {
         attr {
             flexDirectionRow(); alignItemsCenter(); padding(14f); paddingLeft(16f)
             backgroundColor(if (selected) HelixTheme.current.secondaryContainer else Color(0x00000000L))
         }
-        event { click { onClick() } }
+        event { click { KLog.i("HelixKuikly", "👆 [Click] 可选项[$title]"); onClick() } }
         // 选择指示器（用背景色切换替代边框）
         View {
             attr {

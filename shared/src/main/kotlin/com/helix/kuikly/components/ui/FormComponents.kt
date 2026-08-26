@@ -2,6 +2,7 @@ package com.helix.kuikly.components.ui
 
 import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
+import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.theme.HelixTheme
@@ -146,7 +147,7 @@ fun ViewContainer<*, *>.Select(
                 backgroundColor(HelixTheme.current.surfaceContainer)
             }
             event {
-                click { onSelect(-1) } // -1 = toggle dropdown
+                click { KLog.i("HelixKuikly", "👆 [Click] 下拉[$label]"); onSelect(-1) } // -1 = toggle dropdown
             }
             Text {
                 attr {
@@ -211,6 +212,7 @@ fun ViewContainer<*, *>.SelectDropdown(
                         }
                         event {
                             click {
+                                KLog.i("HelixKuikly", "👆 [Click] 下拉选项[$option]")
                                 onSelect(index)
                                 onDismiss()
                             }

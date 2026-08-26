@@ -4,6 +4,7 @@ import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.tencent.kuikly.core.log.KLog
 import com.helix.kuikly.theme.HelixTheme
 
 /**
@@ -21,6 +22,7 @@ fun ViewContainer<*, *>.RadioRow(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    KLog.i("HelixKuikly", "🖼 [Render] 单选[$title] selected=$selected")
     View {
         attr {
             flexDirectionRow()
@@ -40,6 +42,7 @@ fun ViewContainer<*, *>.RadioRow(
         }
         event {
             click {
+                KLog.i("HelixKuikly", "👆 [Click] 单选[$title]")
                 onClick()
             }
         }
