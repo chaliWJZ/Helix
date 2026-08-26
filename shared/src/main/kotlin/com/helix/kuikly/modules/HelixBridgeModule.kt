@@ -54,11 +54,19 @@ class HelixBridgeModule : Module() {
 
     /** 读取文本文件 */
     fun readFile(path: String, callback: CallbackFn?) {
+        if (!isSafePath(path)) {
+            callback?.invoke(JSONObject().apply { put("error", "illegal_path") })
+            return
+        }
         callNative(METHOD_READ_FILE, JSONObject().apply { put("path", path) }, callback)
     }
 
     /** 写入文本文件 */
     fun writeFile(path: String, content: String, callback: CallbackFn?) {
+        if (!isSafePath(path)) {
+            callback?.invoke(JSONObject().apply { put("error", "illegal_path") })
+            return
+        }
         callNative(
             METHOD_WRITE_FILE,
             JSONObject().apply {
@@ -71,7 +79,28 @@ class HelixBridgeModule : Module() {
 
     /** 列出目录下的文件 */
     fun listFiles(dirPath: String, callback: CallbackFn?) {
+        if (!isSafePath(dirPath)) {
+            callback?.invoke(JSONObject().apply { put("error", "illegal_path") })
+            return
+        }
         callNative(METHOD_LIST_FILES, JSONObject().apply { put("dirPath", dirPath) }, callback)
+    }
+
+    /**
+     * 文件路径合法性校验（修复 stbug-6G5qHbJbKp）
+     *
+     * 白名单式防御：拒绝空路径、超长路径、路径遍历（..）、绝对路径（/ 开头）、
+     * 空字节注入、危险字符。原生侧文件操作真正实现时，此校验作为第一道防线。
+     */
+    private fun isSafePath(path: String): Boolean {
+        if (path.isEmpty() || path.length > 2048) return false
+        if (path.contains('\u0000')) return false  // NUL 字节注入
+        if (path.contains("..")) return false       // 路径遍历
+        if (path.startsWith("/")) return false      // 绝对路径（仅允许相对工作区路径）
+        // 允许：字母数字、中划线、下划线、点、斜杠（相对路径分隔）、空格
+        return path.all { c ->
+            c.isLetterOrDigit() || c == '-' || c == '_' || c == '.' || c == '/' || c == ' '
+        }
     }
 
     /** 选择本地文件（文件选择器） */
