@@ -53,12 +53,12 @@ internal class SettingModelPromptPage : Pager() {
                         marginTop(8f)
                     }
                     CardGroup(
-                        items = items.map { (title, desc) ->
+                        items = items.mapIndexed { index, (title, desc) ->
                             CardGroupItem(
                                 title = title,
                                 subtitle = desc,
                                 icon = "📝",
-                                onClick = { ctx.editingIndex = 0 }
+                                onClick = { ctx.editingIndex = index }
                             )
                         }
                     )
