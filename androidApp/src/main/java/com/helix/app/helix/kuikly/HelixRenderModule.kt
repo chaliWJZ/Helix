@@ -12,6 +12,9 @@ import com.helix.app.common.android.LogEntry
 import com.helix.app.common.android.Logging
 import com.helix.app.data.datastore.SettingsStore
 import com.helix.app.ai.provider.ModelType
+import com.helix.app.ai.provider.Provider
+import com.helix.app.ai.provider.ProviderManager
+import com.helix.app.ai.provider.ProviderSetting
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
 import kotlinx.coroutines.launch
@@ -197,6 +200,149 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 供应商（真实数据：SettingsStore.providers） ====================
+            METHOD_GET_PROVIDERS -> {
+                val providers = koinGet<SettingsStore>().settingsFlow.value.providers
+                val result = JSONArray().apply {
+                    providers.forEach { p ->
+                        put(JSONObject().apply {
+                            put("id", p.id.toString())
+                            put("name", p.name)
+                            put("enabled", p.enabled)
+                            put("modelCount", p.models.size)
+                            put("type", providerTypeName(p))
+                        })
+                    }
+                }
+                Log.i(TAG, "✅ [Module-Done] getProviders count=${providers.size}")
+                callback?.invoke(JSONObject().apply { put("providers", result) })
+                null
+            }
+
+            METHOD_GET_PROVIDER_DETAIL -> {
+                val id = json?.optString("id") ?: ""
+                val p = koinGet<SettingsStore>().settingsFlow.value.providers.firstOrNull { it.id.toString() == id }
+                if (p == null) {
+                    Log.w(TAG, "⚠ [Module-Warn] getProviderDetail 未找到 id=$id")
+                    callback?.invoke(JSONObject().apply { put("error", "provider_not_found") })
+                } else {
+                    val (baseUrl, apiKey) = providerCredentials(p)
+                    val result = JSONObject().apply {
+                        put("id", p.id.toString())
+                        put("name", p.name)
+                        put("enabled", p.enabled)
+                        put("type", providerTypeName(p))
+                        put("baseUrl", baseUrl)
+                        put("apiKey", apiKey)
+                        put("apiKeyMasked", if (apiKey.length > 8) apiKey.take(4) + "****" + apiKey.takeLast(4) else if (apiKey.isNotEmpty()) "****" else "")
+                        put("models", JSONArray().apply {
+                            p.models.forEach { m ->
+                                put(JSONObject().apply {
+                                    put("modelId", m.modelId)
+                                    put("displayName", m.displayName)
+                                    put("type", m.type.name)
+                                })
+                            }
+                        })
+                    }
+                    Log.i(TAG, "✅ [Module-Done] getProviderDetail ${p.name} models=${p.models.size}")
+                    callback?.invoke(result)
+                }
+                null
+            }
+
+            METHOD_UPDATE_PROVIDER -> {
+                val id = json?.optString("id") ?: ""
+                val name = json?.optString("name") ?: ""
+                val baseUrl = json?.optString("baseUrl")
+                val apiKey = json?.optString("apiKey")
+                koinGet<AppScope>().launch {
+                    try {
+                        var updated = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map { p ->
+                                if (p.id.toString() == id) {
+                                    updated = true
+                                    applyProviderEdit(p, name, baseUrl, apiKey)
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateProvider id=$id found=$updated")
+                        callback?.invoke(JSONObject().apply { put("ok", updated) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_SET_PROVIDER_ENABLED -> {
+                val id = json?.optString("id") ?: ""
+                val enabled = json?.optBoolean("enabled") ?: false
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map {
+                                if (it.id.toString() == id) it.copyProvider(enabled = enabled) else it
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] setProviderEnabled id=$id → $enabled")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setProviderEnabled: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_DELETE_PROVIDER -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteProvider id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_TEST_PROVIDER -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    val p = koinGet<SettingsStore>().settingsFlow.value.providers.firstOrNull { it.id.toString() == id }
+                    if (p == null) {
+                        callback?.invoke(JSONObject().apply { put("ok", false); put("error", "provider_not_found") })
+                        return@launch
+                    }
+                    try {
+                        val manager = koinGet<ProviderManager>()
+                        @Suppress("UNCHECKED_CAST")
+                        val provider = manager.getProviderByType(p) as Provider<ProviderSetting>
+                        val models = provider.listModels(p)
+                        Log.i(TAG, "✅ [Module-Done] testProvider ${p.name} 拉到 ${models.size} 个模型")
+                        callback?.invoke(JSONObject().apply {
+                            put("ok", true)
+                            put("modelCount", models.size)
+                        })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] testProvider ${p.name}: ${e.message}")
+                        callback?.invoke(JSONObject().apply {
+                            put("ok", false)
+                            put("error", e.message ?: "unknown")
+                        })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -277,6 +423,44 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
     /** Koin 全局容器取单例（Module 与 Koin 同进程） */
     private inline fun <reified T : Any> koinGet(): T = GlobalContext.get().get()
 
+    /** 供应商子类类型名（@SerialName） */
+    private fun providerTypeName(p: ProviderSetting): String = when (p) {
+        is ProviderSetting.OpenAI -> "openai"
+        is ProviderSetting.Google -> "google"
+        is ProviderSetting.Claude -> "claude"
+    }
+
+    /** 提取供应商凭证（3 个子类均有 apiKey/baseUrl） */
+    private fun providerCredentials(p: ProviderSetting): Pair<String, String> = when (p) {
+        is ProviderSetting.OpenAI -> p.baseUrl to p.apiKey
+        is ProviderSetting.Google -> p.baseUrl to p.apiKey
+        is ProviderSetting.Claude -> p.baseUrl to p.apiKey
+    }
+
+    /** 应用编辑（名称 + 凭证，按子类 copy） */
+    private fun applyProviderEdit(
+        p: ProviderSetting,
+        name: String,
+        baseUrl: String?,
+        apiKey: String?
+    ): ProviderSetting {
+        val renamed = if (name.isNotEmpty()) p.copyProvider(name = name) else p
+        return when (renamed) {
+            is ProviderSetting.OpenAI -> renamed.copy(
+                baseUrl = baseUrl ?: renamed.baseUrl,
+                apiKey = apiKey ?: renamed.apiKey
+            )
+            is ProviderSetting.Google -> renamed.copy(
+                baseUrl = baseUrl ?: renamed.baseUrl,
+                apiKey = apiKey ?: renamed.apiKey
+            )
+            is ProviderSetting.Claude -> renamed.copy(
+                baseUrl = baseUrl ?: renamed.baseUrl,
+                apiKey = apiKey ?: renamed.apiKey
+            )
+        }
+    }
+
     /** URL 安全校验：仅允许 http/https */
     private fun isSafeUrl(url: String): Boolean {
         if (url.isEmpty() || url.length > MAX_URL_LENGTH) return false
@@ -337,6 +521,12 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_GET_SETTINGS_SUMMARY = "getSettingsSummary"
         const val METHOD_SET_MODEL_SLOT = "setModelSlot"
         const val METHOD_SET_ENABLE_SUGGESTION = "setEnableSuggestion"
+        const val METHOD_GET_PROVIDERS = "getProviders"
+        const val METHOD_GET_PROVIDER_DETAIL = "getProviderDetail"
+        const val METHOD_UPDATE_PROVIDER = "updateProvider"
+        const val METHOD_SET_PROVIDER_ENABLED = "setProviderEnabled"
+        const val METHOD_DELETE_PROVIDER = "deleteProvider"
+        const val METHOD_TEST_PROVIDER = "testProvider"
         private const val MAX_URL_LENGTH = 2048
         /** 内部约定 scheme：跳 Compose 版对比 */
         const val COMPOSE_DEBUG_URL = "helix://compose-debug"

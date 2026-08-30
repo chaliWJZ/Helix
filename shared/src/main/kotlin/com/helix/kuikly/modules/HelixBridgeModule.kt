@@ -120,6 +120,54 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_PICK_IMAGE, null, callback)
     }
 
+    // ==================== 供应商（真实数据：SettingsStore.providers） ====================
+
+    /** 供应商列表。返回：{providers:[{id,name,enabled,modelCount,type}]} */
+    fun getProviders(callback: CallbackFn?) {
+        callNative(METHOD_GET_PROVIDERS, null, callback)
+    }
+
+    /** 供应商详情。返回：{id,name,enabled,type,baseUrl,apiKey,apiKeyMasked,models:[{modelId,displayName,type}]} */
+    fun getProviderDetail(id: String, callback: CallbackFn?) {
+        callNative(METHOD_GET_PROVIDER_DETAIL, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 编辑供应商（name/baseUrl/apiKey 任一非空则更新；传空串=不更新） */
+    fun updateProvider(id: String, name: String, baseUrl: String, apiKey: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_PROVIDER,
+            JSONObject().apply {
+                put("id", id)
+                put("name", name)
+                put("baseUrl", baseUrl)
+                put("apiKey", apiKey)
+            },
+            callback
+        )
+    }
+
+    /** 启用/禁用供应商 */
+    fun setProviderEnabled(id: String, enabled: Boolean, callback: CallbackFn?) {
+        callNative(
+            METHOD_SET_PROVIDER_ENABLED,
+            JSONObject().apply {
+                put("id", id)
+                put("enabled", enabled)
+            },
+            callback
+        )
+    }
+
+    /** 删除供应商 */
+    fun deleteProvider(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_PROVIDER, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 测试供应商连通性（原生 listModels）。返回：{ok, modelCount|error} */
+    fun testProvider(id: String, callback: CallbackFn?) {
+        callNative(METHOD_TEST_PROVIDER, JSONObject().apply { put("id", id) }, callback)
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -238,5 +286,11 @@ class HelixBridgeModule : Module() {
         const val METHOD_GET_SETTINGS_SUMMARY = "getSettingsSummary"
         const val METHOD_SET_MODEL_SLOT = "setModelSlot"
         const val METHOD_SET_ENABLE_SUGGESTION = "setEnableSuggestion"
+        const val METHOD_GET_PROVIDERS = "getProviders"
+        const val METHOD_GET_PROVIDER_DETAIL = "getProviderDetail"
+        const val METHOD_UPDATE_PROVIDER = "updateProvider"
+        const val METHOD_SET_PROVIDER_ENABLED = "setProviderEnabled"
+        const val METHOD_DELETE_PROVIDER = "deleteProvider"
+        const val METHOD_TEST_PROVIDER = "testProvider"
     }
 }
