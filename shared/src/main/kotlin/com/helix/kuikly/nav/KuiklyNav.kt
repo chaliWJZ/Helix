@@ -43,7 +43,6 @@ object KuiklyNav {
         "SettingProviderPage" to "供应商列表页",
         "SettingProviderDetailPage" to "供应商详情页",
         "SettingSearchPage" to "搜索服务页",
-        "SettingSearchDetailPage" to "搜索详情页",
         "SettingSpeechPage" to "TTS服务页",
         "TTSProviderConfigurePage" to "TTS配置页",
         "SettingMcpPage" to "MCP设置页",
@@ -92,7 +91,7 @@ object KuiklyNav {
             "SettingPreferencesUIPage", "SettingPreferencesNetworkPage",
             "SettingModelPage", "SettingModelPromptPage",
             "SettingProviderPage", "SettingProviderDetailPage",
-            "SettingSearchPage", "SettingSearchDetailPage",
+            "SettingSearchPage",
             "SettingSpeechPage", "TTSProviderConfigurePage",
             "SettingMcpPage", "SettingWebPage",
             "SettingAboutPage", "SettingDonatePage", "SettingFilesPage"
