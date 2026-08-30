@@ -47,6 +47,28 @@
 - **坐标估算存在 ~150-300px 方差**：单次估算不可靠，对不确定坐标采用**扫描法**（在预估范围内多点尝试+日志验证真实边界）更可靠
 - **状态漂移风险**：adb 命令链用 `&&` 时 grep 无匹配返回码1会中断链条，导致部分命令未执行但脚本继续、造成状态漂移（返回键位置计算错误）；改用 `;` 分隔 + 每步截图/日志确认当前状态后再进行下一步操作
 
+## 小组B：开关组（4页，17个SwitchRow，17/17通过）
+
+方法：每开关连续点击2次（开↔关二次回弹），断言 KLog `[SwitchRow] [标题] → true/false` 两次翻转值正确，且最终回到初始状态（不污染后续测试）。
+
+### SettingPreferencesNotificationPage 通知偏好页 [P0✅ P1✅ P2⚠️]
+- Render断言正确；3个开关：启用通知(初始true)/通知声音(初始true)/振动(初始false) 全部二次回弹通过
+- Compose差异：Compose有"更新提醒对话框+消息生成通知权限请求+实时更新通知"，Kuikly为简化版3开关（不同维度），记入P3
+
+### SettingPreferencesGeneralPage 通用偏好页 [P0✅ P1✅ P2⚠️]
+- Render断言正确；6个开关全部二次回弹通过：启动时新建会话(true)/回车发送(true)/显示消息跳转按钮(true)/跳转按钮在左侧(false)/自动滚动(true)/应用图标加载动画(false)
+- Compose差异：Compose有9+个开关+2个Slider（模糊效果/触感反馈/长文本阈值等），Kuikly仅实现6项，记入P3
+
+### SettingPreferencesUIPage 界面偏好页 [P0✅ P1✅ P2⚠️]
+- Render断言正确；6个开关全部二次回弹通过：紧凑模式(false)/气泡样式(true)/显示头像(true)/全宽消息(false)/显示Token数(false)/显示时间戳(true)
+- Compose差异：Compose有字体选择/导入/大小调节/代码显示设置组等，Kuikly缺失，记入P3
+
+### SettingPreferencesNetworkPage 网络偏好页 [P0✅ P1✅ P2⚠️]
+- Render断言正确；1个开关「使用代理」二次回弹通过(false→true→false)；「连接超时」为静态展示（30秒不可编辑）
+- Compose差异：Compose有UserAgent输入/代理URL配置对话框/连接测试功能，Kuikly为骨架展示，记入P3
+
+**本轮无新增Bug**，SwitchRow响应式修复（此前commit）在全部17个开关上验证生效，checked状态与UI视觉（截图颜色/滑块位置）完全一致。
+
 ## 待处理（P3，不在本轮修复范围）
 
 详见子代理已完成的 5 份差异分析报告（设置系合计 224 测试点），核心共性问题：
@@ -59,4 +81,4 @@
 
 ## 下一步
 
-继续小组B（开关组4页：Notification/General/UI/Network，17个SwitchRow二次回弹验证）。
+继续小组C（模型供应商4页：SettingModelPage双Tab+6槽位/ModelPromptPage/ProviderPage/ProviderDetailPage）。
