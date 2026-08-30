@@ -9,6 +9,7 @@ import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.helix.kuikly.components.ui.CardGroup
 import com.helix.kuikly.components.ui.CardGroupItem
+import com.helix.kuikly.components.ui.EditSheet
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.SwitchRow
 import com.helix.kuikly.components.ui.safeRun
@@ -36,6 +37,7 @@ internal class SettingWebPage : HelixBasePage() {
     private var jwtEnabled by observable(false)
     private var hasPassword by observable(false)
     private var address by observable("")
+    private var pwdEditVisible by observable(false)
 
     override fun pageDidAppear() {
         super.pageDidAppear()
@@ -138,8 +140,9 @@ internal class SettingWebPage : HelixBasePage() {
                             ),
                             CardGroupItem(
                                 title = "访问密码",
-                                subtitle = if (ctx.hasPassword) "已设置" else "未设置（编辑功能二期）",
-                                icon = "🔑"
+                                subtitle = if (ctx.hasPassword) "已设置（点击修改）" else "未设置（点击配置）",
+                                icon = "🔑",
+                                onClick = { ctx.pwdEditVisible = true }
                             )
                         )
                     )
@@ -162,6 +165,27 @@ internal class SettingWebPage : HelixBasePage() {
                         )
                     }
                 }
+
+                // 密码编辑弹层
+                EditSheet(
+                    visible = { ctx.pwdEditVisible },
+                    title = "设置访问密码",
+                    label = "密码（浏览器访问时需要输入）",
+                    initialValue = "",
+                    onSave = { v: String ->
+                        ctx.pwdEditVisible = false
+                        KLog.i(UI_LOG, "👆 [Click] $TAG 设置访问密码 len=${v.length}")
+                        ctx.bridge().setWebServerConfig(password = v) { json ->
+                            safeRun("$TAG setWebServerConfig password") {
+                                if (json?.optBoolean("ok") == true) {
+                                    ctx.hasPassword = v.isNotEmpty()
+                                    ctx.bridge().toast("密码已保存")
+                                }
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.pwdEditVisible = false }
+                )
             }
         }
     }
