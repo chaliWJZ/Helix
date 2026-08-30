@@ -5,6 +5,7 @@ import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.directives.vfor
+import com.tencent.kuikly.core.directives.vif
 import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.reactive.handler.observableList
@@ -247,8 +248,8 @@ internal class LogPage : HelixBasePage() {
                     }
                 }
 
-                // ===== 详情弹层（遮罩 + 底部面板） =====
-                if (ctx.showDetail) {
+                // ===== 详情弹层（遮罩 + 底部面板，vif 响应式条件渲染） =====
+                vif({ ctx.showDetail }) {
                     val d = ctx.detail
                     if (d != null) {
                         View {
