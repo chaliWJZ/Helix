@@ -120,6 +120,36 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_PICK_IMAGE, null, callback)
     }
 
+    // ==================== 日志（请求日志页，真实数据） ====================
+
+    /**
+     * 获取最近日志列表（含请求日志开关状态）。
+     * 返回：{ enabled: Boolean, logs: [{id, type("text"|"request"), timeText, tag, message?, url?, method?, responseCode?, durationMs?, error?}] }
+     */
+    fun getLogs(callback: CallbackFn?) {
+        callNative(METHOD_GET_LOGS, null, callback)
+    }
+
+    /** 获取单条请求日志完整详情（含 headers/body）。返回：{id, url, method, timeFull, responseCode?, durationMs?, error?, requestHeaders, responseHeaders, requestBody?} */
+    fun getLogDetail(id: String, callback: CallbackFn?) {
+        callNative(METHOD_GET_LOG_DETAIL, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 清空日志 */
+    fun clearLogs(callback: CallbackFn?) {
+        callNative(METHOD_CLEAR_LOGS, null, callback)
+    }
+
+    /** 开关请求日志记录 */
+    fun setRequestLoggingEnabled(enabled: Boolean, callback: CallbackFn?) {
+        callNative(METHOD_SET_REQUEST_LOGGING, JSONObject().apply { put("enabled", enabled) }, callback)
+    }
+
+    /** 复制文本到剪贴板 */
+    fun copyToClipboard(text: String, callback: CallbackFn?) {
+        callNative(METHOD_COPY_TO_CLIPBOARD, JSONObject().apply { put("text", text) }, callback)
+    }
+
     // ==================== 设置/应用信息 ====================
 
     /** 获取应用版本信息 */
@@ -173,5 +203,10 @@ class HelixBridgeModule : Module() {
         const val METHOD_CHECK_UPDATE = "checkUpdate"
         const val METHOD_GET_SETTING = "getSetting"
         const val METHOD_SET_SETTING = "setSetting"
+        const val METHOD_GET_LOGS = "getLogs"
+        const val METHOD_GET_LOG_DETAIL = "getLogDetail"
+        const val METHOD_CLEAR_LOGS = "clearLogs"
+        const val METHOD_SET_REQUEST_LOGGING = "setRequestLogging"
+        const val METHOD_COPY_TO_CLIPBOARD = "copyToClipboard"
     }
 }

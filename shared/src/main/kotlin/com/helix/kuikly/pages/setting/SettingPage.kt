@@ -152,6 +152,12 @@ internal class SettingPage : HelixBasePage() {
                                 }
                             ),
                             CardGroupItem(
+                                title = "请求日志",
+                                subtitle = "查看网络请求和运行日志",
+                                icon = "📖",
+                                onClick = { ctx.openPage("LogPage") }
+                            ),
+                            CardGroupItem(
                                 title = "捐赠",
                                 subtitle = "支持项目持续开发",
                                 icon = "💖",

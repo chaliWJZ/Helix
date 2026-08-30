@@ -1,12 +1,21 @@
 package com.helix.app.helix.kuikly
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import com.helix.app.common.android.LogEntry
+import com.helix.app.common.android.Logging
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
+import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Helix 原生侧 Kuikly Module
@@ -86,6 +95,73 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
             METHOD_GET_SETTING -> JSONObject().apply { put("value", "") }
             METHOD_SET_SETTING -> true
 
+            // ==================== 日志（真实数据：Logging 单例） ====================
+            METHOD_GET_LOGS -> {
+                val result = buildLogsJson()
+                Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_GET_LOG_DETAIL -> {
+                val id = json?.optString("id") ?: ""
+                val entry = Logging.getRecentLogs().firstOrNull { it.id.toString() == id }
+                if (entry is LogEntry.RequestLog) {
+                    val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+                    val result = JSONObject().apply {
+                        put("id", entry.id.toString())
+                        put("type", "request")
+                        put("timeFull", fmt.format(Date(entry.timestamp)))
+                        put("url", entry.url)
+                        put("method", entry.method)
+                        entry.responseCode?.let { put("responseCode", it) }
+                        entry.durationMs?.let { put("durationMs", it) }
+                        entry.error?.let { put("error", it) }
+                        put("requestHeaders", JSONObject(entry.requestHeaders))
+                        put("responseHeaders", JSONObject(entry.responseHeaders))
+                        entry.requestBody?.let { put("requestBody", it) }
+                    }
+                    Log.i(TAG, "✅ [Module-Done] getLogDetail id=$id url=${entry.url.take(80)}")
+                    callback?.invoke(result)
+                } else {
+                    Log.w(TAG, "⚠ [Module-Warn] getLogDetail 未找到 id=$id")
+                    callback?.invoke(JSONObject().apply { put("error", "log_not_found") })
+                }
+                null
+            }
+
+            METHOD_CLEAR_LOGS -> {
+                Logging.clear()
+                Log.i(TAG, "✅ [Module-Done] clearLogs")
+                callback?.invoke(JSONObject().apply { put("ok", true) })
+                null
+            }
+
+            METHOD_SET_REQUEST_LOGGING -> {
+                val enabled = json?.optBoolean("enabled") ?: false
+                Logging.setRequestLoggingEnabled(enabled)
+                Log.i(TAG, "✅ [Module-Done] setRequestLogging enabled=$enabled")
+                callback?.invoke(JSONObject().apply {
+                    put("ok", true)
+                    put("enabled", enabled)
+                })
+                null
+            }
+
+            METHOD_COPY_TO_CLIPBOARD -> {
+                val text = json?.optString("text") ?: ""
+                try {
+                    val cm = context?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                    cm?.setPrimaryClip(ClipData.newPlainText("HelixLog", text))
+                    Log.i(TAG, "✅ [Module-Done] copyToClipboard length=${text.length}")
+                    callback?.invoke(JSONObject().apply { put("ok", true) })
+                } catch (e: Exception) {
+                    Log.e(TAG, "⚠ [Error] copyToClipboard: ${e.message}")
+                    callback?.invoke(JSONObject().apply { put("error", e.message) })
+                }
+                null
+            }
+
             METHOD_READ_FILE, METHOD_WRITE_FILE, METHOD_LIST_FILES,
             METHOD_PICK_FILE, METHOD_TAKE_PHOTO, METHOD_PICK_IMAGE,
             METHOD_CHECK_UPDATE -> {
@@ -102,6 +178,34 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         if (url.isEmpty() || url.length > MAX_URL_LENGTH) return false
         val scheme = runCatching { Uri.parse(url).scheme?.lowercase() }.getOrNull()
         return scheme == "http" || scheme == "https"
+    }
+
+    /** 组装日志列表 JSON（列表卡片字段裁剪，大 body 走 getLogDetail 按需拉取） */
+    private fun buildLogsJson(): JSONObject {
+        val fmt = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        return JSONObject().apply {
+            put("enabled", Logging.isRequestLoggingEnabled())
+            put("logs", JSONArray().apply {
+                Logging.getRecentLogs().forEach { entry ->
+                    put(JSONObject().apply {
+                        put("id", entry.id.toString())
+                        put("type", if (entry is LogEntry.RequestLog) "request" else "text")
+                        put("timeText", fmt.format(Date(entry.timestamp)))
+                        put("tag", entry.tag)
+                        when (entry) {
+                            is LogEntry.TextLog -> put("message", entry.message)
+                            is LogEntry.RequestLog -> {
+                                put("url", entry.url)
+                                put("method", entry.method)
+                                entry.responseCode?.let { put("responseCode", it) }
+                                entry.durationMs?.let { put("durationMs", it) }
+                                entry.error?.let { put("error", it) }
+                            }
+                        }
+                    })
+                }
+            })
+        }
     }
 
     companion object {
@@ -121,6 +225,11 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_CHECK_UPDATE = "checkUpdate"
         const val METHOD_GET_SETTING = "getSetting"
         const val METHOD_SET_SETTING = "setSetting"
+        const val METHOD_GET_LOGS = "getLogs"
+        const val METHOD_GET_LOG_DETAIL = "getLogDetail"
+        const val METHOD_CLEAR_LOGS = "clearLogs"
+        const val METHOD_SET_REQUEST_LOGGING = "setRequestLogging"
+        const val METHOD_COPY_TO_CLIPBOARD = "copyToClipboard"
         private const val MAX_URL_LENGTH = 2048
         /** 内部约定 scheme：跳 Compose 版对比 */
         const val COMPOSE_DEBUG_URL = "helix://compose-debug"
