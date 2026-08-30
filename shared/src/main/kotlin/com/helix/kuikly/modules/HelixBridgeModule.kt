@@ -612,6 +612,30 @@ class HelixBridgeModule : Module() {
         )
     }
 
+    /** 更新 TTS 音色 */
+    fun updateTtsVoice(id: String, voice: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_TTS_VOICE,
+            JSONObject().apply {
+                put("id", id)
+                put("voice", voice)
+            },
+            callback
+        )
+    }
+
+    /** TTS 试听（系统 TTS 即时播放；其他引擎回 error 提示） */
+    fun ttsSpeak(id: String, text: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_TTS_SPEAK,
+            JSONObject().apply {
+                put("id", id)
+                put("text", text)
+            },
+            callback
+        )
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -778,6 +802,8 @@ class HelixBridgeModule : Module() {
         const val METHOD_ADD_MCP_SERVER = "addMcpServer"
         const val METHOD_ADD_ASR_PROVIDER = "addAsrProvider"
         const val METHOD_SAVE_LOREBOOK = "saveLorebook"
+        const val METHOD_UPDATE_TTS_VOICE = "updateTtsVoice"
+        const val METHOD_TTS_SPEAK = "ttsSpeak"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

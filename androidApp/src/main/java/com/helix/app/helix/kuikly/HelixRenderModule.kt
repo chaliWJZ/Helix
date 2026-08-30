@@ -1577,6 +1577,59 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== TTS 音色/试听（批次H3） ====================
+            METHOD_UPDATE_TTS_VOICE -> {
+                val id = json?.optString("id") ?: ""
+                val voice = json?.optString("voice") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        var updated = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(ttsProviders = s.ttsProviders.map { p ->
+                                if (p.id.toString() == id) {
+                                    updated = true
+                                    applyTtsVoice(p, voice)
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateTtsVoice id=$id voice=$voice found=$updated")
+                        callback?.invoke(JSONObject().apply { put("ok", updated) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateTtsVoice: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_TTS_SPEAK -> {
+                val id = json?.optString("id") ?: ""
+                val text = json?.optString("text") ?: "你好，这是语音试听。"
+                val p = koinGet<SettingsStore>().settingsFlow.value.ttsProviders.firstOrNull { it.id.toString() == id }
+                if (p == null) {
+                    callback?.invoke(JSONObject().apply { put("ok", false); put("error", "not_found") })
+                    null
+                } else if (p is TTSProviderSetting.SystemTTS) {
+                    // 系统 TTS：Android TextToSpeech 即时播放
+                    try {
+                        speakWithSystemTts(context, text)
+                        Log.i(TAG, "✅ [Module-Done] ttsSpeak(系统TTS)")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] ttsSpeak: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("ok", false); put("error", e.message) })
+                    }
+                    null
+                } else {
+                    Log.w(TAG, "⚠ [Module-Warn] ttsSpeak 仅支持系统TTS，${p.name} 需在 Compose 版试听")
+                    callback?.invoke(JSONObject().apply {
+                        put("ok", false)
+                        put("error", "仅系统 TTS 支持即时试听，其他引擎请在 Compose 版试听")
+                    })
+                    null
+                }
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1707,6 +1760,30 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         is ASRProviderSetting.OpenAIRealtime -> "openai_realtime"
         is ASRProviderSetting.DashScope -> "dashscope"
         else -> p::class.simpleName?.lowercase() ?: "unknown"
+    }
+
+    /** TTS 音色写入（反射序列化改 voice 字段） */
+    private fun applyTtsVoice(p: TTSProviderSetting, voice: String): TTSProviderSetting {
+        return runCatching {
+            val json = JSONObject(com.helix.app.utils.JsonInstant.encodeToString(TTSProviderSetting.serializer(), p))
+            json.put("voice", voice)
+            com.helix.app.utils.JsonInstant.decodeFromString(TTSProviderSetting.serializer(), json.toString())
+        }.getOrDefault(p)
+    }
+
+    /** 系统 TTS 即时播放（懒加载单例 TextToSpeech） */
+    private var systemTts: android.speech.tts.TextToSpeech? = null
+    private fun speakWithSystemTts(context: android.content.Context?, text: String) {
+        if (context == null) throw IllegalStateException("no_context")
+        if (systemTts == null) {
+            systemTts = android.speech.tts.TextToSpeech(context.applicationContext) { status ->
+                if (status == android.speech.tts.TextToSpeech.SUCCESS) {
+                    systemTts?.language = java.util.Locale.CHINA
+                }
+            }
+            // 首次初始化需要等待，直接尝试播放
+        }
+        systemTts?.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "kuikly_preview")
     }
 
     /** 供应商子类类型名（@SerialName） */
@@ -1920,6 +1997,8 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_ADD_MCP_SERVER = "addMcpServer"
         const val METHOD_ADD_ASR_PROVIDER = "addAsrProvider"
         const val METHOD_SAVE_LOREBOOK = "saveLorebook"
+        const val METHOD_UPDATE_TTS_VOICE = "updateTtsVoice"
+        const val METHOD_TTS_SPEAK = "ttsSpeak"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

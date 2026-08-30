@@ -13,6 +13,8 @@ import com.helix.kuikly.components.ui.CardGroupItem
 import com.helix.kuikly.components.ui.ConfirmSheet
 import com.helix.kuikly.components.ui.EditSheet
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.OptionSheet
+import com.helix.kuikly.components.ui.SheetOption
 import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.helix.kuikly.theme.HelixTheme
@@ -43,6 +45,7 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
     private var editVisible by observable(false)
     private var editField by observable("")
     private var confirmDeleteVisible by observable(false)
+    private var voiceSheetVisible by observable(false)
 
     override fun created() {
         super.created()
@@ -73,6 +76,17 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
 
     private fun save(field: String, value: String) {
         KLog.i(UI_LOG, "👆 [Click] $TAG 保存[$field] → ${value.take(24)}")
+        if (field == "voice") {
+            bridge().updateTtsVoice(ttsId, value) { json ->
+                safeRun("$TAG updateTtsVoice") {
+                    if (json?.optBoolean("ok") == true) {
+                        voice = value
+                        bridge().toast("音色已保存")
+                    } else bridge().toast("该引擎无音色字段")
+                }
+            }
+            return
+        }
         val params = com.tencent.kuikly.core.nvi.serialization.json.JSONObject().apply {
             put("id", ttsId)
             when (field) {
@@ -118,6 +132,7 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
         "name" -> Triple("编辑引擎名称", "名称", name)
         "apiKey" -> Triple("编辑 API Key", "API Key（${if (apiKey.isEmpty()) "未配置" else "已配置"}）", "")
         "baseUrl" -> Triple("编辑 Base URL", "Base URL", baseUrl)
+        "voice" -> Triple("自定义音色", "音色名", voice)
         else -> Triple("编辑", "", "")
     }
 
@@ -172,11 +187,47 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
                             ),
                             CardGroupItem(
                                 title = "音色",
-                                subtitle = ctx.voice.ifEmpty { "默认音色（高级音色选择在 Compose 版）" },
-                                icon = "🎤"
+                                subtitle = ctx.voice.ifEmpty { "默认（点击选择）" },
+                                icon = "🎤",
+                                onClick = { ctx.voiceSheetVisible = true }
                             )
                         )
                     )
+
+                    // 试听按钮
+                    View {
+                        attr {
+                            height(44f)
+                            borderRadius(22f)
+                            justifyContentCenter()
+                            alignItemsCenter()
+                            marginLeft(16f); marginRight(16f)
+                            marginTop(8f)
+                            backgroundColor(HelixTheme.current.secondaryContainer)
+                        }
+                        event {
+                            click {
+                                safeRun("$TAG 试听") {
+                                    KLog.i(UI_LOG, "👆 [Click] $TAG 试听 [${ctx.name}] type=${ctx.type}")
+                                    ctx.bridge().ttsSpeak(ctx.ttsId, "你好，这是语音试听。") { json ->
+                                        safeRun("$TAG ttsSpeak") {
+                                            val j = json ?: return@safeRun
+                                            if (!j.optBoolean("ok")) {
+                                                ctx.bridge().toast(j.optString("error"))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Text {
+                            attr {
+                                text("🔊 试听")
+                                fontSize(15f)
+                                color(HelixTheme.current.onSecondaryContainer)
+                            }
+                        }
+                    }
 
                     // 设为默认
                     vif({ !ctx.isDefault }) {
@@ -263,6 +314,46 @@ internal class TTSProviderConfigurePage : HelixBasePage() {
                         ctx.delete()
                     },
                     onDismiss = { ctx.confirmDeleteVisible = false }
+                )
+
+                // ===== 音色选择弹层（OpenAI 预设 + 自定义输入） =====
+                OptionSheet(
+                    visible = { ctx.voiceSheetVisible },
+                    title = "选择音色（${ctx.type}）",
+                    options = if (ctx.type == "openai") {
+                        listOf(
+                            SheetOption("alloy", "Alloy（中性）"),
+                            SheetOption("echo", "Echo（男声）"),
+                            SheetOption("fable", "Fable（叙事）"),
+                            SheetOption("onyx", "Onyx（浑厚男声）"),
+                            SheetOption("nova", "Nova（女声）"),
+                            SheetOption("shimmer", "Shimmer（清亮女声）"),
+                            SheetOption("__custom__", "自定义输入…")
+                        )
+                    } else {
+                        listOf(
+                            SheetOption("__custom__", "自定义输入音色名…"),
+                            SheetOption("", "恢复默认")
+                        )
+                    },
+                    currentValue = ctx.voice,
+                    onSelect = { o ->
+                        ctx.voiceSheetVisible = false
+                        if (o.value == "__custom__") {
+                            ctx.editField = "voice"
+                            ctx.editVisible = true
+                        } else {
+                            ctx.bridge().updateTtsVoice(ctx.ttsId, o.value) { json ->
+                                safeRun("$TAG updateTtsVoice") {
+                                    if (json?.optBoolean("ok") == true) {
+                                        ctx.voice = o.value
+                                        ctx.bridge().toast("音色已保存")
+                                    } else ctx.bridge().toast(json?.optString("error") ?: "该引擎无音色字段")
+                                }
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.voiceSheetVisible = false }
                 )
             }
         }
