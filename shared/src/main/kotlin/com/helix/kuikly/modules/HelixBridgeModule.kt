@@ -120,6 +120,33 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_PICK_IMAGE, null, callback)
     }
 
+    // ==================== 模型设置（真实数据：SettingsStore） ====================
+
+    /**
+     * 获取模型设置摘要：7 槽位当前模型 + 全部可选 chat 模型 + 建议开关。
+     * 返回：{ slots: {chat:{id,name}|{},...}, enableSuggestion, models:[{id,name,provider}] }
+     */
+    fun getSettingsSummary(callback: CallbackFn?) {
+        callNative(METHOD_GET_SETTINGS_SUMMARY, null, callback)
+    }
+
+    /** 设置某槽位模型。modelId 传 null 仅对 title/suggestion 有效（清除） */
+    fun setModelSlot(slot: String, modelId: String?, callback: CallbackFn?) {
+        callNative(
+            METHOD_SET_MODEL_SLOT,
+            JSONObject().apply {
+                put("slot", slot)
+                put("modelId", modelId ?: "null")
+            },
+            callback
+        )
+    }
+
+    /** 启用/禁用回复建议 */
+    fun setEnableSuggestion(enabled: Boolean, callback: CallbackFn?) {
+        callNative(METHOD_SET_ENABLE_SUGGESTION, JSONObject().apply { put("enabled", enabled) }, callback)
+    }
+
     // ==================== 日志（请求日志页，真实数据） ====================
 
     /**
@@ -208,5 +235,8 @@ class HelixBridgeModule : Module() {
         const val METHOD_CLEAR_LOGS = "clearLogs"
         const val METHOD_SET_REQUEST_LOGGING = "setRequestLogging"
         const val METHOD_COPY_TO_CLIPBOARD = "copyToClipboard"
+        const val METHOD_GET_SETTINGS_SUMMARY = "getSettingsSummary"
+        const val METHOD_SET_MODEL_SLOT = "setModelSlot"
+        const val METHOD_SET_ENABLE_SUGGESTION = "setEnableSuggestion"
     }
 }
