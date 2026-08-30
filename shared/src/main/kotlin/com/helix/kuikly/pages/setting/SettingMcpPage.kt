@@ -5,12 +5,17 @@ import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.directives.vfor
 import com.tencent.kuikly.core.directives.vif
 import com.tencent.kuikly.core.log.KLog
+import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.EditSheet
 import com.helix.kuikly.components.ui.EmptyView
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.NavBarAction
+import com.helix.kuikly.components.ui.OptionSheet
+import com.helix.kuikly.components.ui.SheetOption
 import com.helix.kuikly.components.ui.SwitchRow
 import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
@@ -38,6 +43,12 @@ internal data class McpItem(
 internal class SettingMcpPage : HelixBasePage() {
 
     private val servers by observableList<McpItem>()
+    // 添加流程：名称 → URL → 类型
+    private var nameSheetVisible by observable(false)
+    private var urlSheetVisible by observable(false)
+    private var typeSheetVisible by observable(false)
+    private var newName by observable("")
+    private var newUrl by observable("")
 
     override fun pageDidAppear() {
         super.pageDidAppear()
@@ -101,7 +112,16 @@ internal class SettingMcpPage : HelixBasePage() {
                     flex(1f)
                     backgroundColor(HelixTheme.current.background)
                 }
-                NavBar(title = "MCP", showBack = true, onBack = { ctx.closePage() })
+                NavBar(
+                    title = "MCP",
+                    showBack = true,
+                    onBack = { ctx.closePage() },
+                    rightActions = listOf(NavBarAction("添加") {
+                        KLog.i(UI_LOG, "👆 [Click] $TAG 添加MCP服务器")
+                        ctx.newName = ""; ctx.newUrl = ""
+                        ctx.nameSheetVisible = true
+                    })
+                )
                 Scroller {
                     attr {
                         flex(1f)
@@ -180,6 +200,53 @@ internal class SettingMcpPage : HelixBasePage() {
                         }
                     }
                 }
+
+                // ===== 添加流程弹层 =====
+                EditSheet(
+                    visible = { ctx.nameSheetVisible },
+                    title = "新建 MCP 服务器（1/3）",
+                    label = "名称",
+                    initialValue = ctx.newName,
+                    onSave = { v: String ->
+                        ctx.newName = v
+                        ctx.nameSheetVisible = false
+                        ctx.urlSheetVisible = true
+                    },
+                    onDismiss = { ctx.nameSheetVisible = false }
+                )
+                EditSheet(
+                    visible = { ctx.urlSheetVisible },
+                    title = "新建 MCP 服务器（2/3）",
+                    label = "服务器 URL",
+                    initialValue = ctx.newUrl,
+                    onSave = { v: String ->
+                        ctx.newUrl = v
+                        ctx.urlSheetVisible = false
+                        ctx.typeSheetVisible = true
+                    },
+                    onDismiss = { ctx.urlSheetVisible = false }
+                )
+                OptionSheet(
+                    visible = { ctx.typeSheetVisible },
+                    title = "新建 MCP 服务器（3/3）：连接类型",
+                    options = listOf(
+                        SheetOption("sse", "SSE", "Server-Sent Events 传统模式"),
+                        SheetOption("streamable_http", "Streamable HTTP", "新版 MCP 传输协议")
+                    ),
+                    currentValue = "sse",
+                    onSelect = { o ->
+                        ctx.typeSheetVisible = false
+                        ctx.bridge().addMcpServer(ctx.newName, ctx.newUrl, o.value) { json ->
+                            safeRun("$TAG addMcpServer") {
+                                if (json?.optBoolean("ok") == true) {
+                                    ctx.bridge().toast("已添加 ${ctx.newName}")
+                                    ctx.load()
+                                } else ctx.bridge().toast(json?.optString("error") ?: "添加失败")
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.typeSheetVisible = false }
+                )
             }
         }
     }

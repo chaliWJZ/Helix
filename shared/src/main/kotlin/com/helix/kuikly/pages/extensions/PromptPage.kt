@@ -48,6 +48,10 @@ internal class PromptPage : HelixBasePage() {
     private var draftContent by observable("")
     private var actionSheetVisible by observable(false)
     private var actionTargetId by observable("")
+    // 世界书创建流
+    private var bookNameVisible by observable(false)
+    private var bookDescVisible by observable(false)
+    private var bookName by observable("")
 
     override fun pageDidAppear() {
         super.pageDidAppear()
@@ -139,8 +143,14 @@ internal class PromptPage : HelixBasePage() {
                     showBack = true,
                     onBack = { ctx.closePage() },
                     rightActions = listOf(NavBarAction("新建") {
-                        KLog.i(UI_LOG, "👆 [Click] $TAG 新建模式注入")
-                        ctx.startCreate()
+                        if (ctx.currentTab == 0) {
+                            KLog.i(UI_LOG, "👆 [Click] $TAG 新建模式注入")
+                            ctx.startCreate()
+                        } else {
+                            KLog.i(UI_LOG, "👆 [Click] $TAG 新建世界书")
+                            ctx.bookName = ""
+                            ctx.bookNameVisible = true
+                        }
                     })
                 )
                 // 双 Tab
@@ -232,7 +242,7 @@ internal class PromptPage : HelixBasePage() {
                     // ===== 世界书 Tab =====
                     velse {
                         vif({ ctx.lorebooks.isEmpty() }) {
-                            EmptyView(message = "暂无世界书，在 Compose 版创建后同步显示", icon = "📚")
+                            EmptyView(message = "暂无世界书，点击右上角「新建」", icon = "📚")
                         }
                         vfor({ ctx.lorebooks }) { item ->
                             View {
@@ -322,6 +332,39 @@ internal class PromptPage : HelixBasePage() {
                         ctx.saveMode()
                     },
                     onDismiss = { ctx.editContentVisible = false }
+                )
+
+                // ===== 世界书创建弹层 =====
+                EditSheet(
+                    visible = { ctx.bookNameVisible },
+                    title = "新建世界书（1/2）",
+                    label = "名称",
+                    initialValue = ctx.bookName,
+                    onSave = { v: String ->
+                        ctx.bookName = v
+                        ctx.bookNameVisible = false
+                        ctx.bookDescVisible = true
+                    },
+                    onDismiss = { ctx.bookNameVisible = false }
+                )
+                EditSheet(
+                    visible = { ctx.bookDescVisible },
+                    title = "新建世界书（2/2）",
+                    label = "描述（可留空）",
+                    initialValue = "",
+                    onSave = { v: String ->
+                        ctx.bookDescVisible = false
+                        KLog.i(UI_LOG, "👆 [Click] $TAG 创建世界书 [${ctx.bookName}]")
+                        ctx.bridge().saveLorebook(ctx.bookName, v) { json ->
+                            safeRun("$TAG saveLorebook") {
+                                if (json?.optBoolean("ok") == true) {
+                                    ctx.bridge().toast("已创建「${ctx.bookName}」（条目在 Compose 版编辑）")
+                                    ctx.loadLorebooks()
+                                }
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.bookDescVisible = false }
                 )
             }
         }

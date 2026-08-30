@@ -13,6 +13,7 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.EditSheet
 import com.helix.kuikly.components.ui.EmptyView
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.NavBarAction
@@ -47,6 +48,10 @@ internal class SettingSpeechPage : HelixBasePage() {
     private var actionTargetId by observable("")
     private var speedSheetVisible by observable(false)
     private var currentSpeed by observable(1.0)
+    // ASR 添加流程
+    private var asrTypeSheetVisible by observable(false)
+    private var asrKeySheetVisible by observable(false)
+    private var newAsrType by observable("openai_realtime")
 
     override fun pageDidAppear() {
         super.pageDidAppear()
@@ -163,7 +168,14 @@ internal class SettingSpeechPage : HelixBasePage() {
                     title = "语音服务",
                     showBack = true,
                     onBack = { ctx.closePage() },
-                    rightActions = listOf(NavBarAction("添加") { ctx.addTtsSheetVisible = true })
+                    rightActions = listOf(NavBarAction("添加") {
+                        if (ctx.currentTab == 0) {
+                            ctx.addTtsSheetVisible = true
+                        } else {
+                            KLog.i(UI_LOG, "👆 [Click] $TAG 添加ASR")
+                            ctx.asrTypeSheetVisible = true
+                        }
+                    })
                 )
                 // 双 Tab 栏
                 View {
@@ -301,7 +313,7 @@ internal class SettingSpeechPage : HelixBasePage() {
                     // ==================== ASR Tab ====================
                     velse {
                         vif({ ctx.asrProviders.isEmpty() }) {
-                            EmptyView(message = "暂无 ASR 供应商，在 Compose 版添加后同步显示", icon = "🎙️")
+                            EmptyView(message = "暂无 ASR 供应商，点击右上角「添加」", icon = "🎙️")
                         }
                         vfor({ ctx.asrProviders }) { item ->
                             View {
@@ -429,6 +441,43 @@ internal class SettingSpeechPage : HelixBasePage() {
                         ctx.setSpeed(o.value.toDouble())
                     },
                     onDismiss = { ctx.speedSheetVisible = false }
+                )
+
+                // ===== ASR 添加：类型弹层 =====
+                OptionSheet(
+                    visible = { ctx.asrTypeSheetVisible },
+                    title = "添加 ASR 供应商（1/2）",
+                    options = listOf(
+                        SheetOption("openai_realtime", "OpenAI Realtime", "gpt-4o-transcribe"),
+                        SheetOption("dashscope", "阿里 DashScope", "paraformer")
+                    ),
+                    currentValue = "",
+                    onSelect = { o ->
+                        ctx.asrTypeSheetVisible = false
+                        ctx.newAsrType = o.value
+                        ctx.asrKeySheetVisible = true
+                    },
+                    onDismiss = { ctx.asrTypeSheetVisible = false }
+                )
+
+                // ===== ASR 添加：API Key 弹层 =====
+                EditSheet(
+                    visible = { ctx.asrKeySheetVisible },
+                    title = "添加 ASR 供应商（2/2）：API Key",
+                    label = "API Key",
+                    initialValue = "",
+                    onSave = { v: String ->
+                        ctx.asrKeySheetVisible = false
+                        ctx.bridge().addAsrProvider(ctx.newAsrType, v) { json ->
+                            safeRun("$TAG addAsrProvider") {
+                                if (json?.optBoolean("ok") == true) {
+                                    ctx.bridge().toast("已添加 ASR 供应商")
+                                    ctx.loadAsr()
+                                } else ctx.bridge().toast(json?.optString("error") ?: "添加失败")
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.asrKeySheetVisible = false }
                 )
             }
         }

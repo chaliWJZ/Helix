@@ -13,7 +13,10 @@ import com.helix.app.common.android.Logging
 import com.helix.app.data.datastore.RECOMMENDED_PROVIDERS
 import com.helix.app.data.datastore.SettingsStore
 import com.helix.app.data.ai.mcp.McpServerConfig
+import com.helix.app.data.ai.mcp.McpCommonOptions
 import com.helix.app.data.ai.mcp.serverUrl
+import com.helix.app.data.model.Lorebook
+import me.rerere.asr.ASRProviderSetting
 import com.helix.app.ai.provider.ModelType
 import com.helix.app.ai.provider.Provider
 import com.helix.app.ai.provider.ProviderManager
@@ -1504,6 +1507,77 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 添加流程（批次H2：MCP/ASR/世界书） ====================
+            METHOD_ADD_MCP_SERVER -> {
+                val name = json?.optString("name") ?: ""
+                val url = json?.optString("url") ?: ""
+                val type = json?.optString("type") ?: "sse"
+                koinGet<AppScope>().launch {
+                    try {
+                        val server: McpServerConfig = if (type == "streamable_http") {
+                            McpServerConfig.StreamableHTTPServer(
+                                commonOptions = McpCommonOptions(name = name),
+                                url = url
+                            )
+                        } else {
+                            McpServerConfig.SseTransportServer(
+                                commonOptions = McpCommonOptions(name = name),
+                                url = url
+                            )
+                        }
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(mcpServers = s.mcpServers + server)
+                        }
+                        Log.i(TAG, "✅ [Module-Done] addMcpServer [$name] type=$type")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] addMcpServer: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_ADD_ASR_PROVIDER -> {
+                val type = json?.optString("type") ?: "openai_realtime"
+                val apiKey = json?.optString("apiKey") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        val p: ASRProviderSetting = when (type) {
+                            "dashscope" -> ASRProviderSetting.DashScope(apiKey = apiKey)
+                            else -> ASRProviderSetting.OpenAIRealtime(apiKey = apiKey)
+                        }
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(asrProviders = s.asrProviders + p)
+                        }
+                        Log.i(TAG, "✅ [Module-Done] addAsrProvider $type")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] addAsrProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_SAVE_LOREBOOK -> {
+                val name = json?.optString("name") ?: ""
+                val description = json?.optString("description") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(lorebooks = s.lorebooks + Lorebook(name = name, description = description))
+                        }
+                        Log.i(TAG, "✅ [Module-Done] saveLorebook [$name]")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] saveLorebook: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1844,6 +1918,9 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_TEST_WEBDAV = "testWebDav"
         const val METHOD_BACKUP_WEBDAV = "backupWebDav"
         const val METHOD_BACKUP_S3 = "backupS3"
+        const val METHOD_ADD_MCP_SERVER = "addMcpServer"
+        const val METHOD_ADD_ASR_PROVIDER = "addAsrProvider"
+        const val METHOD_SAVE_LOREBOOK = "saveLorebook"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

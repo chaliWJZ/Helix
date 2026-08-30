@@ -573,6 +573,45 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_BACKUP_S3, null, callback)
     }
 
+    // ==================== 添加流程（MCP/ASR/世界书） ====================
+
+    /** 添加 MCP 服务器（type: sse/streamable_http） */
+    fun addMcpServer(name: String, url: String, type: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_ADD_MCP_SERVER,
+            JSONObject().apply {
+                put("name", name)
+                put("url", url)
+                put("type", type)
+            },
+            callback
+        )
+    }
+
+    /** 添加 ASR 供应商（type: openai_realtime/dashscope） */
+    fun addAsrProvider(type: String, apiKey: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_ADD_ASR_PROVIDER,
+            JSONObject().apply {
+                put("type", type)
+                put("apiKey", apiKey)
+            },
+            callback
+        )
+    }
+
+    /** 新建世界书 */
+    fun saveLorebook(name: String, description: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_SAVE_LOREBOOK,
+            JSONObject().apply {
+                put("name", name)
+                put("description", description)
+            },
+            callback
+        )
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -736,6 +775,9 @@ class HelixBridgeModule : Module() {
         const val METHOD_TEST_WEBDAV = "testWebDav"
         const val METHOD_BACKUP_WEBDAV = "backupWebDav"
         const val METHOD_BACKUP_S3 = "backupS3"
+        const val METHOD_ADD_MCP_SERVER = "addMcpServer"
+        const val METHOD_ADD_ASR_PROVIDER = "addAsrProvider"
+        const val METHOD_SAVE_LOREBOOK = "saveLorebook"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
