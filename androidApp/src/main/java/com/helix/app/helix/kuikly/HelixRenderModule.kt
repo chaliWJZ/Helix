@@ -16,7 +16,6 @@ import com.helix.app.data.ai.mcp.McpServerConfig
 import com.helix.app.data.ai.mcp.McpCommonOptions
 import com.helix.app.data.ai.mcp.serverUrl
 import com.helix.app.data.model.Lorebook
-import me.rerere.asr.ASRProviderSetting
 import com.helix.app.ai.provider.ModelType
 import com.helix.app.ai.provider.Provider
 import com.helix.app.ai.provider.ProviderManager
