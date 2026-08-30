@@ -646,6 +646,11 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_VIBRATE, JSONObject().apply { put("ms", ms) }, null)
     }
 
+    /** 从剪贴板导入供应商 JSON。返回：{ok, name} 或 {ok:false, error} */
+    fun importProviderClipboard(callback: CallbackFn?) {
+        callNative(METHOD_IMPORT_PROVIDER_CLIPBOARD, null, callback)
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -816,6 +821,7 @@ class HelixBridgeModule : Module() {
         const val METHOD_TTS_SPEAK = "ttsSpeak"
         const val METHOD_TEST_PROVIDER_GENERATE = "testProviderGenerate"
         const val METHOD_VIBRATE = "vibrate"
+        const val METHOD_IMPORT_PROVIDER_CLIPBOARD = "importProviderClipboard"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

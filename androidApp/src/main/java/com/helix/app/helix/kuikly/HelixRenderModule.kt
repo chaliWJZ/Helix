@@ -1701,6 +1701,39 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // 从剪贴板导入供应商 JSON（对应 Compose ImportProviderButton 的手动导入路径）
+            METHOD_IMPORT_PROVIDER_CLIPBOARD -> {
+                val cm = context?.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                        as? android.content.ClipboardManager
+                val text = cm?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString() ?: ""
+                if (text.isBlank()) {
+                    callback?.invoke(JSONObject().apply { put("ok", false); put("error", "剪贴板为空") })
+                    null
+                } else {
+                    koinGet<AppScope>().launch {
+                        try {
+                            val p = com.helix.app.utils.JsonInstant.decodeFromString(
+                                ProviderSetting.serializer(), text.trim()
+                            )
+                            // 防与已有重复：换新 id
+                            val newP = p.copyProvider(id = Uuid.random())
+                            koinGet<SettingsStore>().update { s ->
+                                s.copy(providers = listOf(newP) + s.providers)
+                            }
+                            Log.i(TAG, "✅ [Module-Done] importProviderClipboard [${newP.name}]")
+                            callback?.invoke(JSONObject().apply {
+                                put("ok", true)
+                                put("name", newP.name)
+                            })
+                        } catch (e: Exception) {
+                            Log.e(TAG, "⚠ [Error] importProviderClipboard: ${e.message}")
+                            callback?.invoke(JSONObject().apply { put("ok", false); put("error", "JSON 解析失败") })
+                        }
+                    }
+                    null
+                }
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -2072,6 +2105,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_TTS_SPEAK = "ttsSpeak"
         const val METHOD_TEST_PROVIDER_GENERATE = "testProviderGenerate"
         const val METHOD_VIBRATE = "vibrate"
+        const val METHOD_IMPORT_PROVIDER_CLIPBOARD = "importProviderClipboard"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
