@@ -2,6 +2,7 @@ package com.helix.kuikly.components.ui
 
 import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
+import com.tencent.kuikly.core.directives.vif
 import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.views.Input
 import com.tencent.kuikly.core.views.Scroller
@@ -26,7 +27,7 @@ fun ViewContainer<*, *>.EditSheet(
     onSave: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (visible()) {
+    vif({ visible() }) {
         KLog.i(UI_LOG_TAG, "🖼 [Render] $TAG EditSheet [$label]")
         var text = initialValue
         View {
