@@ -11,6 +11,7 @@ import com.helix.kuikly.theme.HelixTheme
 
 data class NavBarAction(
     val label: String,
+    val fontSize: Float = 14f, // emoji 图标按钮传 20-24f（对应 Compose IconButton 图标大小）
     val onClick: () -> Unit
 )
 
@@ -162,7 +163,7 @@ fun ViewContainer<*, *>.NavBar(
                     Text {
                         attr {
                             text(action.label)
-                            fontSize(20f)
+                            fontSize(action.fontSize)
                             color(HelixTheme.current.onSurface)
                         }
                     }

@@ -1675,6 +1675,32 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            METHOD_VIBRATE -> {
+                val ms = json?.optInt("ms", 30) ?: 30
+                try {
+                    val vibrator = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        val vm = context?.getSystemService(android.content.Context.VIBRATOR_MANAGER_SERVICE)
+                                as? android.os.VibratorManager
+                        vm?.defaultVibrator
+                    } else {
+                        @Suppress("DEPRECATION")
+                        context?.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+                    }
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(
+                            android.os.VibrationEffect.createOneShot(ms.toLong(), android.os.VibrationEffect.DEFAULT_AMPLITUDE)
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator?.vibrate(ms.toLong())
+                    }
+                    Log.d(TAG, "📳 [Haptic] vibrate ${ms}ms")
+                } catch (e: Exception) {
+                    Log.e(TAG, "⚠ [Error] vibrate: ${e.message}")
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -2045,6 +2071,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_UPDATE_TTS_VOICE = "updateTtsVoice"
         const val METHOD_TTS_SPEAK = "ttsSpeak"
         const val METHOD_TEST_PROVIDER_GENERATE = "testProviderGenerate"
+        const val METHOD_VIBRATE = "vibrate"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

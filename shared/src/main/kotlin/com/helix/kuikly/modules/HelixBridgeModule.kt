@@ -641,6 +641,11 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_TEST_PROVIDER_GENERATE, JSONObject().apply { put("id", id) }, callback)
     }
 
+    /** 触觉反馈（拖拽开始/结束等手势，走原生 Vibrator） */
+    fun vibrate(ms: Int = 30) {
+        callNative(METHOD_VIBRATE, JSONObject().apply { put("ms", ms) }, null)
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -810,6 +815,7 @@ class HelixBridgeModule : Module() {
         const val METHOD_UPDATE_TTS_VOICE = "updateTtsVoice"
         const val METHOD_TTS_SPEAK = "ttsSpeak"
         const val METHOD_TEST_PROVIDER_GENERATE = "testProviderGenerate"
+        const val METHOD_VIBRATE = "vibrate"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
