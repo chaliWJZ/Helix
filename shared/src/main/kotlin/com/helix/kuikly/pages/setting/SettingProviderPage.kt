@@ -184,11 +184,14 @@ internal class SettingProviderPage : HelixBasePage() {
 
     // ==================== 拖拽状态机（对齐 Compose ReorderableItem） ====================
 
+    private var dragItem by observable<ProviderItem?>(null) // 拖动中项的完整信息（用于预览卡显示）
+
     private fun onDragStart(index: Int, item: ProviderItem, pageY: Float) {
         dragIndex = index
         dragStartPageY = pageY
         dragPageY = pageY
         dragLabel = item.name
+        dragItem = item
         bridge().vibrate(50) // GestureThresholdActivate
         KLog.i(UI_LOG, "👆 [Drag] $TAG 开始拖拽[$index ${item.name}] pageY=$pageY")
     }
@@ -204,6 +207,7 @@ internal class SettingProviderPage : HelixBasePage() {
         val deltaRows = ((dragPageY - dragStartPageY) / ROW_HEIGHT).roundToInt()
         val to = (from + deltaRows).coerceIn(0, providers.size - 1)
         dragIndex = -1
+        dragItem = null
         bridge().vibrate(30) // GestureEnd
         if (to != from) {
             KLog.i(UI_LOG, "👆 [Drag] $TAG 落位 $from→$to (Δ$deltaRows 行)")
@@ -296,11 +300,10 @@ internal class SettingProviderPage : HelixBasePage() {
                     // 列表（真实数据 + 拖动手柄排序，对齐 Compose ReorderableItem）
                     vfor({ ctx.filteredList }) { item ->
                         val index = ctx.providers.indexOfFirst { it.id == item.id }
-                        val isDragging = ctx.dragIndex == index
                         ReorderableItem(
-                            isDragging = isDragging,
-                            onDragStart = { pageY -> ctx.onDragStart(index, item, pageY) },
-                            onDragMove = { pageY -> ctx.onDragMove(pageY) },
+                            isDragging = { ctx.dragIndex == index },
+                            onDragStart = { pageY: Float -> ctx.onDragStart(index, item, pageY) },
+                            onDragMove = { pageY: Float -> ctx.onDragMove(pageY) },
                             onDragEnd = { ctx.onDragEnd() }
                         ) {
                             // 列表项主体（点击跳详情）
@@ -311,7 +314,7 @@ internal class SettingProviderPage : HelixBasePage() {
                                     padding(12f)
                                     borderRadius(12f)
                                     backgroundColor(
-                                        if (isDragging) HelixTheme.current.primaryContainer
+                                        if (ctx.dragIndex == index) HelixTheme.current.primaryContainer
                                         else if (item.enabled) HelixTheme.current.surfaceContainerLow
                                         else HelixTheme.current.errorContainer
                                     )
@@ -366,14 +369,17 @@ internal class SettingProviderPage : HelixBasePage() {
                             }
                         }
                     }
-                }
 
-                // ===== 拖动浮动预览（跟随手指，对齐 Compose 拖动浮起） =====
+                // ===== 拖动浮动预览（实时跟手，官方响应式 attr） =====
                 DragPreview(
-                    visible = ctx.dragIndex >= 0,
-                    label = ctx.dragLabel,
-                    pageY = ctx.dragPageY
+                    visible = { ctx.dragIndex >= 0 },
+                    name = { ctx.dragLabel },
+                    enabled = { ctx.dragItem?.enabled ?: true },
+                    modelCount = { ctx.dragItem?.modelCount ?: 0 },
+                    type = { ctx.dragItem?.type ?: "" },
+                    pageY = { ctx.dragPageY }
                 )
+                }
 
                 // ===== 添加方式选择弹层 =====
                 OptionSheet(
