@@ -89,6 +89,28 @@
 
 **本轮无新增Bug**，B3修复（6模型槽位toast）在全部场景验证生效。
 
+## 小组D：搜索语音（5页，全部通过）
+
+### SettingSearchPage 搜索服务页 [P0✅ P1✅ P2⚠️]
+- 5卡片(Bing/Google/SearXNG/Tavily/博查)渲染正确，点击Bing跳转详情页验证通过
+- Compose差异：列表硬编码非动态数据，无拖拽排序/编辑删除/添加对话框，记入P3
+
+### SettingSearchDetailPage 搜索详情页 [P0✅ P1✅ P2⚠️]
+- 4项全部验证：API密钥/搜索结果数量/安全搜索/测试搜索，Click日志+toast消息均正确匹配具体上下文
+
+### SettingSpeechPage 语音TTS页 [P0✅ P1✅ P2⚠️]
+- 4项TTS供应商全部验证：系统TTS(toast占位)/OpenAI TTS/Azure TTS/火山引擎TTS(均跳转TTSProviderConfigurePage)
+- Compose差异：Compose有Tab切换(TTS/ASR)+播放速度Slider+RadioButton选中+试听播放，Kuikly无ASR/无试听真实功能，记入P3
+
+### TTSProviderConfigurePage TTS供应商配置页 [P0✅ P1✅ P2⚠️]
+- 5项全部验证：API Base URL/API密钥/音色/语速/试听，每项toast消息语义正确（"编辑""选择音色""调节语速""正在播放..."）
+
+### SettingMcpPage MCP页 [P0✅ P1✅ P2⚠️]
+- 4个服务器项(filesystem/fetch/memory/git)渲染正确，「+」添加按钮toast正确
+- Compose差异：列表硬编码，无添加/编辑/导入/下拉刷新/左滑删除等，记入P3
+
+**本轮无新增Bug**，19个交互点全部通过。
+
 ## 待处理（P3，不在本轮修复范围）
 
 详见子代理已完成的 5 份差异分析报告（设置系合计 224 测试点），核心共性问题：
@@ -101,4 +123,4 @@
 
 ## 下一步
 
-继续小组D（搜索语音5页：Search/SearchDetail/Speech/TTSConfigure/Mcp卡片点击toast+跳转验证）。
+继续小组E（杂项3页：About 3项跳转/Donate爱发电WebView/Files清空空态边界点击）。
