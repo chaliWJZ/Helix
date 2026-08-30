@@ -80,11 +80,14 @@ internal class AssistantPage : Pager() {
                             event {
                                 click {
                                     safeRun("[AssistantPage#body] 助手列表页-助手项") {
-                                        KLog.i("HelixKuikly", "👆 [Click] [AssistantPage#body] 助手列表页-助手项")
-                                        ctx.router().openPage("AssistantDetailPage")
-                                
+                                        KLog.i("HelixKuikly", "👆 [Click] [AssistantPage#body] 助手列表页-助手项 [${item.name}]")
+                                        ctx.router().openPage(
+                                            "AssistantDetailPage",
+                                            com.tencent.kuikly.core.nvi.serialization.json.JSONObject().apply {
+                                                put("assistantId", item.id)
+                                            }
+                                        )
                                     }
-                                
                                 }
                             }
                             // 助手头像
