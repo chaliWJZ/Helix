@@ -11,10 +11,16 @@ import com.helix.app.AppScope
 import com.helix.app.common.android.LogEntry
 import com.helix.app.common.android.Logging
 import com.helix.app.data.datastore.SettingsStore
+import com.helix.app.data.ai.mcp.McpServerConfig
+import com.helix.app.data.ai.mcp.serverUrl
 import com.helix.app.ai.provider.ModelType
 import com.helix.app.ai.provider.Provider
 import com.helix.app.ai.provider.ProviderManager
 import com.helix.app.ai.provider.ProviderSetting
+import com.helix.app.search.SearchServiceOptions
+import com.helix.app.service.WebServerService
+import com.helix.app.web.WebServerManager
+import me.rerere.tts.provider.TTSProviderSetting
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
 import kotlinx.coroutines.launch
@@ -343,6 +349,215 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 搜索服务（真实数据：Settings.searchServices） ====================
+            METHOD_GET_SEARCH_SERVICES -> {
+                val s = koinGet<SettingsStore>().settingsFlow.value
+                val result = JSONObject().apply {
+                    put("selected", s.searchServiceSelected)
+                    put("services", JSONArray().apply {
+                        s.searchServices.forEach { svc ->
+                            put(JSONObject().apply {
+                                put("id", svc.id.toString())
+                                put("name", svc.displayName)
+                                put("type", SearchServiceOptions.TYPES[svc::class] ?: "unknown")
+                                put("hasApiKey", searchApiKeyOf(svc)?.isNotEmpty() == true)
+                            })
+                        }
+                    })
+                }
+                Log.i(TAG, "✅ [Module-Done] getSearchServices count=${s.searchServices.size}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_SET_SEARCH_SELECTED -> {
+                val index = json?.optInt("index") ?: 0
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { it.copy(searchServiceSelected = index) }
+                        Log.i(TAG, "✅ [Module-Done] setSearchSelected → $index")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setSearchSelected: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // ==================== TTS（真实数据：Settings.ttsProviders） ====================
+            METHOD_GET_TTS_PROVIDERS -> {
+                val s = koinGet<SettingsStore>().settingsFlow.value
+                val result = JSONObject().apply {
+                    put("providers", JSONArray().apply {
+                        s.ttsProviders.forEach { p ->
+                            put(JSONObject().apply {
+                                put("id", p.id.toString())
+                                put("name", p.name.ifEmpty { "系统 TTS" })
+                                put("type", ttsTypeName(p))
+                                put("isDefault", p.id == s.selectedTTSProviderId)
+                            })
+                        }
+                    })
+                }
+                Log.i(TAG, "✅ [Module-Done] getTtsProviders count=${s.ttsProviders.size}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_SET_DEFAULT_TTS -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        val uuid = runCatching { Uuid.parse(id) }.getOrNull()
+                        if (uuid == null) {
+                            callback?.invoke(JSONObject().apply { put("error", "bad_uuid") })
+                            return@launch
+                        }
+                        koinGet<SettingsStore>().update { it.copy(selectedTTSProviderId = uuid) }
+                        Log.i(TAG, "✅ [Module-Done] setDefaultTts → $id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setDefaultTts: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // ==================== MCP（真实数据：Settings.mcpServers） ====================
+            METHOD_GET_MCP_SERVERS -> {
+                val servers = koinGet<SettingsStore>().settingsFlow.value.mcpServers
+                val result = JSONObject().apply {
+                    put("servers", JSONArray().apply {
+                        servers.forEach { m ->
+                            put(JSONObject().apply {
+                                put("id", m.id.toString())
+                                put("name", m.commonOptions.name.ifEmpty { m.serverUrl })
+                                put("url", m.serverUrl)
+                                put("type", if (m is McpServerConfig.SseTransportServer) "sse" else "streamable_http")
+                                put("enable", m.commonOptions.enable)
+                            })
+                        }
+                    })
+                }
+                Log.i(TAG, "✅ [Module-Done] getMcpServers count=${servers.size}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_SET_MCP_ENABLED -> {
+                val id = json?.optString("id") ?: ""
+                val enable = json?.optBoolean("enable") ?: false
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(mcpServers = s.mcpServers.map {
+                                if (it.id.toString() == id)
+                                    it.clone(commonOptions = it.commonOptions.copy(enable = enable))
+                                else it
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] setMcpEnabled id=$id → $enable")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setMcpEnabled: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_DELETE_MCP_SERVER -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(mcpServers = s.mcpServers.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteMcpServer id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteMcpServer: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // ==================== Web 服务器（真实数据：Settings + WebServerManager） ====================
+            METHOD_GET_WEB_SERVER_STATE -> {
+                val s = koinGet<SettingsStore>().settingsFlow.value
+                val ws = koinGet<WebServerManager>().state.value
+                val result = JSONObject().apply {
+                    put("enabled", s.webServerEnabled)
+                    put("running", ws.isRunning)
+                    put("port", ws.port)
+                    put("localhostOnly", s.webServerLocalhostOnly)
+                    put("jwtEnabled", s.webServerJwtEnabled)
+                    put("hasPassword", s.webServerAccessPassword.isNotEmpty())
+                    put("address", ws.address ?: "")
+                }
+                Log.i(TAG, "✅ [Module-Done] getWebServerState running=${ws.isRunning}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_SET_WEB_SERVER_ENABLED -> {
+                val enabled = json?.optBoolean("enabled") ?: false
+                koinGet<AppScope>().launch {
+                    try {
+                        val store = koinGet<SettingsStore>()
+                        store.update { it.copy(webServerEnabled = enabled) }
+                        val s = store.settingsFlow.value
+                        if (enabled) {
+                            val intent = Intent(context, WebServerService::class.java).apply {
+                                action = WebServerService.ACTION_START
+                                putExtra(WebServerService.EXTRA_PORT, s.webServerPort)
+                                putExtra(WebServerService.EXTRA_LOCALHOST_ONLY, s.webServerLocalhostOnly)
+                            }
+                            context?.startService(intent)
+                        } else {
+                            val intent = Intent(context, WebServerService::class.java).apply {
+                                action = WebServerService.ACTION_STOP
+                            }
+                            context?.startService(intent)
+                        }
+                        Log.i(TAG, "✅ [Module-Done] setWebServerEnabled → $enabled")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setWebServerEnabled: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_SET_WEB_SERVER_CONFIG -> {
+                val port = json?.optInt("port", -1) ?: -1
+                val password = json?.optString("password")
+                val localhostOnly = json?.optBoolean("localhostOnly")
+                val jwtEnabled = json?.optBoolean("jwtEnabled")
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(
+                                webServerPort = if (port > 0) port else s.webServerPort,
+                                webServerAccessPassword = password ?: s.webServerAccessPassword,
+                                webServerLocalhostOnly = localhostOnly ?: s.webServerLocalhostOnly,
+                                webServerJwtEnabled = jwtEnabled ?: s.webServerJwtEnabled
+                            )
+                        }
+                        Log.i(TAG, "✅ [Module-Done] setWebServerConfig port=$port")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setWebServerConfig: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -422,6 +637,19 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
 
     /** Koin 全局容器取单例（Module 与 Koin 同进程） */
     private inline fun <reified T : Any> koinGet(): T = GlobalContext.get().get()
+
+    /** 提取搜索服务 API Key（常用子类；无 key 的返回 null） */
+    private fun searchApiKeyOf(svc: SearchServiceOptions): String? = when (svc) {
+        is SearchServiceOptions.ZhipuOptions -> svc.apiKey
+        is SearchServiceOptions.DoubaoOptions -> svc.apiKey
+        is SearchServiceOptions.TavilyOptions -> svc.apiKey
+        is SearchServiceOptions.ExaOptions -> svc.apiKey
+        is SearchServiceOptions.LinkUpOptions -> svc.apiKey
+        else -> null
+    }
+
+    /** TTS 子类类型名 */
+    private fun ttsTypeName(p: TTSProviderSetting): String = p::class.simpleName ?: "unknown"
 
     /** 供应商子类类型名（@SerialName） */
     private fun providerTypeName(p: ProviderSetting): String = when (p) {
@@ -527,6 +755,16 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_SET_PROVIDER_ENABLED = "setProviderEnabled"
         const val METHOD_DELETE_PROVIDER = "deleteProvider"
         const val METHOD_TEST_PROVIDER = "testProvider"
+        const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
+        const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
+        const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
+        const val METHOD_SET_DEFAULT_TTS = "setDefaultTts"
+        const val METHOD_GET_MCP_SERVERS = "getMcpServers"
+        const val METHOD_SET_MCP_ENABLED = "setMcpEnabled"
+        const val METHOD_DELETE_MCP_SERVER = "deleteMcpServer"
+        const val METHOD_GET_WEB_SERVER_STATE = "getWebServerState"
+        const val METHOD_SET_WEB_SERVER_ENABLED = "setWebServerEnabled"
+        const val METHOD_SET_WEB_SERVER_CONFIG = "setWebServerConfig"
         private const val MAX_URL_LENGTH = 2048
         /** 内部约定 scheme：跳 Compose 版对比 */
         const val COMPOSE_DEBUG_URL = "helix://compose-debug"

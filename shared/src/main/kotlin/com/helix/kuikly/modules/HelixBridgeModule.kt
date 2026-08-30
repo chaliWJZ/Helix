@@ -168,6 +168,86 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_TEST_PROVIDER, JSONObject().apply { put("id", id) }, callback)
     }
 
+    // ==================== 搜索服务（真实数据） ====================
+
+    /** 搜索服务列表。返回：{selected:index, services:[{id,name,type,hasApiKey}]} */
+    fun getSearchServices(callback: CallbackFn?) {
+        callNative(METHOD_GET_SEARCH_SERVICES, null, callback)
+    }
+
+    /** 设置当前选中的搜索服务（索引） */
+    fun setSearchSelected(index: Int, callback: CallbackFn?) {
+        callNative(METHOD_SET_SEARCH_SELECTED, JSONObject().apply { put("index", index) }, callback)
+    }
+
+    // ==================== TTS（真实数据） ====================
+
+    /** TTS 供应商列表。返回：{providers:[{id,name,type,isDefault}]} */
+    fun getTtsProviders(callback: CallbackFn?) {
+        callNative(METHOD_GET_TTS_PROVIDERS, null, callback)
+    }
+
+    /** 设置默认 TTS 引擎 */
+    fun setDefaultTts(id: String, callback: CallbackFn?) {
+        callNative(METHOD_SET_DEFAULT_TTS, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    // ==================== MCP（真实数据） ====================
+
+    /** MCP 服务器列表。返回：{servers:[{id,name,url,type,enable}]} */
+    fun getMcpServers(callback: CallbackFn?) {
+        callNative(METHOD_GET_MCP_SERVERS, null, callback)
+    }
+
+    /** 启用/禁用 MCP 服务器 */
+    fun setMcpEnabled(id: String, enable: Boolean, callback: CallbackFn?) {
+        callNative(
+            METHOD_SET_MCP_ENABLED,
+            JSONObject().apply {
+                put("id", id)
+                put("enable", enable)
+            },
+            callback
+        )
+    }
+
+    /** 删除 MCP 服务器 */
+    fun deleteMcpServer(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_MCP_SERVER, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    // ==================== Web 服务器（真实数据） ====================
+
+    /** Web 服务器状态。返回：{enabled,running,port,localhostOnly,jwtEnabled,hasPassword,address} */
+    fun getWebServerState(callback: CallbackFn?) {
+        callNative(METHOD_GET_WEB_SERVER_STATE, null, callback)
+    }
+
+    /** 启停 Web 服务器（联动原生 Service） */
+    fun setWebServerEnabled(enabled: Boolean, callback: CallbackFn?) {
+        callNative(METHOD_SET_WEB_SERVER_ENABLED, JSONObject().apply { put("enabled", enabled) }, callback)
+    }
+
+    /** 更新 Web 服务器配置（port/password/localhostOnly/jwtEnabled，仅传需要改的） */
+    fun setWebServerConfig(
+        port: Int? = null,
+        password: String? = null,
+        localhostOnly: Boolean? = null,
+        jwtEnabled: Boolean? = null,
+        callback: CallbackFn? = null
+    ) {
+        callNative(
+            METHOD_SET_WEB_SERVER_CONFIG,
+            JSONObject().apply {
+                port?.let { put("port", it) }
+                password?.let { put("password", it) }
+                localhostOnly?.let { put("localhostOnly", it) }
+                jwtEnabled?.let { put("jwtEnabled", it) }
+            },
+            callback
+        )
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -292,5 +372,15 @@ class HelixBridgeModule : Module() {
         const val METHOD_SET_PROVIDER_ENABLED = "setProviderEnabled"
         const val METHOD_DELETE_PROVIDER = "deleteProvider"
         const val METHOD_TEST_PROVIDER = "testProvider"
+        const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
+        const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
+        const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
+        const val METHOD_SET_DEFAULT_TTS = "setDefaultTts"
+        const val METHOD_GET_MCP_SERVERS = "getMcpServers"
+        const val METHOD_SET_MCP_ENABLED = "setMcpEnabled"
+        const val METHOD_DELETE_MCP_SERVER = "deleteMcpServer"
+        const val METHOD_GET_WEB_SERVER_STATE = "getWebServerState"
+        const val METHOD_SET_WEB_SERVER_ENABLED = "setWebServerEnabled"
+        const val METHOD_SET_WEB_SERVER_CONFIG = "setWebServerConfig"
     }
 }
