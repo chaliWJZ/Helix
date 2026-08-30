@@ -488,6 +488,18 @@ class HelixBridgeModule : Module() {
         )
     }
 
+    // ==================== 助手（真实数据） ====================
+
+    /** 助手详情。返回：{id,name,systemPrompt,temperature,topP,contextMessageLimit,streamOutput,enableMemory,useGlobalMemory,enableRecentChatsReference,maxTokens,enableWebSearch} */
+    fun getAssistantDetail(id: String, callback: CallbackFn?) {
+        callNative(METHOD_GET_ASSISTANT_DETAIL, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 编辑助手（原始参数版） */
+    fun updateAssistantRaw(params: JSONObject, callback: CallbackFn?) {
+        callNative(METHOD_UPDATE_ASSISTANT, params, callback)
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -640,6 +652,8 @@ class HelixBridgeModule : Module() {
         const val METHOD_GET_LOREBOOKS = "getLorebooks"
         const val METHOD_DELETE_LOREBOOK = "deleteLorebook"
         const val METHOD_SET_LOREBOOK_ENABLED = "setLorebookEnabled"
+        const val METHOD_GET_ASSISTANT_DETAIL = "getAssistantDetail"
+        const val METHOD_UPDATE_ASSISTANT = "updateAssistant"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

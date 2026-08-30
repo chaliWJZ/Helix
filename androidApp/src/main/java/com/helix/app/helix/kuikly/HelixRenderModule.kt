@@ -24,6 +24,7 @@ import com.helix.app.web.WebServerManager
 import me.rerere.asr.ASRProviderSetting
 import me.rerere.tts.provider.TTSProviderSetting
 import com.helix.app.data.model.PromptInjection
+import com.helix.app.data.model.Assistant
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
 import kotlinx.coroutines.launch
@@ -1241,6 +1242,68 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 助手（批次E） ====================
+            METHOD_GET_ASSISTANT_DETAIL -> {
+                val id = json?.optString("id") ?: ""
+                val a = koinGet<SettingsStore>().settingsFlow.value.assistants.firstOrNull { it.id.toString() == id }
+                if (a == null) {
+                    callback?.invoke(JSONObject().apply { put("error", "not_found") })
+                } else {
+                    val result = JSONObject().apply {
+                        put("id", a.id.toString())
+                        put("name", a.name)
+                        put("systemPrompt", a.systemPrompt)
+                        put("temperature", a.temperature ?: -1f)
+                        put("topP", a.topP ?: -1f)
+                        put("contextMessageLimit", a.contextMessageLimit)
+                        put("streamOutput", a.streamOutput)
+                        put("enableMemory", a.enableMemory)
+                        put("useGlobalMemory", a.useGlobalMemory)
+                        put("enableRecentChatsReference", a.enableRecentChatsReference)
+                        put("maxTokens", a.maxTokens ?: -1)
+                        put("enableWebSearch", a.enableWebSearch)
+                    }
+                    Log.i(TAG, "✅ [Module-Done] getAssistantDetail ${a.name}")
+                    callback?.invoke(result)
+                }
+                null
+            }
+
+            METHOD_UPDATE_ASSISTANT -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        var updated = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(assistants = s.assistants.map { a ->
+                                if (a.id.toString() == id) {
+                                    updated = true
+                                    a.copy(
+                                        name = json?.optString("name")?.takeIf { it.isNotEmpty() } ?: a.name,
+                                        systemPrompt = json?.optString("systemPrompt") ?: a.systemPrompt,
+                                        temperature = if (json?.has("temperature") == true && json.optDouble("temperature") >= 0) json.optDouble("temperature").toFloat() else a.temperature,
+                                        topP = if (json?.has("topP") == true && json.optDouble("topP") >= 0) json.optDouble("topP").toFloat() else a.topP,
+                                        contextMessageLimit = if (json?.has("contextMessageLimit") == true) json.optInt("contextMessageLimit") else a.contextMessageLimit,
+                                        streamOutput = if (json?.has("streamOutput") == true) json.optBoolean("streamOutput") else a.streamOutput,
+                                        enableMemory = if (json?.has("enableMemory") == true) json.optBoolean("enableMemory") else a.enableMemory,
+                                        useGlobalMemory = if (json?.has("useGlobalMemory") == true) json.optBoolean("useGlobalMemory") else a.useGlobalMemory,
+                                        enableRecentChatsReference = if (json?.has("enableRecentChatsReference") == true) json.optBoolean("enableRecentChatsReference") else a.enableRecentChatsReference,
+                                        maxTokens = if (json?.has("maxTokens") == true && json.optInt("maxTokens") > 0) json.optInt("maxTokens") else a.maxTokens,
+                                        enableWebSearch = if (json?.has("enableWebSearch") == true) json.optBoolean("enableWebSearch") else a.enableWebSearch
+                                    )
+                                } else a
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateAssistant id=$id found=$updated")
+                        callback?.invoke(JSONObject().apply { put("ok", updated) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateAssistant: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1570,6 +1633,8 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_GET_LOREBOOKS = "getLorebooks"
         const val METHOD_DELETE_LOREBOOK = "deleteLorebook"
         const val METHOD_SET_LOREBOOK_ENABLED = "setLorebookEnabled"
+        const val METHOD_GET_ASSISTANT_DETAIL = "getAssistantDetail"
+        const val METHOD_UPDATE_ASSISTANT = "updateAssistant"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
