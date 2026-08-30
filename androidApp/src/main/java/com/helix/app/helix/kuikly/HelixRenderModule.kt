@@ -25,6 +25,10 @@ import me.rerere.asr.ASRProviderSetting
 import me.rerere.tts.provider.TTSProviderSetting
 import com.helix.app.data.model.PromptInjection
 import com.helix.app.data.model.Assistant
+import com.helix.app.data.datastore.WebDavConfig
+import com.helix.app.data.sync.s3.S3Config
+import com.helix.app.data.sync.webdav.WebDavSync
+import com.helix.app.data.sync.S3Sync
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
 import kotlinx.coroutines.launch
@@ -1378,6 +1382,128 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 备份（批次H1） ====================
+            METHOD_GET_BACKUP_CONFIG -> {
+                val s = koinGet<SettingsStore>().settingsFlow.value
+                val result = JSONObject().apply {
+                    put("webdav", JSONObject().apply {
+                        put("url", s.webDavConfig.url)
+                        put("username", s.webDavConfig.username)
+                        put("password", s.webDavConfig.password)
+                        put("path", s.webDavConfig.path)
+                        put("configured", s.webDavConfig.url.isNotEmpty() && s.webDavConfig.username.isNotEmpty())
+                    })
+                    put("s3", JSONObject().apply {
+                        put("endpoint", s.s3Config.endpoint)
+                        put("accessKeyId", s.s3Config.accessKeyId)
+                        put("secretAccessKey", s.s3Config.secretAccessKey)
+                        put("bucket", s.s3Config.bucket)
+                        put("region", s.s3Config.region)
+                        put("configured", s.s3Config.endpoint.isNotEmpty() && s.s3Config.bucket.isNotEmpty())
+                    })
+                }
+                Log.i(TAG, "✅ [Module-Done] getBackupConfig webdav=${result.optJSONObject("webdav")?.optBoolean("configured")} s3=${result.optJSONObject("s3")?.optBoolean("configured")}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_UPDATE_WEBDAV_CONFIG -> {
+                val url = json?.optString("url")
+                val username = json?.optString("username")
+                val password = json?.optString("password")
+                val path = json?.optString("path")
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(webDavConfig = s.webDavConfig.copy(
+                                url = url ?: s.webDavConfig.url,
+                                username = username ?: s.webDavConfig.username,
+                                password = password ?: s.webDavConfig.password,
+                                path = path ?: s.webDavConfig.path
+                            ))
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateWebDavConfig")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateWebDavConfig: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_UPDATE_S3_CONFIG -> {
+                val endpoint = json?.optString("endpoint")
+                val accessKeyId = json?.optString("accessKeyId")
+                val secretAccessKey = json?.optString("secretAccessKey")
+                val bucket = json?.optString("bucket")
+                val region = json?.optString("region")
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(s3Config = s.s3Config.copy(
+                                endpoint = endpoint ?: s.s3Config.endpoint,
+                                accessKeyId = accessKeyId ?: s.s3Config.accessKeyId,
+                                secretAccessKey = secretAccessKey ?: s.s3Config.secretAccessKey,
+                                bucket = bucket ?: s.s3Config.bucket,
+                                region = region ?: s.s3Config.region
+                            ))
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateS3Config")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateS3Config: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_TEST_WEBDAV -> {
+                koinGet<AppScope>().launch {
+                    try {
+                        val config = koinGet<SettingsStore>().settingsFlow.value.webDavConfig
+                        val ok = koinGet<WebDavSync>().testConnection(config)
+                        Log.i(TAG, "✅ [Module-Done] testWebDav → $ok")
+                        callback?.invoke(JSONObject().apply { put("ok", ok) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] testWebDav: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("ok", false); put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_BACKUP_WEBDAV -> {
+                koinGet<AppScope>().launch {
+                    try {
+                        val config = koinGet<SettingsStore>().settingsFlow.value.webDavConfig
+                        koinGet<WebDavSync>().backup(config)
+                        Log.i(TAG, "✅ [Module-Done] backupWebDav 成功")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] backupWebDav: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("ok", false); put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_BACKUP_S3 -> {
+                koinGet<AppScope>().launch {
+                    try {
+                        val config = koinGet<SettingsStore>().settingsFlow.value.s3Config
+                        koinGet<S3Sync>().backupToS3(config)
+                        Log.i(TAG, "✅ [Module-Done] backupS3 成功")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] backupS3: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("ok", false); put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1712,6 +1838,12 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_ADD_SEARCH_SERVICE = "addSearchService"
         const val METHOD_UPDATE_SEARCH_API_KEY = "updateSearchApiKey"
         const val METHOD_DELETE_SEARCH_SERVICE = "deleteSearchService"
+        const val METHOD_GET_BACKUP_CONFIG = "getBackupConfig"
+        const val METHOD_UPDATE_WEBDAV_CONFIG = "updateWebDavConfig"
+        const val METHOD_UPDATE_S3_CONFIG = "updateS3Config"
+        const val METHOD_TEST_WEBDAV = "testWebDav"
+        const val METHOD_BACKUP_WEBDAV = "backupWebDav"
+        const val METHOD_BACKUP_S3 = "backupS3"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

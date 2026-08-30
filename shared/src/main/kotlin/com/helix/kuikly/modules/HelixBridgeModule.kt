@@ -522,6 +522,57 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_UPDATE_ASSISTANT, params, callback)
     }
 
+    // ==================== 备份（真实数据：WebDavSync/S3Sync） ====================
+
+    /** 备份配置。返回：{webdav:{url,username,password,path,configured}, s3:{endpoint,accessKeyId,secretAccessKey,bucket,region,configured}} */
+    fun getBackupConfig(callback: CallbackFn?) {
+        callNative(METHOD_GET_BACKUP_CONFIG, null, callback)
+    }
+
+    /** 更新 WebDav 配置（传 null 字段=不改） */
+    fun updateWebDavConfig(url: String?, username: String?, password: String?, path: String?, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_WEBDAV_CONFIG,
+            JSONObject().apply {
+                url?.let { put("url", it) }
+                username?.let { put("username", it) }
+                password?.let { put("password", it) }
+                path?.let { put("path", it) }
+            },
+            callback
+        )
+    }
+
+    /** 更新 S3 配置 */
+    fun updateS3Config(endpoint: String?, accessKeyId: String?, secretAccessKey: String?, bucket: String?, region: String?, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_S3_CONFIG,
+            JSONObject().apply {
+                endpoint?.let { put("endpoint", it) }
+                accessKeyId?.let { put("accessKeyId", it) }
+                secretAccessKey?.let { put("secretAccessKey", it) }
+                bucket?.let { put("bucket", it) }
+                region?.let { put("region", it) }
+            },
+            callback
+        )
+    }
+
+    /** 测试 WebDav 连接 */
+    fun testWebDav(callback: CallbackFn?) {
+        callNative(METHOD_TEST_WEBDAV, null, callback)
+    }
+
+    /** 立即备份到 WebDav */
+    fun backupWebDav(callback: CallbackFn?) {
+        callNative(METHOD_BACKUP_WEBDAV, null, callback)
+    }
+
+    /** 立即备份到 S3 */
+    fun backupS3(callback: CallbackFn?) {
+        callNative(METHOD_BACKUP_S3, null, callback)
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -679,6 +730,12 @@ class HelixBridgeModule : Module() {
         const val METHOD_ADD_SEARCH_SERVICE = "addSearchService"
         const val METHOD_UPDATE_SEARCH_API_KEY = "updateSearchApiKey"
         const val METHOD_DELETE_SEARCH_SERVICE = "deleteSearchService"
+        const val METHOD_GET_BACKUP_CONFIG = "getBackupConfig"
+        const val METHOD_UPDATE_WEBDAV_CONFIG = "updateWebDavConfig"
+        const val METHOD_UPDATE_S3_CONFIG = "updateS3Config"
+        const val METHOD_TEST_WEBDAV = "testWebDav"
+        const val METHOD_BACKUP_WEBDAV = "backupWebDav"
+        const val METHOD_BACKUP_S3 = "backupS3"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
