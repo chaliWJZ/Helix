@@ -59,8 +59,18 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, text)
+                        // context 可能是 Application 级 context（非 Activity），
+                        // 缺少 FLAG_ACTIVITY_NEW_TASK 时 startActivity 会抛
+                        // AndroidRuntimeException 并被 runCatching 静默吞掉，
+                        // 表现为点击分享无任何反应（测试发现的真实 bug）。
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
-                    context?.startActivity(Intent.createChooser(intent, "分享"))
+                    context?.startActivity(Intent.createChooser(intent, "分享").apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                }.onFailure { e ->
+                    Log.e(TAG, "⚠ [Error] shareText 调起分享面板失败: ${e.message}")
+                    context?.let { Toast.makeText(it, "分享失败", Toast.LENGTH_SHORT).show() }
                 }
                 null
             }
