@@ -406,11 +406,21 @@ fun ViewContainer<*, *>.SwitchRow(
 ) {
     val tag = componentTag("SwitchRow")
     KLog.i(UI_LOG_TAG, "🖼 [Render] $tag [$title] checked=${checked()}")
+    // 修复：click 移到最外层行 View，整行可点（之前 48f 小 View 触摸热区偏移导致全局不可点）
     View {
         attr {
             flexDirectionRow()
             alignItemsCenter()
             padding(16f)
+        }
+        event {
+            click {
+                safeRun("$tag [$title]") {
+                    val newValue = !checked()
+                    KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$title] → $newValue")
+                    onCheckedChange(newValue)
+                }
+            }
         }
         View {
             attr {
@@ -444,15 +454,6 @@ fun ViewContainer<*, *>.SwitchRow(
                     else HelixTheme.current.surfaceContainerHighest
                 )
                 justifyContentCenter()
-            }
-            event {
-                click {
-                    safeRun("$tag [$title]") {
-                        val newValue = !checked()
-                        KLog.i(UI_LOG_TAG, "👆 [Click] $tag [$title] → $newValue")
-                        onCheckedChange(newValue)
-                    }
-                }
             }
             View {
                 attr {
