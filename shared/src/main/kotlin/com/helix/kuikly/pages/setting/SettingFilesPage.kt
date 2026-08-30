@@ -41,16 +41,27 @@ internal class SettingFilesPage : Pager() {
                     flex(1f)
                     backgroundColor(HelixTheme.current.background)
                 }
-                NavBar(
-                    title = "文件管理",
-                    showBack = true,
-                    onBack = { ctx.router().closePage() },
-                    rightActions = if (ctx.fileItems.isNotEmpty()) {
-                        listOf(NavBarAction(label = "清空") { ctx.fileItems = emptyList() })
-                    } else {
-                        emptyList()
-                    }
-                )
+                // NavBar 右侧「清空」按钮需随 fileItems 是否为空动态显隐。
+                // rightActions 是普通 List（非响应式 lambda），若直接用
+                // `if (ctx.fileItems.isNotEmpty()) listOf(...) else emptyList()`
+                // 计算，只会在首次 body() 构建时求值一次，之后 fileItems 变化
+                // 不会重新计算——按钮清空后仍会残留显示（测试发现的真实bug）。
+                // 用 vif 包裹两种 NavBar 分支，vif 已验证响应式生效。
+                vif({ ctx.fileItems.isNotEmpty() }) {
+                    NavBar(
+                        title = "文件管理",
+                        showBack = true,
+                        onBack = { ctx.router().closePage() },
+                        rightActions = listOf(NavBarAction(label = "清空") { ctx.fileItems = emptyList() })
+                    )
+                }
+                vif({ ctx.fileItems.isEmpty() }) {
+                    NavBar(
+                        title = "文件管理",
+                        showBack = true,
+                        onBack = { ctx.router().closePage() }
+                    )
+                }
                 View {
                     attr {
                         flex(1f)
