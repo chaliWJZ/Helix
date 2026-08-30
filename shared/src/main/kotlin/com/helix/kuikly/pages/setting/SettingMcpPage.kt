@@ -3,39 +3,94 @@ package com.helix.kuikly.pages.setting
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.directives.vfor
+import com.tencent.kuikly.core.directives.vif
+import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.reactive.handler.observableList
+import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.EmptyView
 import com.helix.kuikly.components.ui.NavBar
-import com.helix.kuikly.components.ui.NavBarAction
+import com.helix.kuikly.components.ui.SwitchRow
+import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.helix.kuikly.theme.HelixTheme
 
+private const val UI_LOG = "HelixKuikly"
+private const val TAG = "[SettingMcpPage]"
+
+internal data class McpItem(
+    val id: String,
+    val name: String,
+    val url: String,
+    val type: String,
+    val enable: Boolean
+)
+
 /**
- * MCP 设置页面（对应 Compose 的 SettingMcpPage，原1102行）
+ * MCP 设置页（对应 Compose 的 SettingMcpPage，真实数据）
  *
- * MCP 服务器管理：服务器列表 + 启停状态
+ * - pageDidAppear 刷新 getMcpServers
+ * - 列表：名称 + URL + 类型，每项启用开关（setMcpEnabled 持久化）
+ * - 删除（deleteMcpServer）
  */
 @Page("SettingMcpPage")
 internal class SettingMcpPage : HelixBasePage() {
 
-    data class McpServer(
-        val name: String,
-        val command: String,
-        val enabled: Boolean,
-        val tools: Int
-    )
+    private val servers by observableList<McpItem>()
 
-    private val servers by observableList<McpServer>()
+    override fun pageDidAppear() {
+        super.pageDidAppear()
+        KLog.i(UI_LOG, "🖼 [Render] $TAG 页面出现，刷新 MCP 列表")
+        load()
+    }
 
-    override fun created() {
-        super.created()
-        listOf(
-            McpServer("filesystem", "npx @modelcontextprotocol/server-filesystem", true, 11),
-            McpServer("fetch", "uvx mcp-server-fetch", true, 1),
-            McpServer("memory", "npx @modelcontextprotocol/server-memory", false, 9),
-            McpServer("git", "uvx mcp-server-git", true, 7)
-        ).forEach { servers.add(it) }
+    private fun load() {
+        bridge().getMcpServers { json ->
+            safeRun("$TAG getMcpServers") {
+                val j = json ?: return@safeRun
+                val arr = j.optJSONArray("servers")
+                val items = mutableListOf<McpItem>()
+                arr?.let { a ->
+                    for (i in 0 until a.length()) {
+                        a.optJSONObject(i)?.let { o ->
+                            items.add(
+                                McpItem(
+                                    id = o.optString("id"),
+                                    name = o.optString("name"),
+                                    url = o.optString("url"),
+                                    type = o.optString("type"),
+                                    enable = o.optBoolean("enable")
+                                )
+                            )
+                        }
+                    }
+                }
+                servers.clear()
+                servers.addAll(items)
+                KLog.i(UI_LOG, "📦 [Data] $TAG 加载 ${items.size} 个 MCP 服务器")
+            }
+        }
+    }
+
+    private fun toggle(item: McpItem, enable: Boolean) {
+        KLog.i(UI_LOG, "👆 [Click] $TAG 启停 [${item.name}] → $enable")
+        bridge().setMcpEnabled(item.id, enable) { json ->
+            safeRun("$TAG setMcpEnabled") {
+                val j = json ?: return@safeRun
+                if (j.optBoolean("ok")) load()
+            }
+        }
+    }
+
+    private fun delete(item: McpItem) {
+        KLog.i(UI_LOG, "👆 [Click] $TAG 删除 [${item.name}]")
+        bridge().deleteMcpServer(item.id) { json ->
+            safeRun("$TAG deleteMcpServer") {
+                val j = json ?: return@safeRun
+                if (j.optBoolean("ok")) load()
+            }
+        }
     }
 
     override fun body(): ViewBuilder {
@@ -46,71 +101,82 @@ internal class SettingMcpPage : HelixBasePage() {
                     flex(1f)
                     backgroundColor(HelixTheme.current.background)
                 }
-                NavBar(
-                    title = "MCP",
-                    showBack = true,
-                    onBack = { ctx.closePage() },
-                    rightActions = listOf(
-                        NavBarAction(label = "＋") { ctx.bridge().toast("添加 MCP 服务器（待接入）") }
-                    )
-                )
-                View {
+                NavBar(title = "MCP", showBack = true, onBack = { ctx.closePage() })
+                Scroller {
                     attr {
                         flex(1f)
+                        alignSelfStretch()
                         marginTop(8f)
                     }
-                    vfor({ ctx.servers }) { server ->
+                    vif({ ctx.servers.isEmpty() }) {
+                        EmptyView(message = "暂无 MCP 服务器，在 Compose 版添加后同步显示", icon = "🔗")
+                    }
+                    vfor({ ctx.servers }) { item ->
                         View {
                             attr {
-                                padding(16f)
+                                flexDirectionColumn()
                                 marginLeft(16f)
                                 marginRight(16f)
                                 marginBottom(8f)
-                                borderRadius(16f)
-                                backgroundColor(HelixTheme.current.surfaceContainerLow)
+                                padding(12f)
+                                borderRadius(12f)
+                                backgroundColor(
+                                    if (item.enable) HelixTheme.current.surfaceContainerLow
+                                    else HelixTheme.current.errorContainer
+                                )
                             }
                             View {
                                 attr {
                                     flexDirectionRow()
                                     alignItemsCenter()
                                 }
-                                Text {
-                                    attr {
-                                        text(server.name)
-                                        fontSize(16f)
-                                        color(HelixTheme.current.onSurface)
-                                        flex(1f)
+                                View {
+                                    attr { flex(1f) }
+                                    Text {
+                                        attr {
+                                            text(item.name)
+                                            fontSize(15f)
+                                            fontWeight700()
+                                            color(
+                                                if (item.enable) HelixTheme.current.onSurface
+                                                else HelixTheme.current.onErrorContainer
+                                            )
+                                        }
+                                    }
+                                    Text {
+                                        attr {
+                                            text("${item.type} · ${item.url}")
+                                            fontSize(10f)
+                                            fontFamily("monospace")
+                                            color(HelixTheme.current.onSurfaceVariant)
+                                            marginTop(2f)
+                                        }
                                     }
                                 }
-                                // 启停状态
+                                // 删除按钮
                                 Text {
                                     attr {
-                                        text(if (server.enabled) "● 已启用" else "○ 已禁用")
+                                        text("删除")
                                         fontSize(12f)
-                                        color(
-                                            if (server.enabled) HelixTheme.current.primary
-                                            else HelixTheme.current.onSurfaceVariant
-                                        )
+                                        color(HelixTheme.current.error)
+                                        marginLeft(8f)
+                                        marginRight(4f)
+                                        marginTop(8f)
+                                        marginBottom(8f)
+                                    }
+                                    event {
+                                        click {
+                                            safeRun("$TAG 删除[${item.name}]") { ctx.delete(item) }
+                                        }
                                     }
                                 }
                             }
-                            Text {
-                                attr {
-                                    text(server.command)
-                                    fontSize(12f)
-                                    color(HelixTheme.current.onSurfaceVariant)
-                                    marginTop(4f)
-                                    fontFamily("monospace")
-                                }
-                            }
-                            Text {
-                                attr {
-                                    text("${server.tools} 个工具可用")
-                                    fontSize(11f)
-                                    color(HelixTheme.current.primary)
-                                    marginTop(4f)
-                                }
-                            }
+                            // 启用开关
+                            SwitchRow(
+                                title = "启用",
+                                checked = { item.enable },
+                                onCheckedChange = { ctx.toggle(item, it) }
+                            )
                         }
                     }
                 }
