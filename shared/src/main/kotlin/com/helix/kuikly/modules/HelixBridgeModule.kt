@@ -429,6 +429,65 @@ class HelixBridgeModule : Module() {
         )
     }
 
+    // ==================== 提示词（模式注入/世界书，真实数据） ====================
+
+    /** 模式注入列表。返回：{modes:[{id,name,enabled,position,contentLength}]} */
+    fun getModeInjections(callback: CallbackFn?) {
+        callNative(METHOD_GET_MODE_INJECTIONS, null, callback)
+    }
+
+    /** 保存模式注入（id 空=新建） */
+    fun saveModeInjection(id: String, name: String, content: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_SAVE_MODE_INJECTION,
+            JSONObject().apply {
+                put("id", id)
+                put("name", name)
+                put("content", content)
+            },
+            callback
+        )
+    }
+
+    /** 删除模式注入 */
+    fun deleteModeInjection(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_MODE_INJECTION, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 启停模式注入 */
+    fun setModeInjectionEnabled(id: String, enabled: Boolean, callback: CallbackFn?) {
+        callNative(
+            METHOD_SET_MODE_INJECTION_ENABLED,
+            JSONObject().apply {
+                put("id", id)
+                put("enabled", enabled)
+            },
+            callback
+        )
+    }
+
+    /** 世界书列表。返回：{lorebooks:[{id,name,description,enabled,entryCount}]} */
+    fun getLorebooks(callback: CallbackFn?) {
+        callNative(METHOD_GET_LOREBOOKS, null, callback)
+    }
+
+    /** 删除世界书 */
+    fun deleteLorebook(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_LOREBOOK, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 启停世界书 */
+    fun setLorebookEnabled(id: String, enabled: Boolean, callback: CallbackFn?) {
+        callNative(
+            METHOD_SET_LOREBOOK_ENABLED,
+            JSONObject().apply {
+                put("id", id)
+                put("enabled", enabled)
+            },
+            callback
+        )
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -574,6 +633,13 @@ class HelixBridgeModule : Module() {
         const val METHOD_GET_ASR_PROVIDERS = "getASRProviders"
         const val METHOD_SET_DEFAULT_ASR = "setDefaultASR"
         const val METHOD_DELETE_ASR_PROVIDER = "deleteAsrProvider"
+        const val METHOD_GET_MODE_INJECTIONS = "getModeInjections"
+        const val METHOD_SAVE_MODE_INJECTION = "saveModeInjection"
+        const val METHOD_DELETE_MODE_INJECTION = "deleteModeInjection"
+        const val METHOD_SET_MODE_INJECTION_ENABLED = "setModeInjectionEnabled"
+        const val METHOD_GET_LOREBOOKS = "getLorebooks"
+        const val METHOD_DELETE_LOREBOOK = "deleteLorebook"
+        const val METHOD_SET_LOREBOOK_ENABLED = "setLorebookEnabled"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

@@ -23,6 +23,7 @@ import com.helix.app.service.WebServerService
 import com.helix.app.web.WebServerManager
 import me.rerere.asr.ASRProviderSetting
 import me.rerere.tts.provider.TTSProviderSetting
+import com.helix.app.data.model.PromptInjection
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
 import kotlinx.coroutines.launch
@@ -1102,6 +1103,144 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 提示词扩展（批次D） ====================
+            METHOD_GET_MODE_INJECTIONS -> {
+                val modes = koinGet<SettingsStore>().settingsFlow.value.modeInjections
+                val result = JSONArray().apply {
+                    modes.forEach { m ->
+                        put(JSONObject().apply {
+                            put("id", m.id.toString())
+                            put("name", m.name)
+                            put("enabled", m.enabled)
+                            put("position", m.position.name)
+                            put("contentLength", m.content.length)
+                        })
+                    }
+                }
+                Log.i(TAG, "✅ [Module-Done] getModeInjections count=${modes.size}")
+                callback?.invoke(JSONObject().apply { put("modes", result) })
+                null
+            }
+
+            METHOD_SAVE_MODE_INJECTION -> {
+                val id = json?.optString("id") ?: ""
+                val name = json?.optString("name") ?: ""
+                val content = json?.optString("content") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            if (id.isNotEmpty()) {
+                                s.copy(modeInjections = s.modeInjections.map {
+                                    if (it.id.toString() == id) it.copy(name = name, content = content) else it
+                                })
+                            } else {
+                                s.copy(modeInjections = s.modeInjections + PromptInjection.ModeInjection(
+                                    name = name, content = content
+                                ))
+                            }
+                        }
+                        Log.i(TAG, "✅ [Module-Done] saveModeInjection [$name]")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] saveModeInjection: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_DELETE_MODE_INJECTION -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(modeInjections = s.modeInjections.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteModeInjection id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteModeInjection: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_SET_MODE_INJECTION_ENABLED -> {
+                val id = json?.optString("id") ?: ""
+                val enabled = json?.optBoolean("enabled") ?: false
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(modeInjections = s.modeInjections.map {
+                                if (it.id.toString() == id) it.copy(enabled = enabled) else it
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] setModeInjectionEnabled id=$id → $enabled")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setModeInjectionEnabled: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_GET_LOREBOOKS -> {
+                val books = koinGet<SettingsStore>().settingsFlow.value.lorebooks
+                val result = JSONArray().apply {
+                    books.forEach { b ->
+                        put(JSONObject().apply {
+                            put("id", b.id.toString())
+                            put("name", b.name)
+                            put("description", b.description)
+                            put("enabled", b.enabled)
+                            put("entryCount", b.entries.size)
+                        })
+                    }
+                }
+                Log.i(TAG, "✅ [Module-Done] getLorebooks count=${books.size}")
+                callback?.invoke(JSONObject().apply { put("lorebooks", result) })
+                null
+            }
+
+            METHOD_DELETE_LOREBOOK -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(lorebooks = s.lorebooks.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteLorebook id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteLorebook: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_SET_LOREBOOK_ENABLED -> {
+                val id = json?.optString("id") ?: ""
+                val enabled = json?.optBoolean("enabled") ?: false
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(lorebooks = s.lorebooks.map {
+                                if (it.id.toString() == id) it.copy(enabled = enabled) else it
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] setLorebookEnabled id=$id → $enabled")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setLorebookEnabled: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1424,6 +1563,13 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_GET_ASR_PROVIDERS = "getASRProviders"
         const val METHOD_SET_DEFAULT_ASR = "setDefaultASR"
         const val METHOD_DELETE_ASR_PROVIDER = "deleteAsrProvider"
+        const val METHOD_GET_MODE_INJECTIONS = "getModeInjections"
+        const val METHOD_SAVE_MODE_INJECTION = "saveModeInjection"
+        const val METHOD_DELETE_MODE_INJECTION = "deleteModeInjection"
+        const val METHOD_SET_MODE_INJECTION_ENABLED = "setModeInjectionEnabled"
+        const val METHOD_GET_LOREBOOKS = "getLorebooks"
+        const val METHOD_DELETE_LOREBOOK = "deleteLorebook"
+        const val METHOD_SET_LOREBOOK_ENABLED = "setLorebookEnabled"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
