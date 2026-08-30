@@ -233,6 +233,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                     callback?.invoke(JSONObject().apply { put("error", "provider_not_found") })
                 } else {
                     val (baseUrl, apiKey) = providerCredentials(p)
+                    val defUrl = defaultBaseUrlOf(p)
                     val result = JSONObject().apply {
                         put("id", p.id.toString())
                         put("name", p.name)
@@ -240,10 +241,30 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                         put("type", providerTypeName(p))
                         put("baseUrl", baseUrl)
                         put("apiKey", apiKey)
-                        put("apiKeyMasked", if (apiKey.length > 8) apiKey.take(4) + "****" + apiKey.takeLast(4) else if (apiKey.isNotEmpty()) "****" else "")
+                        put("builtIn", p.builtIn)
+                        put("isDefaultBaseUrl", baseUrl == defUrl)
+                        put("defaultBaseUrl", defUrl)
+                        when (p) {
+                            is ProviderSetting.OpenAI -> {
+                                put("chatCompletionsPath", p.chatCompletionsPath)
+                                put("useResponseApi", p.useResponseApi)
+                                put("includeHistoryReasoning", p.includeHistoryReasoning)
+                                put("balanceEnabled", p.balanceOption.enabled)
+                                put("balanceApiPath", p.balanceOption.apiPath)
+                                put("balanceResultPath", p.balanceOption.resultPath)
+                            }
+                            is ProviderSetting.Claude -> {
+                                put("promptCaching", p.promptCaching)
+                                put("promptCacheTtl", p.promptCacheTtl.name)
+                            }
+                            is ProviderSetting.Google -> {
+                                put("vertexAI", p.vertexAI)
+                            }
+                        }
                         put("models", JSONArray().apply {
                             p.models.forEach { m ->
                                 put(JSONObject().apply {
+                                    put("uid", m.id.toString())
                                     put("modelId", m.modelId)
                                     put("displayName", m.displayName)
                                     put("type", m.type.name)
@@ -259,9 +280,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
 
             METHOD_UPDATE_PROVIDER -> {
                 val id = json?.optString("id") ?: ""
-                val name = json?.optString("name") ?: ""
-                val baseUrl = json?.optString("baseUrl")
-                val apiKey = json?.optString("apiKey")
+                val edit = parseProviderEdit(json ?: JSONObject())
                 koinGet<AppScope>().launch {
                     try {
                         var updated = false
@@ -269,7 +288,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                             s.copy(providers = s.providers.map { p ->
                                 if (p.id.toString() == id) {
                                     updated = true
-                                    applyProviderEdit(p, name, baseUrl, apiKey)
+                                    applyProviderEdit(p, edit)
                                 } else p
                             })
                         }
@@ -277,6 +296,242 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                         callback?.invoke(JSONObject().apply { put("ok", updated) })
                     } catch (e: Exception) {
                         Log.e(TAG, "⚠ [Error] updateProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 从 API 拉取可选模型列表（listModels）
+            METHOD_FETCH_PROVIDER_MODELS -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    val p = koinGet<SettingsStore>().settingsFlow.value.providers.firstOrNull { it.id.toString() == id }
+                    if (p == null) {
+                        callback?.invoke(JSONObject().apply { put("error", "provider_not_found") })
+                        return@launch
+                    }
+                    try {
+                        val manager = koinGet<ProviderManager>()
+                        @Suppress("UNCHECKED_CAST")
+                        val provider = manager.getProviderByType(p) as Provider<ProviderSetting>
+                        val models = provider.listModels(p).sortedBy { it.modelId }
+                        val result = JSONArray().apply {
+                            models.forEach { m ->
+                                put(JSONObject().apply {
+                                    put("modelId", m.modelId)
+                                    put("displayName", m.displayName)
+                                    put("type", m.type.name)
+                                })
+                            }
+                        }
+                        Log.i(TAG, "✅ [Module-Done] fetchProviderModels ${p.name} 拉到 ${models.size} 个")
+                        callback?.invoke(JSONObject().apply { put("models", result) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] fetchProviderModels: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message ?: "unknown") })
+                    }
+                }
+                null
+            }
+
+            // 手动添加模型（或从拉取列表添加）
+            METHOD_ADD_PROVIDER_MODEL -> {
+                val providerId = json?.optString("providerId") ?: ""
+                val modelId = json?.optString("modelId") ?: ""
+                val displayName = json?.optString("displayName") ?: ""
+                val type = json?.optString("type") ?: "CHAT"
+                koinGet<AppScope>().launch {
+                    try {
+                        val modelType = runCatching { ModelType.valueOf(type) }.getOrDefault(ModelType.CHAT)
+                        val model = com.helix.app.ai.provider.Model(
+                            modelId = modelId,
+                            displayName = displayName.ifEmpty { modelId },
+                            type = modelType
+                        )
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map {
+                                if (it.id.toString() == providerId) it.addModel(model) else it
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] addProviderModel $modelId → $providerId")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] addProviderModel: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 编辑模型（modelId/displayName/type）
+            METHOD_UPDATE_PROVIDER_MODEL -> {
+                val providerId = json?.optString("providerId") ?: ""
+                val modelUid = json?.optString("modelUid") ?: ""
+                val modelId = json?.optString("modelId") ?: ""
+                val displayName = json?.optString("displayName") ?: ""
+                val type = json?.optString("type") ?: "CHAT"
+                koinGet<AppScope>().launch {
+                    try {
+                        val modelType = runCatching { ModelType.valueOf(type) }.getOrDefault(ModelType.CHAT)
+                        var updated = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map { p ->
+                                if (p.id.toString() == providerId) {
+                                    val target = p.models.firstOrNull { it.id.toString() == modelUid }
+                                    if (target != null) {
+                                        updated = true
+                                        p.editModel(
+                                            target.copy(
+                                                modelId = modelId,
+                                                displayName = displayName,
+                                                type = modelType
+                                            )
+                                        )
+                                    } else p
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateProviderModel uid=$modelUid found=$updated")
+                        callback?.invoke(JSONObject().apply { put("ok", updated) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateProviderModel: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 删除模型
+            METHOD_DELETE_PROVIDER_MODEL -> {
+                val providerId = json?.optString("providerId") ?: ""
+                val modelUid = json?.optString("modelUid") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map { p ->
+                                if (p.id.toString() == providerId) {
+                                    val target = p.models.firstOrNull { it.id.toString() == modelUid }
+                                    if (target != null) p.delModel(target) else p
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteProviderModel uid=$modelUid")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteProviderModel: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 模型排序（上移/下移：from→to）
+            METHOD_MOVE_PROVIDER_MODEL -> {
+                val providerId = json?.optString("providerId") ?: ""
+                val from = json?.optInt("from", -1) ?: -1
+                val to = json?.optInt("to", -1) ?: -1
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map { p ->
+                                if (p.id.toString() == providerId && from in p.models.indices && to in p.models.indices) {
+                                    p.moveMove(from, to)
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] moveProviderModel $from→$to")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] moveProviderModel: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 重置 BaseURL 为默认
+            METHOD_RESET_PROVIDER_BASE_URL -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map {
+                                if (it.id.toString() == id) it.resetBaseUrl() else it
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] resetProviderBaseUrl id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] resetProviderBaseUrl: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 分享供应商配置（返回 JSON 字符串，Kuikly 侧走 shareText）
+            METHOD_SHARE_PROVIDER_CONFIG -> {
+                val id = json?.optString("id") ?: ""
+                val p = koinGet<SettingsStore>().settingsFlow.value.providers.firstOrNull { it.id.toString() == id }
+                if (p == null) {
+                    callback?.invoke(JSONObject().apply { put("error", "provider_not_found") })
+                } else {
+                    try {
+                        val jsonStr = com.helix.app.utils.JsonInstant.encodeToString(ProviderSetting.serializer(), p)
+                        Log.i(TAG, "✅ [Module-Done] shareProviderConfig ${p.name} len=${jsonStr.length}")
+                        callback?.invoke(JSONObject().apply { put("config", jsonStr) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] shareProviderConfig: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 拉取余额（OpenAI + balanceOption.enabled）
+            METHOD_GET_PROVIDER_BALANCE -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    val p = koinGet<SettingsStore>().settingsFlow.value.providers.firstOrNull { it.id.toString() == id }
+                    if (p == null || p !is ProviderSetting.OpenAI || !p.balanceOption.enabled) {
+                        callback?.invoke(JSONObject().apply { put("error", "balance_disabled") })
+                        return@launch
+                    }
+                    try {
+                        val manager = koinGet<ProviderManager>()
+                        @Suppress("UNCHECKED_CAST")
+                        val provider = manager.getProviderByType(p) as Provider<ProviderSetting>
+                        val balance = provider.getBalance(p)
+                        Log.i(TAG, "✅ [Module-Done] getProviderBalance ${p.name} → $balance")
+                        callback?.invoke(JSONObject().apply { put("balance", balance) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] getProviderBalance: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message ?: "unknown") })
+                    }
+                }
+                null
+            }
+
+            // 切换供应商类型（保留 name/apiKey，baseUrl 转换为目标默认）
+            METHOD_SWITCH_PROVIDER_TYPE -> {
+                val id = json?.optString("id") ?: ""
+                val newType = json?.optString("newType") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        var switched = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers.map { p ->
+                                if (p.id.toString() == id && providerTypeName(p) != newType) {
+                                    switched = true
+                                    switchProviderType(p, newType)
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] switchProviderType id=$id → $newType switched=$switched")
+                        callback?.invoke(JSONObject().apply { put("ok", switched) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] switchProviderType: ${e.message}")
                         callback?.invoke(JSONObject().apply { put("error", e.message) })
                     }
                 }
@@ -665,27 +920,92 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         is ProviderSetting.Claude -> p.baseUrl to p.apiKey
     }
 
-    /** 应用编辑（名称 + 凭证，按子类 copy） */
-    private fun applyProviderEdit(
-        p: ProviderSetting,
-        name: String,
-        baseUrl: String?,
-        apiKey: String?
-    ): ProviderSetting {
-        val renamed = if (name.isNotEmpty()) p.copyProvider(name = name) else p
+    /** 各子类默认 baseUrl */
+    private fun defaultBaseUrlOf(p: ProviderSetting): String = when (p) {
+        is ProviderSetting.OpenAI -> ProviderSetting.OpenAI().baseUrl
+        is ProviderSetting.Google -> ProviderSetting.Google().baseUrl
+        is ProviderSetting.Claude -> ProviderSetting.Claude().baseUrl
+    }
+
+    /** 重置 baseUrl 为默认 */
+    private fun ProviderSetting.resetBaseUrl(): ProviderSetting = when (this) {
+        is ProviderSetting.OpenAI -> copy(baseUrl = defaultBaseUrlOf(this))
+        is ProviderSetting.Google -> copy(baseUrl = defaultBaseUrlOf(this))
+        is ProviderSetting.Claude -> copy(baseUrl = defaultBaseUrlOf(this))
+    }
+
+    /** 编辑参数（全部可选，null=不改） */
+    private class ProviderEdit(
+        val name: String? = null,
+        val baseUrl: String? = null,
+        val apiKey: String? = null,
+        val chatCompletionsPath: String? = null,
+        val useResponseApi: Boolean? = null,
+        val includeHistoryReasoning: Boolean? = null,
+        val promptCaching: Boolean? = null,
+        val promptCacheTtl: String? = null,
+        val vertexAI: Boolean? = null,
+        val balanceEnabled: Boolean? = null,
+        val balanceApiPath: String? = null,
+        val balanceResultPath: String? = null
+    )
+
+    private fun parseProviderEdit(j: JSONObject): ProviderEdit = ProviderEdit(
+        name = if (j.optString("name").isNotEmpty()) j.optString("name") else null,
+        baseUrl = if (j.has("baseUrl")) j.optString("baseUrl") else null,
+        apiKey = if (j.has("apiKey")) j.optString("apiKey") else null,
+        chatCompletionsPath = if (j.has("chatCompletionsPath")) j.optString("chatCompletionsPath") else null,
+        useResponseApi = if (j.has("useResponseApi")) j.optBoolean("useResponseApi") else null,
+        includeHistoryReasoning = if (j.has("includeHistoryReasoning")) j.optBoolean("includeHistoryReasoning") else null,
+        promptCaching = if (j.has("promptCaching")) j.optBoolean("promptCaching") else null,
+        promptCacheTtl = if (j.has("promptCacheTtl")) j.optString("promptCacheTtl") else null,
+        vertexAI = if (j.has("vertexAI")) j.optBoolean("vertexAI") else null,
+        balanceEnabled = if (j.has("balanceEnabled")) j.optBoolean("balanceEnabled") else null,
+        balanceApiPath = if (j.has("balanceApiPath")) j.optString("balanceApiPath") else null,
+        balanceResultPath = if (j.has("balanceResultPath")) j.optString("balanceResultPath") else null
+    )
+
+    /** 应用编辑（全字段，按子类 copy，不适用字段忽略） */
+    private fun applyProviderEdit(p: ProviderSetting, e: ProviderEdit): ProviderSetting {
+        val renamed = e.name?.let { p.copyProvider(name = it) } ?: p
         return when (renamed) {
             is ProviderSetting.OpenAI -> renamed.copy(
-                baseUrl = baseUrl ?: renamed.baseUrl,
-                apiKey = apiKey ?: renamed.apiKey
+                baseUrl = e.baseUrl ?: renamed.baseUrl,
+                apiKey = e.apiKey ?: renamed.apiKey,
+                chatCompletionsPath = e.chatCompletionsPath ?: renamed.chatCompletionsPath,
+                useResponseApi = e.useResponseApi ?: renamed.useResponseApi,
+                includeHistoryReasoning = e.includeHistoryReasoning ?: renamed.includeHistoryReasoning,
+                balanceOption = renamed.balanceOption.copy(
+                    enabled = e.balanceEnabled ?: renamed.balanceOption.enabled,
+                    apiPath = e.balanceApiPath ?: renamed.balanceOption.apiPath,
+                    resultPath = e.balanceResultPath ?: renamed.balanceOption.resultPath
+                )
             )
             is ProviderSetting.Google -> renamed.copy(
-                baseUrl = baseUrl ?: renamed.baseUrl,
-                apiKey = apiKey ?: renamed.apiKey
+                baseUrl = e.baseUrl ?: renamed.baseUrl,
+                apiKey = e.apiKey ?: renamed.apiKey,
+                vertexAI = e.vertexAI ?: renamed.vertexAI
             )
             is ProviderSetting.Claude -> renamed.copy(
-                baseUrl = baseUrl ?: renamed.baseUrl,
-                apiKey = apiKey ?: renamed.apiKey
+                baseUrl = e.baseUrl ?: renamed.baseUrl,
+                apiKey = e.apiKey ?: renamed.apiKey,
+                promptCaching = e.promptCaching ?: renamed.promptCaching,
+                promptCacheTtl = e.promptCacheTtl?.let {
+                    runCatching { com.helix.app.ai.provider.ClaudePromptCacheTtl.valueOf(it) }.getOrDefault(renamed.promptCacheTtl)
+                } ?: renamed.promptCacheTtl
             )
+        }
+    }
+
+    /** 切换供应商类型（保留 name/apiKey，baseUrl 用目标类型默认） */
+    private fun switchProviderType(p: ProviderSetting, newType: String): ProviderSetting {
+        val name = p.name
+        val apiKey = providerCredentials(p).second
+        return when (newType) {
+            "openai" -> ProviderSetting.OpenAI(name = name, apiKey = apiKey)
+            "google" -> ProviderSetting.Google(name = name, apiKey = apiKey)
+            "claude" -> ProviderSetting.Claude(name = name, apiKey = apiKey)
+            else -> p
         }
     }
 
@@ -755,6 +1075,15 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_SET_PROVIDER_ENABLED = "setProviderEnabled"
         const val METHOD_DELETE_PROVIDER = "deleteProvider"
         const val METHOD_TEST_PROVIDER = "testProvider"
+        const val METHOD_FETCH_PROVIDER_MODELS = "fetchProviderModels"
+        const val METHOD_ADD_PROVIDER_MODEL = "addProviderModel"
+        const val METHOD_UPDATE_PROVIDER_MODEL = "updateProviderModel"
+        const val METHOD_DELETE_PROVIDER_MODEL = "deleteProviderModel"
+        const val METHOD_MOVE_PROVIDER_MODEL = "moveProviderModel"
+        const val METHOD_RESET_PROVIDER_BASE_URL = "resetProviderBaseUrl"
+        const val METHOD_SHARE_PROVIDER_CONFIG = "shareProviderConfig"
+        const val METHOD_GET_PROVIDER_BALANCE = "getProviderBalance"
+        const val METHOD_SWITCH_PROVIDER_TYPE = "switchProviderType"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

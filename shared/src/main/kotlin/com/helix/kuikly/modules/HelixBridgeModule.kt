@@ -158,6 +158,11 @@ class HelixBridgeModule : Module() {
         )
     }
 
+    /** 编辑供应商（原始参数版：调用方按需组 JSON 字段，字段见原生侧 ProviderEdit） */
+    fun updateProviderRaw(params: JSONObject, callback: CallbackFn?) {
+        callNative(METHOD_UPDATE_PROVIDER, params, callback)
+    }
+
     /** 删除供应商 */
     fun deleteProvider(id: String, callback: CallbackFn?) {
         callNative(METHOD_DELETE_PROVIDER, JSONObject().apply { put("id", id) }, callback)
@@ -166,6 +171,92 @@ class HelixBridgeModule : Module() {
     /** 测试供应商连通性（原生 listModels）。返回：{ok, modelCount|error} */
     fun testProvider(id: String, callback: CallbackFn?) {
         callNative(METHOD_TEST_PROVIDER, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 从 API 拉取可选模型列表。返回：{models:[{modelId,displayName,type}]} */
+    fun fetchProviderModels(id: String, callback: CallbackFn?) {
+        callNative(METHOD_FETCH_PROVIDER_MODELS, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 添加模型（手动或从拉取列表） */
+    fun addProviderModel(providerId: String, modelId: String, displayName: String, type: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_ADD_PROVIDER_MODEL,
+            JSONObject().apply {
+                put("providerId", providerId)
+                put("modelId", modelId)
+                put("displayName", displayName)
+                put("type", type)
+            },
+            callback
+        )
+    }
+
+    /** 编辑模型（modelId/displayName/type） */
+    fun updateProviderModel(providerId: String, modelUid: String, modelId: String, displayName: String, type: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_PROVIDER_MODEL,
+            JSONObject().apply {
+                put("providerId", providerId)
+                put("modelUid", modelUid)
+                put("modelId", modelId)
+                put("displayName", displayName)
+                put("type", type)
+            },
+            callback
+        )
+    }
+
+    /** 删除模型 */
+    fun deleteProviderModel(providerId: String, modelUid: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_DELETE_PROVIDER_MODEL,
+            JSONObject().apply {
+                put("providerId", providerId)
+                put("modelUid", modelUid)
+            },
+            callback
+        )
+    }
+
+    /** 模型排序（上移/下移） */
+    fun moveProviderModel(providerId: String, from: Int, to: Int, callback: CallbackFn?) {
+        callNative(
+            METHOD_MOVE_PROVIDER_MODEL,
+            JSONObject().apply {
+                put("providerId", providerId)
+                put("from", from)
+                put("to", to)
+            },
+            callback
+        )
+    }
+
+    /** 重置 BaseURL 为默认 */
+    fun resetProviderBaseUrl(id: String, callback: CallbackFn?) {
+        callNative(METHOD_RESET_PROVIDER_BASE_URL, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 分享供应商配置（返回 JSON 字符串） */
+    fun shareProviderConfig(id: String, callback: CallbackFn?) {
+        callNative(METHOD_SHARE_PROVIDER_CONFIG, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 拉取余额（OpenAI+已启用余额配置）。返回：{balance|error} */
+    fun getProviderBalance(id: String, callback: CallbackFn?) {
+        callNative(METHOD_GET_PROVIDER_BALANCE, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 切换供应商类型（openai/google/claude） */
+    fun switchProviderType(id: String, newType: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_SWITCH_PROVIDER_TYPE,
+            JSONObject().apply {
+                put("id", id)
+                put("newType", newType)
+            },
+            callback
+        )
     }
 
     // ==================== 搜索服务（真实数据） ====================
@@ -372,6 +463,15 @@ class HelixBridgeModule : Module() {
         const val METHOD_SET_PROVIDER_ENABLED = "setProviderEnabled"
         const val METHOD_DELETE_PROVIDER = "deleteProvider"
         const val METHOD_TEST_PROVIDER = "testProvider"
+        const val METHOD_FETCH_PROVIDER_MODELS = "fetchProviderModels"
+        const val METHOD_ADD_PROVIDER_MODEL = "addProviderModel"
+        const val METHOD_UPDATE_PROVIDER_MODEL = "updateProviderModel"
+        const val METHOD_DELETE_PROVIDER_MODEL = "deleteProviderModel"
+        const val METHOD_MOVE_PROVIDER_MODEL = "moveProviderModel"
+        const val METHOD_RESET_PROVIDER_BASE_URL = "resetProviderBaseUrl"
+        const val METHOD_SHARE_PROVIDER_CONFIG = "shareProviderConfig"
+        const val METHOD_GET_PROVIDER_BALANCE = "getProviderBalance"
+        const val METHOD_SWITCH_PROVIDER_TYPE = "switchProviderType"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
