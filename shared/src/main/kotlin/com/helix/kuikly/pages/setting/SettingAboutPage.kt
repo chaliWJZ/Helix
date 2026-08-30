@@ -82,12 +82,6 @@ internal class SettingAboutPage : Pager() {
                     CardGroup(
                         items = listOf(
                             CardGroupItem(
-                                title = "检查更新",
-                                subtitle = "检查并安装最新版本",
-                                icon = "🔄",
-                                onClick = { ctx.router().openPage("UpdateCheckPage") }
-                            ),
-                            CardGroupItem(
                                 title = "GitHub",
                                 subtitle = "查看源代码和提交 Issue",
                                 icon = "🐙",
@@ -101,7 +95,14 @@ internal class SettingAboutPage : Pager() {
                                 title = "开源许可",
                                 subtitle = "查看使用的开源组件",
                                 icon = "📄",
-                                onClick = { ctx.router().openPage("SettingAboutLicensePage") }
+                                onClick = {
+                                    // 修复 stbug B1：SettingAboutLicensePage 未实现会白屏，
+                                    // 改为对齐 Compose 版行为（openUrl 打开 LICENSE 链接）
+                                    val params = JSONObject()
+                                    params.put("url", "https://github.com/chaliWJZ/Helix/blob/master/LICENSE")
+                                    params.put("title", "开源许可")
+                                    ctx.router().openPage("WebViewPage", params)
+                                }
                             )
                         )
                     )
