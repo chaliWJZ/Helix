@@ -12,6 +12,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.annotation.RequiresApi
 import com.tencent.kuikly.core.render.android.IKuiklyRenderExport
 import com.tencent.kuikly.core.render.android.KuiklyRenderView
 import com.tencent.kuikly.core.render.android.adapter.KuiklyRenderAdapterManager
@@ -36,6 +39,12 @@ class KuiklyHostActivity : Activity() {
     private lateinit var containerView: FrameLayout
     private lateinit var delegator: KuiklyRenderViewBaseDelegator
     private var pageLoadStartTime = 0L
+
+    /**
+     * Android 13+ Predictive Back 回调（bug 修复：见 [handleBackPress] 注释）。
+     * 用 Any? 持有以避免低版本设备加载 OnBackInvokedCallback 类。
+     */
+    private var backInvokedCallback: Any? = null
 
     private var pageName: String
         get() = intent.getStringExtra(KEY_PAGE_NAME) ?: DEFAULT_PAGE
@@ -132,6 +141,11 @@ class KuiklyHostActivity : Activity() {
         // 2. 打开 Kuikly 页面
         Log.d(TAG, "… [Page-Attach] 开始挂载页面: $pageName")
         delegator.onAttach(containerView, "", pageName, createPageData())
+
+        // 3. Android 13+ 注册 Predictive Back 回调（见 handleBackPress 注释：修复返回键直接退出 bug）
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerBackInvokedCallback()
+        }
     }
 
     override fun onResume() {
@@ -147,6 +161,9 @@ class KuiklyHostActivity : Activity() {
     }
 
     override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            unregisterBackInvokedCallback()
+        }
         delegator.onDetach()
         Log.i(TAG, "■ [Lifecycle] onDestroy: $pageName 页面销毁")
         super.onDestroy()
@@ -164,16 +181,50 @@ class KuiklyHostActivity : Activity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-            val handled = delegator.onBackPressed()
-            Log.d(TAG, "▶ [Back-Press] $pageName 返回键, Kuikly处理=$handled")
-            if (!handled) {
-                // Kuikly 未拦截（如无弹窗/键盘），走页面栈返回
-                backOrFinish()
-            }
+        // Android 13+（targetSdk 35 + enableOnBackInvokedCallback="true"）走 Predictive Back，
+        // 系统不再派发 KEYCODE_BACK 到这里，返回处理统一走 [handleBackPress]（见 onCreate 的回调注册）。
+        if (Build.VERSION.SDK_INT < 33 &&
+            event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP
+        ) {
+            handleBackPress()
             return true
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    /**
+     * 返回键统一处理逻辑（供 dispatchKeyEvent 与 Predictive Back 回调共用）。
+     *
+     * 修复严重回归 bug：Manifest 开启了 enableOnBackInvokedCallback="true"
+     * 但本 Activity 从未注册 OnBackInvokedCallback，导致 Android 13+（含本次测试设备）
+     * 系统返回键走默认行为直接 finish()，页面栈 backOrFinish 完全未执行——
+     * 表现为任意 Kuikly 页面按返回键都直接退出到桌面（无论栈深度）。
+     */
+    private fun handleBackPress() {
+        val handled = delegator.onBackPressed()
+        Log.d(TAG, "▶ [Back-Press] $pageName 返回键, Kuikly处理=$handled")
+        if (!handled) {
+            // Kuikly 未拦截（如无弹窗/键盘），走页面栈返回
+            backOrFinish()
+        }
+    }
+
+    @RequiresApi(33)
+    private fun registerBackInvokedCallback() {
+        val callback = OnBackInvokedCallback { handleBackPress() }
+        onBackInvokedDispatcher.registerOnBackInvokedCallback(
+            OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+            callback
+        )
+        backInvokedCallback = callback
+    }
+
+    @RequiresApi(33)
+    private fun unregisterBackInvokedCallback() {
+        (backInvokedCallback as? OnBackInvokedCallback)?.let {
+            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
+        }
+        backInvokedCallback = null
     }
 
     private fun createPageData(): Map<String, Any> {
