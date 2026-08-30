@@ -11,17 +11,21 @@ import com.tencent.kuikly.core.views.Input
 import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.DragPreview
 import com.helix.kuikly.components.ui.EmptyView
 import com.helix.kuikly.components.ui.NavBar
 import com.helix.kuikly.components.ui.NavBarAction
 import com.helix.kuikly.components.ui.OptionSheet
+import com.helix.kuikly.components.ui.ReorderableItem
 import com.helix.kuikly.components.ui.SheetOption
 import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.helix.kuikly.theme.HelixTheme
+import kotlin.math.roundToInt
 
 private const val UI_LOG = "HelixKuikly"
 private const val TAG = "[SettingProviderPage]"
+private const val ROW_HEIGHT = 66f // 列表项行高（含间距，拖拽跨行计算用）
 
 internal data class ProviderItem(
     val id: String,
@@ -34,12 +38,13 @@ internal data class ProviderItem(
 internal data class RecProvider(val id: String, val name: String, val type: String, val baseUrl: String)
 
 /**
- * 供应商列表页（对齐 Compose：搜索过滤 + 推荐一键添加 + 自定义添加 + 排序 + 富化展示）
+ * 供应商列表页（精复刻 Compose SettingProviderPage UI 形态）
  *
- * - pageDidAppear 刷新（详情页改动能同步回来）
- * - 顶栏「添加」→ 弹层选：推荐供应商一键添加 / 自定义添加（名称/类型/BaseURL/APIKey）
+ * - TopBar 右上 3 个图标按钮（对齐 Compose actions）：✨推荐 / 📱导入(剪贴板JSON) / ➕添加
  * - 搜索框实时过滤（本地）
- * - 列表项：启用状态/模型数/类型 + 上移/下移 + 点击跳详情传 providerId
+ * - 列表项：图标+名称+启停/模型数/类型 + 拖动手柄(⋮⋮ pan 手势排序，非上下移按钮)
+ *   拖动 = 触觉反馈 + 浮动预览跟随手指 + 原位半透明占位 + 松手按位移跨行落位（moveProvider 桥）
+ * - 点击列表项跳详情（providerId）
  */
 @Page("SettingProviderPage")
 internal class SettingProviderPage : HelixBasePage() {
@@ -54,6 +59,11 @@ internal class SettingProviderPage : HelixBasePage() {
     private var recSheetVisible by observable(false)
     private var customSheetVisible by observable(false)
     private var typeSheetVisible by observable(false)
+    // 拖拽状态机（对齐 Compose ReorderableItem）
+    private var dragIndex by observable(-1)          // -1=非拖动
+    private var dragStartPageY by observable(0f)
+    private var dragPageY by observable(0f)
+    private var dragLabel by observable("")
     // 自定义添加表单
     private var customName by observable("")
     private var customType by observable("openai")
@@ -97,13 +107,11 @@ internal class SettingProviderPage : HelixBasePage() {
         }
     }
 
-    /** 应用搜索过滤（本地） */
     private fun applyFilter() {
         val list = if (searchText.isEmpty()) providers.toList()
         else providers.filter { it.name.contains(searchText, true) || it.type.contains(searchText, true) }
         filteredList.clear()
         filteredList.addAll(list)
-        KLog.i(UI_LOG, "📦 [Data] $TAG 过滤结果 ${list.size}/${providers.size} (关键词=${searchText})")
     }
 
     private fun loadRecommended() {
@@ -115,14 +123,7 @@ internal class SettingProviderPage : HelixBasePage() {
                 arr?.let { a ->
                     for (i in 0 until a.length()) {
                         a.optJSONObject(i)?.let { o ->
-                            items.add(
-                                RecProvider(
-                                    id = o.optString("id"),
-                                    name = o.optString("name"),
-                                    type = o.optString("type"),
-                                    baseUrl = o.optString("baseUrl")
-                                )
-                            )
+                            items.add(RecProvider(o.optString("id"), o.optString("name"), o.optString("type"), o.optString("baseUrl")))
                         }
                     }
                 }
@@ -148,6 +149,22 @@ internal class SettingProviderPage : HelixBasePage() {
         }
     }
 
+    /** 📱 从剪贴板导入供应商 JSON（对应 Compose ImportProviderButton 的手动导入路径） */
+    private fun importFromClipboard() {
+        KLog.i(UI_LOG, "👆 [Click] $TAG 从剪贴板导入供应商")
+        bridge().importProviderClipboard { json ->
+            safeRun("$TAG importProviderClipboard") {
+                val j = json ?: return@safeRun
+                if (j.optBoolean("ok")) {
+                    bridge().toast("已导入 ${j.optString("name")}（在 Compose 版复制供应商 JSON 后在此粘贴导入）")
+                    loadProviders()
+                } else {
+                    bridge().toast(j.optString("error"))
+                }
+            }
+        }
+    }
+
     private fun submitCustom() {
         KLog.i(UI_LOG, "👆 [Click] $TAG 自定义添加 [$customName] type=$customType")
         bridge().addCustomProvider(customName, customType, customBaseUrl, customApiKey) { json ->
@@ -165,12 +182,38 @@ internal class SettingProviderPage : HelixBasePage() {
         }
     }
 
-    private fun move(index: Int, to: Int) {
-        if (to !in providers.indices) return
-        bridge().moveProvider(index, to) { json ->
-            safeRun("$TAG moveProvider") {
-                if (json?.optBoolean("ok") == true) loadProviders()
+    // ==================== 拖拽状态机（对齐 Compose ReorderableItem） ====================
+
+    private fun onDragStart(index: Int, item: ProviderItem, pageY: Float) {
+        dragIndex = index
+        dragStartPageY = pageY
+        dragPageY = pageY
+        dragLabel = item.name
+        bridge().vibrate(50) // GestureThresholdActivate
+        KLog.i(UI_LOG, "👆 [Drag] $TAG 开始拖拽[$index ${item.name}] pageY=$pageY")
+    }
+
+    private fun onDragMove(pageY: Float) {
+        dragPageY = pageY
+    }
+
+    private fun onDragEnd() {
+        if (dragIndex < 0) return
+        val from = dragIndex
+        // 位移换算跨行数（对齐 Compose reorderableState 的 onDrag 回调逻辑）
+        val deltaRows = ((dragPageY - dragStartPageY) / ROW_HEIGHT).roundToInt()
+        val to = (from + deltaRows).coerceIn(0, providers.size - 1)
+        dragIndex = -1
+        bridge().vibrate(30) // GestureEnd
+        if (to != from) {
+            KLog.i(UI_LOG, "👆 [Drag] $TAG 落位 $from→$to (Δ$deltaRows 行)")
+            bridge().moveProvider(from, to) { json ->
+                safeRun("$TAG moveProvider") {
+                    if (json?.optBoolean("ok") == true) loadProviders()
+                }
             }
+        } else {
+            KLog.i(UI_LOG, "👆 [Drag] $TAG 原位放下 (Δ$deltaRows 行)")
         }
     }
 
@@ -190,16 +233,27 @@ internal class SettingProviderPage : HelixBasePage() {
                     flex(1f)
                     backgroundColor(HelixTheme.current.background)
                 }
+                // TopBar：右上 3 个图标按钮（对齐 Compose actions：✨推荐/📱导入/➕添加）
                 NavBar(
                     title = "供应商",
                     showBack = true,
                     onBack = { ctx.closePage() },
-                    rightActions = listOf(NavBarAction("添加") {
-                        KLog.i(UI_LOG, "👆 [Click] $TAG 添加供应商")
-                        ctx.addSheetVisible = true
-                    })
+                    rightActions = listOf(
+                        NavBarAction(label = "✨", fontSize = 20f) {
+                            KLog.i(UI_LOG, "👆 [Click] $TAG 推荐供应商(✨)")
+                            ctx.loadRecommended()
+                            ctx.recSheetVisible = true
+                        },
+                        NavBarAction(label = "📱", fontSize = 20f) {
+                            ctx.importFromClipboard()
+                        },
+                        NavBarAction(label = "＋", fontSize = 24f) {
+                            KLog.i(UI_LOG, "👆 [Click] $TAG 添加供应商(＋)")
+                            ctx.addSheetVisible = true
+                        }
+                    )
                 )
-                // 搜索框
+                // 搜索框（对齐 Compose OutlinedTextField + Search01 leadingIcon）
                 View {
                     attr {
                         flexDirectionRow()
@@ -215,15 +269,11 @@ internal class SettingProviderPage : HelixBasePage() {
                         backgroundColor(HelixTheme.current.surfaceContainerLow)
                     }
                     Text {
-                        attr {
-                            text("🔍")
-                            fontSize(14f)
-                            marginRight(8f)
-                        }
+                        attr { text("🔍"); fontSize(14f); marginRight(8f) }
                     }
                     Input {
                         attr {
-                            placeholder("搜索供应商名称/类型...")
+                            placeholder("搜索供应商...")
                             fontSize(14f)
                             flex(1f)
                         }
@@ -241,92 +291,89 @@ internal class SettingProviderPage : HelixBasePage() {
                         alignSelfStretch()
                     }
                     vif({ ctx.providers.isEmpty() }) {
-                        EmptyView(message = "暂无供应商，点击右上角「添加」", icon = "🔌")
+                        EmptyView(message = "暂无供应商，点击右上角 ＋ 添加", icon = "🔌")
                     }
+                    // 列表（真实数据 + 拖动手柄排序，对齐 Compose ReorderableItem）
                     vfor({ ctx.filteredList }) { item ->
                         val index = ctx.providers.indexOfFirst { it.id == item.id }
-                        View {
-                            attr {
-                                flexDirectionRow()
-                                alignItemsCenter()
-                                marginLeft(16f)
-                                marginRight(16f)
-                                marginBottom(1f)
-                                padding(12f)
-                                borderRadius(12f)
-                                backgroundColor(
-                                    if (item.enabled) HelixTheme.current.surfaceContainerLow
-                                    else HelixTheme.current.errorContainer
-                                )
-                            }
-                            event {
-                                click {
-                                    safeRun("$TAG 供应商项[${item.name}]") { ctx.openDetail(item) }
-                                }
-                            }
-                            // 图标 + 信息
-                            Text {
-                                attr {
-                                    text(if (item.type == "openai") "🤖" else if (item.type == "google") "🔵" else "🟠")
-                                    fontSize(22f)
-                                    marginRight(10f)
-                                }
-                            }
+                        val isDragging = ctx.dragIndex == index
+                        ReorderableItem(
+                            isDragging = isDragging,
+                            onDragStart = { pageY -> ctx.onDragStart(index, item, pageY) },
+                            onDragMove = { pageY -> ctx.onDragMove(pageY) },
+                            onDragEnd = { ctx.onDragEnd() }
+                        ) {
+                            // 列表项主体（点击跳详情）
                             View {
-                                attr { flex(1f) }
-                                Text {
-                                    attr {
-                                        text(item.name)
-                                        fontSize(15f)
-                                        fontWeight700()
-                                        color(
-                                            if (item.enabled) HelixTheme.current.onSurface
-                                            else HelixTheme.current.onErrorContainer
-                                        )
+                                attr {
+                                    flexDirectionRow()
+                                    alignItemsCenter()
+                                    padding(12f)
+                                    borderRadius(12f)
+                                    backgroundColor(
+                                        if (isDragging) HelixTheme.current.primaryContainer
+                                        else if (item.enabled) HelixTheme.current.surfaceContainerLow
+                                        else HelixTheme.current.errorContainer
+                                    )
+                                }
+                                event {
+                                    click {
+                                        if (ctx.dragIndex < 0) { // 拖动中禁用点击
+                                            safeRun("$TAG 供应商项[${item.name}]") { ctx.openDetail(item) }
+                                        }
                                     }
                                 }
                                 Text {
                                     attr {
-                                        text(
-                                            (if (item.enabled) "已启用" else "已禁用") +
-                                                " · ${item.modelCount} 个模型 · ${item.type}"
-                                        )
-                                        fontSize(11f)
+                                        text(if (item.type == "openai") "🤖" else if (item.type == "google") "🔵" else "🟠")
+                                        fontSize(22f)
+                                        marginRight(10f)
+                                    }
+                                }
+                                View {
+                                    attr { flex(1f) }
+                                    Text {
+                                        attr {
+                                            text(item.name)
+                                            fontSize(15f)
+                                            fontWeight700()
+                                            color(
+                                                if (item.enabled) HelixTheme.current.onSurface
+                                                else HelixTheme.current.onErrorContainer
+                                            )
+                                        }
+                                    }
+                                    Text {
+                                        attr {
+                                            text(
+                                                (if (item.enabled) "已启用" else "已禁用") +
+                                                    " · ${item.modelCount} 个模型 · ${item.type}"
+                                            )
+                                            fontSize(11f)
+                                            color(HelixTheme.current.onSurfaceVariant)
+                                            marginTop(2f)
+                                        }
+                                    }
+                                }
+                                Text {
+                                    attr {
+                                        text("›")
+                                        fontSize(16f)
                                         color(HelixTheme.current.onSurfaceVariant)
-                                        marginTop(2f)
+                                        marginLeft(4f)
                                     }
-                                }
-                            }
-                            // 上移/下移
-                            Text {
-                                attr {
-                                    text("↑"); fontSize(13f); color(HelixTheme.current.primary)
-                                    marginLeft(6f); marginRight(2f); marginTop(6f); marginBottom(6f)
-                                }
-                                event {
-                                    click { safeRun("$TAG 上移[${item.name}]") { ctx.move(index, index - 1) } }
-                                }
-                            }
-                            Text {
-                                attr {
-                                    text("↓"); fontSize(13f); color(HelixTheme.current.primary)
-                                    marginLeft(2f); marginRight(4f); marginTop(6f); marginBottom(6f)
-                                }
-                                event {
-                                    click { safeRun("$TAG 下移[${item.name}]") { ctx.move(index, index + 1) } }
-                                }
-                            }
-                            Text {
-                                attr {
-                                    text("›")
-                                    fontSize(16f)
-                                    color(HelixTheme.current.onSurfaceVariant)
-                                    marginLeft(4f)
                                 }
                             }
                         }
                     }
                 }
+
+                // ===== 拖动浮动预览（跟随手指，对齐 Compose 拖动浮起） =====
+                DragPreview(
+                    visible = ctx.dragIndex >= 0,
+                    label = ctx.dragLabel,
+                    pageY = ctx.dragPageY
+                )
 
                 // ===== 添加方式选择弹层 =====
                 OptionSheet(
@@ -350,7 +397,7 @@ internal class SettingProviderPage : HelixBasePage() {
                     onDismiss = { ctx.addSheetVisible = false }
                 )
 
-                // ===== 推荐供应商弹层（标记已添加） =====
+                // ===== 推荐供应商弹层 =====
                 OptionSheet(
                     visible = { ctx.recSheetVisible },
                     title = "推荐供应商（点击添加）",
@@ -379,9 +426,7 @@ internal class SettingProviderPage : HelixBasePage() {
                             justifyContentFlexEnd()
                         }
                         event {
-                            click {
-                                safeRun("$TAG 自定义弹层遮罩关闭") { ctx.customSheetVisible = false }
-                            }
+                            click { safeRun("$TAG 自定义弹层遮罩关闭") { ctx.customSheetVisible = false } }
                         }
                         View {
                             attr {
@@ -390,9 +435,7 @@ internal class SettingProviderPage : HelixBasePage() {
                                 borderRadius(topLeft = 16f, topRight = 16f, bottomLeft = 0f, bottomRight = 0f)
                                 backgroundColor(HelixTheme.current.surfaceContainerHigh)
                             }
-                            event {
-                                click { safeRun("$TAG 面板阻止穿透") { } }
-                            }
+                            event { click { safeRun("$TAG 面板阻止穿透") { } } }
                             Text {
                                 attr {
                                     text("自定义供应商")
@@ -469,9 +512,7 @@ internal class SettingProviderPage : HelixBasePage() {
                                     marginBottom(16f)
                                 }
                                 event {
-                                    click {
-                                        safeRun("$TAG 自定义添加提交") { ctx.submitCustom() }
-                                    }
+                                    click { safeRun("$TAG 自定义添加提交") { ctx.submitCustom() } }
                                 }
                                 Text {
                                     attr {
@@ -485,7 +526,7 @@ internal class SettingProviderPage : HelixBasePage() {
                     }
                 }
 
-                // 类型切换弹层（自定义添加用）
+                // 类型切换弹层
                 OptionSheet(
                     visible = { ctx.typeSheetVisible },
                     title = "选择供应商类型",
