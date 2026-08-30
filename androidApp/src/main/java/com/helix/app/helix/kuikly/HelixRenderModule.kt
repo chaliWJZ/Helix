@@ -17,6 +17,11 @@ import com.helix.app.data.ai.mcp.McpCommonOptions
 import com.helix.app.data.ai.mcp.serverUrl
 import com.helix.app.data.model.Lorebook
 import com.helix.app.ai.provider.ModelType
+import com.helix.app.ai.provider.Model
+import com.helix.app.ai.provider.TextGenerationParams
+import com.helix.app.ai.core.MessageRole
+import com.helix.app.ai.ui.UIMessage
+import com.helix.app.ai.ui.UIMessagePart
 import com.helix.app.ai.provider.Provider
 import com.helix.app.ai.provider.ProviderManager
 import com.helix.app.ai.provider.ProviderSetting
@@ -1121,6 +1126,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                             put("enabled", m.enabled)
                             put("position", m.position.name)
                             put("contentLength", m.content.length)
+                            put("content", m.content)
                         })
                     }
                 }
@@ -1630,6 +1636,45 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 }
             }
 
+            // ==================== 生成测试/导出（批次H4） ====================
+            METHOD_TEST_PROVIDER_GENERATE -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    val p = koinGet<SettingsStore>().settingsFlow.value.providers.firstOrNull { it.id.toString() == id }
+                    if (p == null) {
+                        callback?.invoke(JSONObject().apply { put("ok", false); put("error", "provider_not_found") })
+                        return@launch
+                    }
+                    try {
+                        val manager = koinGet<ProviderManager>()
+                        @Suppress("UNCHECKED_CAST")
+                        val provider = manager.getProviderByType(p) as Provider<ProviderSetting>
+                        // 取第一个模型（无则用通用默认 id）
+                        val model = p.models.firstOrNull()?.copy()
+                            ?: Model(modelId = "gpt-4o-mini", displayName = "gpt-4o-mini")
+                        val msg = UIMessage(
+                            role = MessageRole.USER,
+                            parts = listOf(UIMessagePart.Text("Reply with exactly: OK"))
+                        )
+                        val result = provider.generateText(p, listOf(msg), TextGenerationParams(model = model))
+                        val reply = (result.message.parts.firstOrNull() as? UIMessagePart.Text)?.text ?: ""
+                        Log.i(TAG, "✅ [Module-Done] testProviderGenerate ${p.name} → ${reply.take(30)}")
+                        callback?.invoke(JSONObject().apply {
+                            put("ok", true)
+                            put("reply", reply.take(100))
+                            put("model", model.modelId)
+                        })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] testProviderGenerate ${p.name}: ${e.message}")
+                        callback?.invoke(JSONObject().apply {
+                            put("ok", false)
+                            put("error", (e.message ?: "unknown").take(150))
+                        })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1999,6 +2044,7 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_SAVE_LOREBOOK = "saveLorebook"
         const val METHOD_UPDATE_TTS_VOICE = "updateTtsVoice"
         const val METHOD_TTS_SPEAK = "ttsSpeak"
+        const val METHOD_TEST_PROVIDER_GENERATE = "testProviderGenerate"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

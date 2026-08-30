@@ -24,7 +24,17 @@ import com.helix.kuikly.theme.HelixTheme
 private const val UI_LOG = "HelixKuikly"
 private const val TAG = "[PromptPage]"
 
-internal data class ModeItem(val id: String, val name: String, val enabled: Boolean, val position: String, val contentLength: Int)
+internal data class ModeItem(val id: String, val name: String, val enabled: Boolean, val position: String, val contentLength: Int) {
+    /** 导出 JSON（一条注入） */
+    fun toJson(): String =
+        "{\"name\":${jsonEscape(name)},\"enabled\":$enabled,\"position\":\"$position\",\"content\":${jsonEscape(content)}}"
+
+    private fun jsonEscape(s: String): String =
+        "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\""
+
+    /** 完整内容（导出用，延迟填充） */
+    var content: String = ""
+}
 internal data class LorebookItem(val id: String, val name: String, val description: String, val enabled: Boolean, val entryCount: Int)
 
 /**
@@ -68,7 +78,9 @@ internal class PromptPage : HelixBasePage() {
                 j.optJSONArray("modes")?.let { arr ->
                     for (i in 0 until arr.length()) {
                         arr.optJSONObject(i)?.let { o ->
-                            modes.add(ModeItem(o.optString("id"), o.optString("name"), o.optBoolean("enabled"), o.optString("position"), o.optInt("contentLength")))
+                            modes.add(ModeItem(o.optString("id"), o.optString("name"), o.optBoolean("enabled"), o.optString("position"), o.optInt("contentLength")).apply {
+                                content = o.optString("content")
+                            })
                         }
                     }
                 }
@@ -142,7 +154,17 @@ internal class PromptPage : HelixBasePage() {
                     title = "提示词",
                     showBack = true,
                     onBack = { ctx.closePage() },
-                    rightActions = listOf(NavBarAction("新建") {
+                    rightActions = listOf(
+                        NavBarAction("导出") {
+                            KLog.i(UI_LOG, "👆 [Click] $TAG 导出模式注入 JSON")
+                            val json = "[\n" + ctx.modes.joinToString(",\n") { it.toJson() } + "\n]"
+                            ctx.bridge().copyToClipboard(json) { res ->
+                                safeRun("$TAG copyToClipboard") {
+                                    if (res != null) ctx.bridge().toast("已导出 ${ctx.modes.size} 条到剪贴板")
+                                }
+                            }
+                        },
+                        NavBarAction("新建") {
                         if (ctx.currentTab == 0) {
                             KLog.i(UI_LOG, "👆 [Click] $TAG 新建模式注入")
                             ctx.startCreate()

@@ -636,6 +636,11 @@ class HelixBridgeModule : Module() {
         )
     }
 
+    /** 非流式生成测试。返回：{ok, reply, model} 或 {ok:false, error} */
+    fun testProviderGenerate(id: String, callback: CallbackFn?) {
+        callNative(METHOD_TEST_PROVIDER_GENERATE, JSONObject().apply { put("id", id) }, callback)
+    }
+
     // ==================== 模型设置（真实数据：SettingsStore） ====================
 
     /**
@@ -804,6 +809,7 @@ class HelixBridgeModule : Module() {
         const val METHOD_SAVE_LOREBOOK = "saveLorebook"
         const val METHOD_UPDATE_TTS_VOICE = "updateTtsVoice"
         const val METHOD_TTS_SPEAK = "ttsSpeak"
+        const val METHOD_TEST_PROVIDER_GENERATE = "testProviderGenerate"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

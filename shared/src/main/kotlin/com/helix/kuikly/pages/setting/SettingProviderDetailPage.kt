@@ -88,6 +88,7 @@ internal class SettingProviderDetailPage : HelixBasePage() {
     private var optionTargetUid by observable("")
     private var fetchOptions by observableList<SheetOption>()
     private var confirmDeleteVisible by observable(false)
+    private var testSheetVisible by observable(false)
     private var manualAddStep by observable(0) // 0=无 1=输入modelId 2=输入显示名
     private var manualModelId by observable("")
     private var manualModelType by observable("CHAT")
@@ -252,6 +253,27 @@ internal class SettingProviderDetailPage : HelixBasePage() {
             safeRun("$TAG getProviderBalance") {
                 val j = json ?: return@safeRun
                 balanceText = if (j.has("balance")) j.optString("balance") else "失败: ${j.optString("error").take(40)}"
+            }
+        }
+    }
+
+    /** 非流式生成测试（1/3 类真实生成） */
+    private fun testGenerate() {
+        if (testing) return
+        testing = true
+        testResult = "生成测试中..."
+        KLog.i(UI_LOG, "👆 [Click] $TAG 非流式生成测试 [$providerName]")
+        bridge().testProviderGenerate(providerId) { json ->
+            safeRun("$TAG testProviderGenerate") {
+                val j = json ?: return@safeRun
+                testing = false
+                if (j.optBoolean("ok")) {
+                    testResult = "✅ 生成成功 [${j.optString("model")}]: ${j.optString("reply").take(30)}"
+                    KLog.i(UI_LOG, "✅ [Bridge] $TAG 生成成功 ${j.optString("reply").take(50)}")
+                } else {
+                    testResult = "❌ 生成失败: ${j.optString("error").take(40)}"
+                    KLog.e(UI_LOG, "⚠ [Error] $TAG 生成失败: ${j.optString("error")}")
+                }
             }
         }
     }
@@ -619,9 +641,9 @@ internal class SettingProviderDetailPage : HelixBasePage() {
                                 add(
                                     CardGroupItem(
                                         title = "测试连通性",
-                                        subtitle = if (ctx.testResult.isEmpty()) "从供应商拉取模型列表验证配置" else ctx.testResult,
+                                        subtitle = if (ctx.testResult.isEmpty()) "模型列表/非流式生成/工具调用 三项测试" else ctx.testResult,
                                         icon = "📡",
-                                        onClick = { ctx.testConnection() }
+                                        onClick = { ctx.testSheetVisible = true }
                                     )
                                 )
                                 if (!ctx.isDefaultBaseUrl) {
@@ -878,6 +900,27 @@ internal class SettingProviderDetailPage : HelixBasePage() {
                         ctx.deleteProvider()
                     },
                     onDismiss = { ctx.confirmDeleteVisible = false }
+                )
+
+                // ===== 测试菜单弹层（3项） =====
+                OptionSheet(
+                    visible = { ctx.testSheetVisible },
+                    title = "测试供应商（${ctx.providerName}）",
+                    options = listOf(
+                        SheetOption("models", "拉取模型列表", "验证 API Key 与基础连通"),
+                        SheetOption("generate", "非流式生成测试", "真实发送一条消息验证推理链路"),
+                        SheetOption("tools", "工具调用测试", "暂不支持，在 Compose 版测试")
+                    ),
+                    currentValue = "",
+                    onSelect = { o ->
+                        ctx.testSheetVisible = false
+                        when (o.value) {
+                            "models" -> ctx.testConnection()
+                            "generate" -> ctx.testGenerate()
+                            "tools" -> ctx.bridge().toast("工具调用测试请在 Compose 版执行")
+                        }
+                    },
+                    onDismiss = { ctx.testSheetVisible = false }
                 )
             }
         }
