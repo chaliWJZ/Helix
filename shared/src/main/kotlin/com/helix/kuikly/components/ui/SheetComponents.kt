@@ -183,7 +183,7 @@ fun ViewContainer<*, *>.OptionSheet(
     onSelect: (SheetOption) -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (visible()) {
+    vif({ visible() }) {
         KLog.i(UI_LOG_TAG, "🖼 [Render] $TAG OptionSheet [$title] options=${options.size}")
         View {
             attr {
@@ -302,7 +302,7 @@ fun ViewContainer<*, *>.ConfirmSheet(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (visible()) {
+    vif({ visible() }) {
         KLog.i(UI_LOG_TAG, "🖼 [Render] $TAG ConfirmSheet [$title]")
         View {
             attr {
