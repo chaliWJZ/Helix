@@ -21,6 +21,7 @@ import com.helix.app.ai.provider.ProviderSetting
 import com.helix.app.search.SearchServiceOptions
 import com.helix.app.service.WebServerService
 import com.helix.app.web.WebServerManager
+import me.rerere.asr.ASRProviderSetting
 import me.rerere.tts.provider.TTSProviderSetting
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
@@ -927,6 +928,180 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== TTS/ASR 扩展（批次C） ====================
+            METHOD_GET_TTS_DETAIL -> {
+                val id = json?.optString("id") ?: ""
+                val s = koinGet<SettingsStore>().settingsFlow.value
+                val p = s.ttsProviders.firstOrNull { it.id.toString() == id }
+                if (p == null) {
+                    callback?.invoke(JSONObject().apply { put("error", "not_found") })
+                } else {
+                    val result = JSONObject().apply {
+                        put("id", p.id.toString())
+                        put("name", p.name)
+                        put("type", ttsTypeName(p))
+                        put("isDefault", p.id == s.selectedTTSProviderId)
+                        // 通用字段提取（各子类字段名一致：apiKey/baseUrl/model/voice）
+                        put("apiKey", ttsField(p) { it.optString("apiKey") })
+                        put("baseUrl", ttsField(p) { it.optString("baseUrl") })
+                        put("model", ttsField(p) { it.optString("model") })
+                        put("voice", ttsField(p) { it.optString("voice") })
+                    }
+                    Log.i(TAG, "✅ [Module-Done] getTtsDetail ${p.name}")
+                    callback?.invoke(result)
+                }
+                null
+            }
+
+            METHOD_UPDATE_TTS_BASIC -> {
+                val id = json?.optString("id") ?: ""
+                val name = if (json?.optString("name")?.isNotEmpty() == true) json!!.optString("name") else null
+                val apiKey = if (json?.has("apiKey") == true) json!!.optString("apiKey") else null
+                val baseUrl = if (json?.has("baseUrl") == true) json!!.optString("baseUrl") else null
+                koinGet<AppScope>().launch {
+                    try {
+                        var updated = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(ttsProviders = s.ttsProviders.map { p ->
+                                if (p.id.toString() == id) {
+                                    updated = true
+                                    applyTtsEdit(p, name, apiKey, baseUrl)
+                                } else p
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateTtsBasic id=$id found=$updated")
+                        callback?.invoke(JSONObject().apply { put("ok", updated) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateTtsBasic: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_DELETE_TTS_PROVIDER -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(ttsProviders = s.ttsProviders.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteTtsProvider id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteTtsProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_ADD_TTS_PROVIDER -> {
+                val type = json?.optString("type") ?: "openai"
+                koinGet<AppScope>().launch {
+                    try {
+                        val p = when (type) {
+                            "openai" -> TTSProviderSetting.OpenAI()
+                            "gemini" -> TTSProviderSetting.Gemini()
+                            "system" -> TTSProviderSetting.SystemTTS()
+                            "minimax" -> TTSProviderSetting.MiniMax()
+                            "qwen" -> TTSProviderSetting.Qwen()
+                            "groq" -> TTSProviderSetting.Groq()
+                            "xai" -> TTSProviderSetting.XAI()
+                            "mimo" -> TTSProviderSetting.MiMo()
+                            "elevenlabs" -> TTSProviderSetting.ElevenLabs()
+                            "step" -> TTSProviderSetting.Step()
+                            "fish-audio" -> TTSProviderSetting.FishAudio()
+                            else -> TTSProviderSetting.OpenAI()
+                        }
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(ttsProviders = s.ttsProviders + p)
+                        }
+                        Log.i(TAG, "✅ [Module-Done] addTtsProvider $type")
+                        callback?.invoke(JSONObject().apply {
+                            put("ok", true)
+                            put("id", p.id.toString())
+                        })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] addTtsProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_SET_TTS_PLAYBACK_SPEED -> {
+                val speed = json?.optDouble("speed", 1.0) ?: 1.0
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { it.copy(defaultTTSPlaybackSpeed = speed.toFloat().coerceIn(0.5f, 2.0f)) }
+                        Log.i(TAG, "✅ [Module-Done] setTtsPlaybackSpeed → $speed")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setTtsPlaybackSpeed: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_GET_ASR_PROVIDERS -> {
+                val s = koinGet<SettingsStore>().settingsFlow.value
+                val result = JSONObject().apply {
+                    put("selected", s.selectedASRProviderId?.toString() ?: "")
+                    put("providers", JSONArray().apply {
+                        s.asrProviders.forEach { p ->
+                            put(JSONObject().apply {
+                                put("id", p.id.toString())
+                                put("name", p.name)
+                                put("type", asrTypeName(p))
+                                put("isDefault", p.id == s.selectedASRProviderId)
+                            })
+                        }
+                    })
+                }
+                Log.i(TAG, "✅ [Module-Done] getASRProviders count=${s.asrProviders.size}")
+                callback?.invoke(result)
+                null
+            }
+
+            METHOD_SET_DEFAULT_ASR -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        val uuid = runCatching { Uuid.parse(id) }.getOrNull()
+                        if (uuid == null) {
+                            callback?.invoke(JSONObject().apply { put("error", "bad_uuid") })
+                            return@launch
+                        }
+                        koinGet<SettingsStore>().update { it.copy(selectedASRProviderId = uuid) }
+                        Log.i(TAG, "✅ [Module-Done] setDefaultASR → $id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] setDefaultASR: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_DELETE_ASR_PROVIDER -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(asrProviders = s.asrProviders.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteAsrProvider id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteAsrProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1018,7 +1193,46 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
     }
 
     /** TTS 子类类型名 */
-    private fun ttsTypeName(p: TTSProviderSetting): String = p::class.simpleName ?: "unknown"
+    private fun ttsTypeName(p: TTSProviderSetting): String = when (p) {
+        is TTSProviderSetting.OpenAI -> "openai"
+        is TTSProviderSetting.Gemini -> "gemini"
+        is TTSProviderSetting.SystemTTS -> "system"
+        is TTSProviderSetting.MiniMax -> "minimax"
+        is TTSProviderSetting.Qwen -> "qwen"
+        is TTSProviderSetting.Groq -> "groq"
+        is TTSProviderSetting.XAI -> "xai"
+        is TTSProviderSetting.MiMo -> "mimo"
+        is TTSProviderSetting.ElevenLabs -> "elevenlabs"
+        is TTSProviderSetting.Step -> "step"
+        is TTSProviderSetting.FishAudio -> "fish-audio"
+    }
+
+    /** TTS 通用字段反射提取（各子类字段同名，避免大量 when 分支） */
+    private fun ttsField(p: TTSProviderSetting, getter: (org.json.JSONObject) -> String): String {
+        return runCatching {
+            val json = JSONObject(com.helix.app.utils.JsonInstant.encodeToString(TTSProviderSetting.serializer(), p))
+            getter(json)
+        }.getOrDefault("")
+    }
+
+    /** TTS 编辑（name/apiKey/baseUrl 通用三字段，按子类反射序列化后修改再反序列化） */
+    private fun applyTtsEdit(p: TTSProviderSetting, name: String?, apiKey: String?, baseUrl: String?): TTSProviderSetting {
+        if (name == null && apiKey == null && baseUrl == null) return p
+        return runCatching {
+            val json = JSONObject(com.helix.app.utils.JsonInstant.encodeToString(TTSProviderSetting.serializer(), p))
+            name?.let { json.put("name", it) }
+            apiKey?.let { json.put("apiKey", it) }
+            baseUrl?.let { json.put("baseUrl", it) }
+            com.helix.app.utils.JsonInstant.decodeFromString(TTSProviderSetting.serializer(), json.toString())
+        }.getOrDefault(p)
+    }
+
+    /** ASR 子类类型名 */
+    private fun asrTypeName(p: ASRProviderSetting): String = when (p) {
+        is ASRProviderSetting.OpenAIRealtime -> "openai_realtime"
+        is ASRProviderSetting.DashScope -> "dashscope"
+        else -> p::class.simpleName?.lowercase() ?: "unknown"
+    }
 
     /** 供应商子类类型名（@SerialName） */
     private fun providerTypeName(p: ProviderSetting): String = when (p) {
@@ -1202,6 +1416,14 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_ADD_RECOMMENDED_PROVIDER = "addRecommendedProvider"
         const val METHOD_ADD_CUSTOM_PROVIDER = "addCustomProvider"
         const val METHOD_MOVE_PROVIDER = "moveProvider"
+        const val METHOD_GET_TTS_DETAIL = "getTtsDetail"
+        const val METHOD_UPDATE_TTS_BASIC = "updateTtsBasic"
+        const val METHOD_DELETE_TTS_PROVIDER = "deleteTtsProvider"
+        const val METHOD_ADD_TTS_PROVIDER = "addTtsProvider"
+        const val METHOD_SET_TTS_PLAYBACK_SPEED = "setTtsPlaybackSpeed"
+        const val METHOD_GET_ASR_PROVIDERS = "getASRProviders"
+        const val METHOD_SET_DEFAULT_ASR = "setDefaultASR"
+        const val METHOD_DELETE_ASR_PROVIDER = "deleteAsrProvider"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

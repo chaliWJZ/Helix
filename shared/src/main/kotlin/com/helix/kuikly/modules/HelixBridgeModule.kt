@@ -319,6 +319,60 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_SET_DEFAULT_TTS, JSONObject().apply { put("id", id) }, callback)
     }
 
+    /** TTS 引擎详情。返回：{id,name,type,isDefault,apiKey,baseUrl,model,voice} */
+    fun getTtsDetail(id: String, callback: CallbackFn?) {
+        callNative(METHOD_GET_TTS_DETAIL, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 编辑 TTS 基础字段（name/apiKey/baseUrl 传空串=不改） */
+    fun updateTtsBasic(id: String, name: String, apiKey: String, baseUrl: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_TTS_BASIC,
+            JSONObject().apply {
+                put("id", id)
+                put("name", name)
+                put("apiKey", apiKey)
+                put("baseUrl", baseUrl)
+            },
+            callback
+        )
+    }
+
+    /** 编辑 TTS（原始参数版：按需组 JSON） */
+    fun updateTtsRaw(params: JSONObject, callback: CallbackFn?) {
+        callNative(METHOD_UPDATE_TTS_BASIC, params, callback)
+    }
+
+    /** 删除 TTS 引擎 */
+    fun deleteTtsProvider(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_TTS_PROVIDER, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 添加 TTS 引擎。返回：{ok, id} */
+    fun addTtsProvider(type: String, callback: CallbackFn?) {
+        callNative(METHOD_ADD_TTS_PROVIDER, JSONObject().apply { put("type", type) }, callback)
+    }
+
+    /** 设置默认 TTS 播放速度（0.5-2.0） */
+    fun setTtsPlaybackSpeed(speed: Double, callback: CallbackFn?) {
+        callNative(METHOD_SET_TTS_PLAYBACK_SPEED, JSONObject().apply { put("speed", speed) }, callback)
+    }
+
+    /** ASR 供应商列表。返回：{selected, providers:[{id,name,type,isDefault}]} */
+    fun getASRProviders(callback: CallbackFn?) {
+        callNative(METHOD_GET_ASR_PROVIDERS, null, callback)
+    }
+
+    /** 设置默认 ASR */
+    fun setDefaultASR(id: String, callback: CallbackFn?) {
+        callNative(METHOD_SET_DEFAULT_ASR, JSONObject().apply { put("id", id) }, callback)
+    }
+
+    /** 删除 ASR 供应商 */
+    fun deleteAsrProvider(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_ASR_PROVIDER, JSONObject().apply { put("id", id) }, callback)
+    }
+
     // ==================== MCP（真实数据） ====================
 
     /** MCP 服务器列表。返回：{servers:[{id,name,url,type,enable}]} */
@@ -512,6 +566,14 @@ class HelixBridgeModule : Module() {
         const val METHOD_ADD_RECOMMENDED_PROVIDER = "addRecommendedProvider"
         const val METHOD_ADD_CUSTOM_PROVIDER = "addCustomProvider"
         const val METHOD_MOVE_PROVIDER = "moveProvider"
+        const val METHOD_GET_TTS_DETAIL = "getTtsDetail"
+        const val METHOD_UPDATE_TTS_BASIC = "updateTtsBasic"
+        const val METHOD_DELETE_TTS_PROVIDER = "deleteTtsProvider"
+        const val METHOD_ADD_TTS_PROVIDER = "addTtsProvider"
+        const val METHOD_SET_TTS_PLAYBACK_SPEED = "setTtsPlaybackSpeed"
+        const val METHOD_GET_ASR_PROVIDERS = "getASRProviders"
+        const val METHOD_SET_DEFAULT_ASR = "setDefaultASR"
+        const val METHOD_DELETE_ASR_PROVIDER = "deleteAsrProvider"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
