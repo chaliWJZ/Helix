@@ -69,6 +69,26 @@
 
 **本轮无新增Bug**，SwitchRow响应式修复（此前commit）在全部17个开关上验证生效，checked状态与UI视觉（截图颜色/滑块位置）完全一致。
 
+## 小组C：模型供应商（4页，全部通过）
+
+### SettingModelPage 模型设置页 [P0✅ P1✅ P2⚠️]
+- Tab切换（模型↔提示词）视觉+日志双验证通过（高亮状态、内容切换均正确）
+- 6个模型槽位全部命中，B3修复验证：点击均正确弹出toast「模型选择待接入」（不再白屏报错），截图确认toast显示
+- Compose差异：Compose有ModelListSheet真实选择弹窗+7槽位(含压缩模型)，Kuikly为6槽位toast占位，记入P3
+
+### SettingModelPromptPage 提示词模板页 [P0✅ P1✅ P2⚠️]
+- 5个提示词项全部点击验证，每项Click日志标题**互不相同、与对应项精确匹配**——彻底验证此前修复的mapIndexed bug（不再是"点哪个都是索引0"）
+- Compose差异：Compose有ModalBottomSheet编辑器+恢复默认按钮，Kuikly仅设置editingIndex无UI消费，记入P3
+
+### SettingProviderPage 供应商列表页 [P0✅ P1✅ P2⚠️]
+- Render断言正确，6个供应商(OpenAI/Anthropic/Google/DeepSeek/OpenRouter/硅基流动)渲染+点击跳转详情页均验证通过
+
+### SettingProviderDetailPage 供应商详情页 [P0✅ P1✅ P2⚠️]
+- 7个交互项全部验证：API Base URL/API密钥/测试连通性/4个模型项，每项Click日志+Module-Call toast消息均正确（"编辑Base URL（待接入）"等具体上下文文案）
+- Compose差异：详情页未传providerId参数（NavBar标题固定"供应商详情"非供应商名），Compose有完整CRUD+连通性测试+分享，Kuikly全部toast占位，记入P3
+
+**本轮无新增Bug**，B3修复（6模型槽位toast）在全部场景验证生效。
+
 ## 待处理（P3，不在本轮修复范围）
 
 详见子代理已完成的 5 份差异分析报告（设置系合计 224 测试点），核心共性问题：
@@ -81,4 +101,4 @@
 
 ## 下一步
 
-继续小组C（模型供应商4页：SettingModelPage双Tab+6槽位/ModelPromptPage/ProviderPage/ProviderDetailPage）。
+继续小组D（搜索语音5页：Search/SearchDetail/Speech/TTSConfigure/Mcp卡片点击toast+跳转验证）。
