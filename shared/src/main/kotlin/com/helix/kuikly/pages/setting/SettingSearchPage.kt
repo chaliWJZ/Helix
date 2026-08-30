@@ -10,8 +10,12 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.components.ui.EditSheet
 import com.helix.kuikly.components.ui.EmptyView
 import com.helix.kuikly.components.ui.NavBar
+import com.helix.kuikly.components.ui.NavBarAction
+import com.helix.kuikly.components.ui.OptionSheet
+import com.helix.kuikly.components.ui.SheetOption
 import com.helix.kuikly.components.ui.safeRun
 import com.helix.kuikly.pager.HelixBasePage
 import com.helix.kuikly.theme.HelixTheme
@@ -38,6 +42,11 @@ internal data class SearchSvcItem(
 internal class SettingSearchPage : HelixBasePage() {
 
     private val services by observableList<SearchSvcItem>()
+    private var addSheetVisible by observable(false)
+    private var actionSheetVisible by observable(false)
+    private var actionTargetId by observable("")
+    private var actionTargetName by observable("")
+    private var keyEditVisible by observable(false)
 
     override fun pageDidAppear() {
         super.pageDidAppear()
@@ -95,7 +104,15 @@ internal class SettingSearchPage : HelixBasePage() {
                     flex(1f)
                     backgroundColor(HelixTheme.current.background)
                 }
-                NavBar(title = "搜索服务", showBack = true, onBack = { ctx.closePage() })
+                NavBar(
+                    title = "搜索服务",
+                    showBack = true,
+                    onBack = { ctx.closePage() },
+                    rightActions = listOf(NavBarAction("添加") {
+                        KLog.i(UI_LOG, "👆 [Click] $TAG 添加搜索服务")
+                        ctx.addSheetVisible = true
+                    })
+                )
                 Scroller {
                     attr {
                         flex(1f)
@@ -122,7 +139,12 @@ internal class SettingSearchPage : HelixBasePage() {
                             }
                             event {
                                 click {
-                                    safeRun("$TAG 服务项[${item.name}]") { ctx.select(item) }
+                                    safeRun("$TAG 服务项[${item.name}]") {
+                                        KLog.i(UI_LOG, "👆 [Click] $TAG 服务项 [${item.name}]")
+                                        ctx.actionTargetId = item.id
+                                        ctx.actionTargetName = item.name
+                                        ctx.actionSheetVisible = true
+                                    }
                                 }
                             }
                             View {
@@ -163,6 +185,83 @@ internal class SettingSearchPage : HelixBasePage() {
                         }
                     }
                 }
+
+                // ===== 添加弹层 =====
+                OptionSheet(
+                    visible = { ctx.addSheetVisible },
+                    title = "添加搜索服务",
+                    options = listOf(
+                        SheetOption("zhipu", "智谱搜索", "需要 API Key"),
+                        SheetOption("tavily", "Tavily", "需要 API Key"),
+                        SheetOption("exa", "Exa", "需要 API Key"),
+                        SheetOption("doubao", "豆包搜索", "需要 API Key"),
+                        SheetOption("bing_local", "Bing 本地", "无需 Key"),
+                        SheetOption("searxng", "SearXNG", "自建实例")
+                    ),
+                    currentValue = "",
+                    onSelect = { o ->
+                        ctx.addSheetVisible = false
+                        KLog.i(UI_LOG, "👆 [Click] $TAG 添加搜索 ${o.label}")
+                        ctx.bridge().addSearchService(o.value) { json ->
+                            safeRun("$TAG addSearchService") {
+                                if (json?.optBoolean("ok") == true) {
+                                    ctx.bridge().toast("已添加 ${o.label}，点击列表项配置")
+                                    ctx.load()
+                                }
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.addSheetVisible = false }
+                )
+
+                // ===== 项操作弹层 =====
+                OptionSheet(
+                    visible = { ctx.actionSheetVisible },
+                    title = "「${ctx.actionTargetName}」操作",
+                    options = listOf(
+                        SheetOption("select", "设为当前使用"),
+                        SheetOption("key", "编辑 API Key"),
+                        SheetOption("delete", "删除", "不可恢复")
+                    ),
+                    currentValue = "",
+                    onSelect = { o ->
+                        ctx.actionSheetVisible = false
+                        when (o.value) {
+                            "select" -> {
+                                ctx.services.firstOrNull { it.id == ctx.actionTargetId }?.let { ctx.select(it) }
+                            }
+                            "key" -> ctx.keyEditVisible = true
+                            "delete" -> {
+                                ctx.bridge().deleteSearchService(ctx.actionTargetId) { json ->
+                                    safeRun("$TAG deleteSearchService") {
+                                        if (json?.optBoolean("ok") == true) ctx.load()
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.actionSheetVisible = false }
+                )
+
+                // ===== API Key 编辑弹层 =====
+                EditSheet(
+                    visible = { ctx.keyEditVisible },
+                    title = "编辑 API Key（${ctx.actionTargetName}）",
+                    label = "API Key",
+                    initialValue = "",
+                    onSave = { v: String ->
+                        ctx.keyEditVisible = false
+                        ctx.bridge().updateSearchApiKey(ctx.actionTargetId, v) { json ->
+                            safeRun("$TAG updateSearchApiKey") {
+                                if (json?.optBoolean("ok") == true) {
+                                    ctx.bridge().toast("已保存")
+                                    ctx.load()
+                                } else ctx.bridge().toast("该服务无需 Key")
+                            }
+                        }
+                    },
+                    onDismiss = { ctx.keyEditVisible = false }
+                )
             }
         }
     }

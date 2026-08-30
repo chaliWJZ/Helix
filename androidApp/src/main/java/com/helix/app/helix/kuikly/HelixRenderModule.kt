@@ -1304,6 +1304,80 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 搜索服务扩展（批次F） ====================
+            METHOD_ADD_SEARCH_SERVICE -> {
+                val type = json?.optString("type") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        val svc: SearchServiceOptions = when (type) {
+                            "zhipu" -> SearchServiceOptions.ZhipuOptions()
+                            "tavily" -> SearchServiceOptions.TavilyOptions()
+                            "exa" -> SearchServiceOptions.ExaOptions()
+                            "doubao" -> SearchServiceOptions.DoubaoOptions()
+                            "bing_local" -> SearchServiceOptions.BingLocalOptions()
+                            "searxng" -> SearchServiceOptions.SearXNGOptions()
+                            else -> SearchServiceOptions.ZhipuOptions()
+                        }
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(searchServices = s.searchServices + svc)
+                        }
+                        Log.i(TAG, "✅ [Module-Done] addSearchService $type")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] addSearchService: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_UPDATE_SEARCH_API_KEY -> {
+                val id = json?.optString("id") ?: ""
+                val apiKey = json?.optString("apiKey") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        var updated = false
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(searchServices = s.searchServices.map { svc ->
+                                if (svc.id.toString() == id) {
+                                    updated = true
+                                    when (svc) {
+                                        is SearchServiceOptions.ZhipuOptions -> svc.copy(apiKey = apiKey)
+                                        is SearchServiceOptions.TavilyOptions -> svc.copy(apiKey = apiKey)
+                                        is SearchServiceOptions.ExaOptions -> svc.copy(apiKey = apiKey)
+                                        is SearchServiceOptions.DoubaoOptions -> svc.copy(apiKey = apiKey)
+                                        else -> svc
+                                    }
+                                } else svc
+                            })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] updateSearchApiKey id=$id found=$updated")
+                        callback?.invoke(JSONObject().apply { put("ok", updated) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] updateSearchApiKey: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            METHOD_DELETE_SEARCH_SERVICE -> {
+                val id = json?.optString("id") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(searchServices = s.searchServices.filterNot { it.id.toString() == id })
+                        }
+                        Log.i(TAG, "✅ [Module-Done] deleteSearchService id=$id")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] deleteSearchService: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1635,6 +1709,9 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_SET_LOREBOOK_ENABLED = "setLorebookEnabled"
         const val METHOD_GET_ASSISTANT_DETAIL = "getAssistantDetail"
         const val METHOD_UPDATE_ASSISTANT = "updateAssistant"
+        const val METHOD_ADD_SEARCH_SERVICE = "addSearchService"
+        const val METHOD_UPDATE_SEARCH_API_KEY = "updateSearchApiKey"
+        const val METHOD_DELETE_SEARCH_SERVICE = "deleteSearchService"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

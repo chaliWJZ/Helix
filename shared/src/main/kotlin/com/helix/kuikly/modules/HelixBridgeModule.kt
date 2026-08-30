@@ -307,6 +307,28 @@ class HelixBridgeModule : Module() {
         callNative(METHOD_SET_SEARCH_SELECTED, JSONObject().apply { put("index", index) }, callback)
     }
 
+    /** 添加搜索服务 */
+    fun addSearchService(type: String, callback: CallbackFn?) {
+        callNative(METHOD_ADD_SEARCH_SERVICE, JSONObject().apply { put("type", type) }, callback)
+    }
+
+    /** 编辑搜索服务 API Key */
+    fun updateSearchApiKey(id: String, apiKey: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_UPDATE_SEARCH_API_KEY,
+            JSONObject().apply {
+                put("id", id)
+                put("apiKey", apiKey)
+            },
+            callback
+        )
+    }
+
+    /** 删除搜索服务 */
+    fun deleteSearchService(id: String, callback: CallbackFn?) {
+        callNative(METHOD_DELETE_SEARCH_SERVICE, JSONObject().apply { put("id", id) }, callback)
+    }
+
     // ==================== TTS（真实数据） ====================
 
     /** TTS 供应商列表。返回：{providers:[{id,name,type,isDefault}]} */
@@ -654,6 +676,9 @@ class HelixBridgeModule : Module() {
         const val METHOD_SET_LOREBOOK_ENABLED = "setLorebookEnabled"
         const val METHOD_GET_ASSISTANT_DETAIL = "getAssistantDetail"
         const val METHOD_UPDATE_ASSISTANT = "updateAssistant"
+        const val METHOD_ADD_SEARCH_SERVICE = "addSearchService"
+        const val METHOD_UPDATE_SEARCH_API_KEY = "updateSearchApiKey"
+        const val METHOD_DELETE_SEARCH_SERVICE = "deleteSearchService"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
