@@ -10,6 +10,7 @@ import android.widget.Toast
 import com.helix.app.AppScope
 import com.helix.app.common.android.LogEntry
 import com.helix.app.common.android.Logging
+import com.helix.app.data.datastore.RECOMMENDED_PROVIDERS
 import com.helix.app.data.datastore.SettingsStore
 import com.helix.app.data.ai.mcp.McpServerConfig
 import com.helix.app.data.ai.mcp.serverUrl
@@ -813,6 +814,119 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
                 null
             }
 
+            // ==================== 供应商列表扩展（批次B） ====================
+            METHOD_GET_RECOMMENDED_PROVIDERS -> {
+                val result = JSONArray().apply {
+                    RECOMMENDED_PROVIDERS.forEach { p ->
+                        put(JSONObject().apply {
+                            put("id", p.id.toString())
+                            put("name", p.name)
+                            put("type", providerTypeName(p))
+                            put("baseUrl", providerCredentials(p).first)
+                            put("added", false) // 由 Kuikly 侧对照已有列表标记
+                        })
+                    }
+                }
+                Log.i(TAG, "✅ [Module-Done] getRecommendedProviders count=${RECOMMENDED_PROVIDERS.size}")
+                callback?.invoke(JSONObject().apply { put("recommended", result) })
+                null
+            }
+
+            // 一键添加推荐供应商
+            METHOD_ADD_RECOMMENDED_PROVIDER -> {
+                val recId = json?.optString("recId") ?: ""
+                val rec = RECOMMENDED_PROVIDERS.firstOrNull { it.id.toString() == recId }
+                if (rec == null) {
+                    callback?.invoke(JSONObject().apply { put("error", "not_found") })
+                    null
+                } else {
+                    koinGet<AppScope>().launch {
+                        try {
+                            koinGet<SettingsStore>().update { s ->
+                                if (s.providers.any { it.id == rec.id }) s
+                                else s.copy(providers = s.providers + rec)
+                            }
+                            Log.i(TAG, "✅ [Module-Done] addRecommendedProvider ${rec.name}")
+                            callback?.invoke(JSONObject().apply { put("ok", true) })
+                        } catch (e: Exception) {
+                            Log.e(TAG, "⚠ [Error] addRecommendedProvider: ${e.message}")
+                            callback?.invoke(JSONObject().apply { put("error", e.message) })
+                        }
+                    }
+                    null
+                }
+            }
+
+            // 自定义添加供应商
+            METHOD_ADD_CUSTOM_PROVIDER -> {
+                val name = json?.optString("name") ?: ""
+                val type = json?.optString("type") ?: "openai"
+                val baseUrl = json?.optString("baseUrl") ?: ""
+                val apiKey = json?.optString("apiKey") ?: ""
+                koinGet<AppScope>().launch {
+                    try {
+                        val p = when (type) {
+                            "openai" -> ProviderSetting.OpenAI(
+                                name = name.ifEmpty { "OpenAI" },
+                                baseUrl = baseUrl.ifEmpty { ProviderSetting.OpenAI().baseUrl },
+                                apiKey = apiKey
+                            )
+                            "google" -> ProviderSetting.Google(
+                                name = name.ifEmpty { "Google" },
+                                baseUrl = baseUrl.ifEmpty { ProviderSetting.Google().baseUrl },
+                                apiKey = apiKey
+                            )
+                            "claude" -> ProviderSetting.Claude(
+                                name = name.ifEmpty { "Claude" },
+                                baseUrl = baseUrl.ifEmpty { ProviderSetting.Claude().baseUrl },
+                                apiKey = apiKey
+                            )
+                            else -> null
+                        }
+                        if (p == null) {
+                            callback?.invoke(JSONObject().apply { put("error", "bad_type") })
+                            return@launch
+                        }
+                        koinGet<SettingsStore>().update { s ->
+                            s.copy(providers = s.providers + p)
+                        }
+                        Log.i(TAG, "✅ [Module-Done] addCustomProvider ${p.name} type=$type")
+                        callback?.invoke(JSONObject().apply {
+                            put("ok", true)
+                            put("id", p.id.toString())
+                        })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] addCustomProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
+            // 供应商排序（上移/下移）
+            METHOD_MOVE_PROVIDER -> {
+                val from = json?.optInt("from", -1) ?: -1
+                val to = json?.optInt("to", -1) ?: -1
+                koinGet<AppScope>().launch {
+                    try {
+                        koinGet<SettingsStore>().update { s ->
+                            if (from in s.providers.indices && to in s.providers.indices) {
+                                s.copy(providers = s.providers.toMutableList().apply {
+                                    val p = removeAt(from)
+                                    add(to, p)
+                                })
+                            } else s
+                        }
+                        Log.i(TAG, "✅ [Module-Done] moveProvider $from→$to")
+                        callback?.invoke(JSONObject().apply { put("ok", true) })
+                    } catch (e: Exception) {
+                        Log.e(TAG, "⚠ [Error] moveProvider: ${e.message}")
+                        callback?.invoke(JSONObject().apply { put("error", e.message) })
+                    }
+                }
+                null
+            }
+
             METHOD_GET_LOGS -> {
                 val result = buildLogsJson()
                 Log.i(TAG, "✅ [Module-Done] getLogs count=${result.optJSONArray("logs")?.length() ?: 0} enabled=${result.optBoolean("enabled")}")
@@ -1084,6 +1198,10 @@ class HelixRenderModule : KuiklyRenderBaseModule() {
         const val METHOD_SHARE_PROVIDER_CONFIG = "shareProviderConfig"
         const val METHOD_GET_PROVIDER_BALANCE = "getProviderBalance"
         const val METHOD_SWITCH_PROVIDER_TYPE = "switchProviderType"
+        const val METHOD_GET_RECOMMENDED_PROVIDERS = "getRecommendedProviders"
+        const val METHOD_ADD_RECOMMENDED_PROVIDER = "addRecommendedProvider"
+        const val METHOD_ADD_CUSTOM_PROVIDER = "addCustomProvider"
+        const val METHOD_MOVE_PROVIDER = "moveProvider"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"

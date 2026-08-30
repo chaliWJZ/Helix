@@ -259,6 +259,42 @@ class HelixBridgeModule : Module() {
         )
     }
 
+    /** 推荐供应商列表。返回：{recommended:[{id,name,type,baseUrl}]} */
+    fun getRecommendedProviders(callback: CallbackFn?) {
+        callNative(METHOD_GET_RECOMMENDED_PROVIDERS, null, callback)
+    }
+
+    /** 一键添加推荐供应商 */
+    fun addRecommendedProvider(recId: String, callback: CallbackFn?) {
+        callNative(METHOD_ADD_RECOMMENDED_PROVIDER, JSONObject().apply { put("recId", recId) }, callback)
+    }
+
+    /** 自定义添加供应商。返回：{ok, id} */
+    fun addCustomProvider(name: String, type: String, baseUrl: String, apiKey: String, callback: CallbackFn?) {
+        callNative(
+            METHOD_ADD_CUSTOM_PROVIDER,
+            JSONObject().apply {
+                put("name", name)
+                put("type", type)
+                put("baseUrl", baseUrl)
+                put("apiKey", apiKey)
+            },
+            callback
+        )
+    }
+
+    /** 供应商排序（上移/下移） */
+    fun moveProvider(from: Int, to: Int, callback: CallbackFn?) {
+        callNative(
+            METHOD_MOVE_PROVIDER,
+            JSONObject().apply {
+                put("from", from)
+                put("to", to)
+            },
+            callback
+        )
+    }
+
     // ==================== 搜索服务（真实数据） ====================
 
     /** 搜索服务列表。返回：{selected:index, services:[{id,name,type,hasApiKey}]} */
@@ -472,6 +508,10 @@ class HelixBridgeModule : Module() {
         const val METHOD_SHARE_PROVIDER_CONFIG = "shareProviderConfig"
         const val METHOD_GET_PROVIDER_BALANCE = "getProviderBalance"
         const val METHOD_SWITCH_PROVIDER_TYPE = "switchProviderType"
+        const val METHOD_GET_RECOMMENDED_PROVIDERS = "getRecommendedProviders"
+        const val METHOD_ADD_RECOMMENDED_PROVIDER = "addRecommendedProvider"
+        const val METHOD_ADD_CUSTOM_PROVIDER = "addCustomProvider"
+        const val METHOD_MOVE_PROVIDER = "moveProvider"
         const val METHOD_GET_SEARCH_SERVICES = "getSearchServices"
         const val METHOD_SET_SEARCH_SELECTED = "setSearchSelected"
         const val METHOD_GET_TTS_PROVIDERS = "getTtsProviders"
