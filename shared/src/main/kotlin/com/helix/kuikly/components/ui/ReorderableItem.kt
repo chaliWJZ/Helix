@@ -1,26 +1,21 @@
 package com.helix.kuikly.components.ui
 
-import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.directives.vif
 import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
+import com.helix.kuikly.theme.HelixTheme
 
 /**
- * 可拖拽排序列表项容器（对齐 Compose 的 ReorderableItem + longPressDraggableHandle）
+ * 可拖拽排序列表项容器（对齐 Compose ReorderableItem + longPressDraggableHandle）
  *
- * 工作方式（Kuikly 无原生 Reorderable 库，pan 手势状态机自实现）：
- * - 右侧拖动手柄（⋮⋮），pan state==start → 触觉(50ms) + 进入拖动模式（回调 onDragStart）
- * - state==move → 回调 onDragMove(pageY)（页面层显示浮动预览跟随手指）
- * - state==end → 回调 onDragEnd()（页面层计算目标行 → 桥落位 → 触觉(30ms)）
- * - 拖动中此项变半透明占位（opacity 0.3），其余视觉由页面层控制
- *
- * 用法：页面维护 dragIndex(-1=非拖动)/dragLabel/dragPageY 三个 observable，
- * onDragEnd 里 delta 行数 = (dragPageY - startPageY) / rowHeight，调 move 桥。
+ * 官方响应式姿势（DevGuide/reactive-update.md）：
+ * - isDragging 传 getter，attr 内调用 → dragIndex 变化时该项 opacity 自动更新
+ * - 拖动中原位项 opacity 0（让出视觉空位），浮层由 DragPreview 承担
  */
 fun ViewContainer<*, *>.ReorderableItem(
-    isDragging: Boolean,
+    isDragging: () -> Boolean,
     onDragStart: (pageY: Float) -> Unit,
     onDragMove: (pageY: Float) -> Unit,
     onDragEnd: () -> Unit,
@@ -31,13 +26,12 @@ fun ViewContainer<*, *>.ReorderableItem(
         attr {
             flexDirectionRow()
             alignItemsCenter()
+            // attr 内调用 getter 读响应式字段 → 自动更新（官方 reactive-update 机制）
+            opacity(if (isDragging()) 0f else 1f)
         }
-        // 主内容（拖动中半透明占位，对应 Compose scale(0.95) + 原位虚影）
+        // 卡片主体
         View {
-            attr {
-                flex(1f)
-                opacity(if (isDragging) 0.3f else 1f)
-            }
+            attr { flex(1f) }
             content()
         }
         // 拖动手柄（对齐 Compose IconButton + longPressDraggableHandle）
@@ -69,7 +63,7 @@ fun ViewContainer<*, *>.ReorderableItem(
                 attr {
                     text("⋮⋮")
                     fontSize(16f)
-                    color(com.helix.kuikly.theme.HelixTheme.current.onSurfaceVariant)
+                    color(HelixTheme.current.onSurfaceVariant)
                 }
             }
         }
@@ -77,31 +71,64 @@ fun ViewContainer<*, *>.ReorderableItem(
 }
 
 /**
- * 拖动浮动预览（页面根层调用，positionAbsolute 跟随手指）
- * 对齐 Compose 拖动时 item scale(0.95) 浮起效果
+ * 拖动浮动预览（页面根层调用）——**实时跟手**。
+ *
+ * 官方响应式机制：pageY 传 getter，attr 内调用 → dragPageY 更新时 top 自动更新。
+ * 对齐 Compose 拖动时整卡浮起跟随手指。
  */
 fun ViewContainer<*, *>.DragPreview(
-    visible: Boolean,
-    label: String,
-    pageY: Float
+    visible: () -> Boolean,
+    name: () -> String,
+    enabled: () -> Boolean,
+    modelCount: () -> Int,
+    type: () -> String,
+    pageY: () -> Float
 ) {
-    vif({ visible }) {
+    vif({ visible() }) {
         View {
             attr {
                 positionAbsolute()
                 left(16f)
                 right(16f)
-                top(pageY - 50f)
+                // attr 内调用 getter → 实时跟手（官方 reactive-update）
+                top(pageY() - 60f)
                 padding(12f)
                 borderRadius(12f)
-                backgroundColor(com.helix.kuikly.theme.HelixTheme.current.primary)
+                backgroundColor(HelixTheme.current.primary)
             }
-            Text {
+            View {
                 attr {
-                    text(label)
-                    fontSize(15f)
-                    fontWeight700()
-                    color(com.helix.kuikly.theme.HelixTheme.current.onPrimary)
+                    flexDirectionRow()
+                    alignItemsCenter()
+                }
+                Text {
+                    attr {
+                        text(if (type() == "openai") "🤖" else if (type() == "google") "🔵" else "🟠")
+                        fontSize(22f)
+                        marginRight(10f)
+                    }
+                }
+                View {
+                    attr { flex(1f) }
+                    Text {
+                        attr {
+                            text(name())
+                            fontSize(15f)
+                            fontWeight700()
+                            color(HelixTheme.current.onPrimary)
+                        }
+                    }
+                    Text {
+                        attr {
+                            text(
+                                (if (enabled()) "已启用" else "已禁用") +
+                                    " · ${modelCount()} 个模型 · ${type()} · 拖动中…"
+                            )
+                            fontSize(11f)
+                            color(HelixTheme.current.onPrimary)
+                            marginTop(2f)
+                        }
+                    }
                 }
             }
         }
