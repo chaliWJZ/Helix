@@ -1,8 +1,5 @@
 package com.helix.app.di
 
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
-import com.google.firebase.crashlytics.crashlytics
 import kotlinx.serialization.json.Json
 import com.helix.app.AppScope
 import com.helix.app.data.ai.tools.local.LocalTools
@@ -46,14 +43,6 @@ val appModule = module {
 
     single {
         TTSManager(get())
-    }
-
-    single {
-        Firebase.crashlytics
-    }
-
-    single {
-        Firebase.analytics
     }
 
     single {
